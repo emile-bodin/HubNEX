@@ -1,7 +1,7 @@
 # Ready-made images of the add-on, one per architecture, so Home Assistant downloads HubNEX
 # instead of building it. They are published on GitHub Packages (ghcr.io) when the version in
 # hubnex/config.yaml changes, or by hand from the Actions tab.
-name: Immagini
+name: Build add-on images
 
 on:
   push:
@@ -16,7 +16,7 @@ permissions:
 
 jobs:
   version:
-    name: Versione
+    name: Read version
     runs-on: ubuntu-latest
     outputs:
       version: ${{ steps.v.outputs.version }}
@@ -28,7 +28,7 @@ jobs:
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
   image:
-    name: Immagine ${{ matrix.arch }}
+    name: Build image ${{ matrix.arch }}
     needs: version
     runs-on: ubuntu-latest
     strategy:
@@ -47,7 +47,7 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Nome dell'immagine
+      - name: Set image name
         id: name
         run: echo "image=ghcr.io/$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')/${{ matrix.arch }}-addon-hubnex" >> "$GITHUB_OUTPUT"
       - uses: docker/build-push-action@v6

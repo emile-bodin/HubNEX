@@ -1,5 +1,5 @@
 # Checks every change: the add-on's tests, the dashboard's scripts and the add-on manifest.
-name: Controlli
+name: Checks
 
 on:
   push:
@@ -12,7 +12,7 @@ permissions:
 
 jobs:
   test:
-    name: Test dell'add-on
+    name: Add-on tests
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -26,22 +26,22 @@ jobs:
           cache-dependency-path: hubnex/requirements*.txt
       - run: pip install -r requirements-dev.txt
       - run: python -m pytest -q
-      - name: Integrazione Assist (sintassi)
+      - name: Check Assist integration syntax
         run: python -m compileall -q integration/hubnex
 
   dashboard:
-    name: Script della dashboard
+    name: Dashboard scripts
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
       - uses: actions/setup-node@v4
         with:
           node-version: "22"
-      - name: Sintassi dei moduli
+      - name: Check module syntax
         run: for f in hubnex/web/*.js; do node --check "$f" || exit 1; done
 
   ui:
-    name: Dashboard nel browser
+    name: Dashboard browser tests
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -59,11 +59,11 @@ jobs:
           node-version: "22"
       - run: npm install --prefix tests/ui --no-audit --no-fund
       - run: npx --prefix tests/ui playwright install --with-deps chromium
-      - name: Test nel browser (demo con casa e Claude finti)
+      - name: Browser tests (demo home and fake Claude)
         run: node --test --test-reporter=spec tests/ui/*.test.cjs
 
   addon:
-    name: Manifesto dell'add-on
+    name: Add-on manifest
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
