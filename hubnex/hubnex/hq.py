@@ -5,6 +5,7 @@ from __future__ import annotations
 import asyncio
 import calendar
 import logging
+import os
 import re
 import time
 from dataclasses import asdict, dataclass, field
@@ -117,7 +118,10 @@ class HQ:
         self.org = org
         self.store = store
         # Claude by default; models written as openai:…, ollama:…, compat:… go to that provider.
-        self.client = ProviderRouter(client or anthropic.AsyncAnthropic(), settings)
+        key = os.environ.get("ANTHROPIC_API_KEY")
+        self.client = ProviderRouter(client or anthropic.AsyncAnthropic(
+            api_key=key or ("subscription-cli-only" if settings.claude_auth_mode != "api_key" else None)
+        ), settings)
         self.tz = ZoneInfo(settings.timezone)
         self.ha = HomeAssistant(settings.ha_url, settings.ha_token, settings.ha_blocked_services)
         self.watcher = HAWatcher(settings.ha_url, settings.ha_token, self._ha_event)
@@ -337,9 +341,10 @@ class HQ:
         tokens_out = usage.output_tokens or 0
         self.tokens["input"] += tokens_in
         self.tokens["output"] += tokens_out
-        cost = call_cost(model, usage, (self.settings.other_price_input, self.settings.other_price_output))
+        cost = 0.0 if getattr(usage, "subscription", False) else call_cost(
+            model, usage, (self.settings.other_price_input, self.settings.other_price_output))
         await self.store.usage_add(self.now().strftime("%Y-%m-%d"), agent_id, model, tokens_in, tokens_out, cost)
-        if not is_claude(model):  # the Anthropic credit counts down Claude's calls only
+        if not is_claude(model) or getattr(usage, "subscription", False):  # subscription calls use no API credit
             await self._check_budget()
             return
         spent = await self.store.get("credit_spent_usd", 0.0) + cost

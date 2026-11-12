@@ -29,6 +29,9 @@ def _load_dotenv(path: str = ".env") -> None:
 # Option names match the original Jarvis add-on, so its configuration can be copied over.
 ADDON_OPTIONS = {
     "anthropic_api_key": "ANTHROPIC_API_KEY",
+    "claude_auth_mode": "HUBNEX_CLAUDE_AUTH_MODE",
+    "claude_subscription_enabled": "HUBNEX_CLAUDE_SUBSCRIPTION_ENABLED",
+    "claude_api_fallback": "HUBNEX_CLAUDE_API_FALLBACK",
     "openai_api_key": "OPENAI_API_KEY",
     "openai_base_url": "OPENAI_BASE_URL",
     "ollama_url": "OLLAMA_URL",
@@ -155,6 +158,9 @@ class MailSettings:
 
 @dataclass
 class Settings:
+    claude_auth_mode: str = "api_key"  # api_key | subscription | hybrid
+    claude_subscription_enabled: bool = False
+    claude_api_fallback: bool = False
     model: str = DEFAULT_MODEL  # Jarvis and every agent without its own model
     model_mail: str = DEFAULT_MAIL_MODEL  # the mail agent
     model_voice: str = DEFAULT_VOICE_MODEL  # Jarvis answering Assist (voice commands)
@@ -204,7 +210,13 @@ class Settings:
         addon = _load_addon_options()
         _load_dotenv()
         e = os.environ.get
+        mode = (e("HUBNEX_CLAUDE_AUTH_MODE") or "api_key").strip().lower()
+        if mode not in {"api_key", "subscription", "hybrid"}:
+            raise ValueError("HUBNEX_CLAUDE_AUTH_MODE must be api_key, subscription, or hybrid")
         return cls(
+            claude_auth_mode=mode,
+            claude_subscription_enabled=_bool(e("HUBNEX_CLAUDE_SUBSCRIPTION_ENABLED")),
+            claude_api_fallback=_bool(e("HUBNEX_CLAUDE_API_FALLBACK")),
             model=e("HUBNEX_MODEL") or DEFAULT_MODEL,
             model_mail=e("HUBNEX_MODEL_MAIL") or DEFAULT_MAIL_MODEL,
             model_voice=e("HUBNEX_MODEL_VOICE") or DEFAULT_VOICE_MODEL,

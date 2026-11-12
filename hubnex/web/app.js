@@ -478,6 +478,48 @@ $("ha-prefs").addEventListener("click", () => {
 $("prefs-close").addEventListener("click", () => { $("prefs").classList.add("hidden"); $("ha-prefs").setAttribute("aria-expanded", "false"); });
 $("pref-costs").addEventListener("click", () => { $("prefs-close").click(); costs.open(); });
 $("pref-alerts").addEventListener("click", () => { $("prefs-close").click(); alerts.open(); });
+async function loadClaudeAuth() {
+  const note = $("pref-claude-status");
+  note.textContent = t("Verifico l'accesso Claude…");
+  try {
+    const data = await (await api("/api/claude/auth")).json();
+    $("pref-claude-login").classList.toggle("hidden", data.mode === "api_key" || !data.subscription_enabled);
+    const mode = { api_key: t("Chiave API"), subscription: t("Abbonamento"), hybrid: t("Abbonamento con riserva API") }[data.mode] || data.mode;
+    const state = {
+      ready: t("Collegato"), signed_out: t("Non collegato"), wrong_account: t("Account API, non abbonamento"),
+      unavailable: t("Claude Code non disponibile"), off: t("Spento"),
+    }[data.subscription.status] || data.subscription.status;
+    note.textContent = `${mode} · ${state} · ${t("Chiave API")}: ${data.api_key_available ? t("presente") : t("assente")}`
+      + (data.api_fallback ? ` · ${t("Riserva API attiva")}` : "")
+      + (data.last_error ? ` · ${data.last_error}` : "")
+      + (data.subscription.status === "signed_out" ? ` · ${t("Accedi nel terminale dell'add-on con claude auth login")}` : "");
+  } catch (err) { note.textContent = `⚠ ${errorText(err)}`; }
+}
+$("pref-claude-refresh").addEventListener("click", loadClaudeAuth);
+$("ha-prefs").addEventListener("click", () => { if (!$("prefs").classList.contains("hidden")) loadClaudeAuth(); });
+let claudeLoginTimer;
+async function pollClaudeLogin() {
+  try {
+    const data = await (await api("/api/claude/login")).json();
+    $("pref-claude-output").textContent = data.output;
+    if (data.running) claudeLoginTimer = setTimeout(pollClaudeLogin, 1200);
+    else loadClaudeAuth();
+  } catch (err) { $("pref-claude-output").textContent = `⚠ ${errorText(err)}`; }
+}
+$("pref-claude-start").addEventListener("click", async () => {
+  clearTimeout(claudeLoginTimer);
+  try {
+    await api("/api/claude/login", { method: "POST" });
+    pollClaudeLogin();
+  } catch (err) { $("pref-claude-output").textContent = `⚠ ${errorText(err)}`; }
+});
+$("pref-claude-send").addEventListener("click", async () => {
+  const input = $("pref-claude-code");
+  try {
+    await api("/api/claude/login/code", { method: "POST", body: JSON.stringify({ code: input.value }) });
+    input.value = "";
+  } catch (err) { $("pref-claude-output").textContent = `⚠ ${errorText(err)}`; }
+});
 
 // Backup and restore (administrators only; the add-on checks it too).
 $("backup-get").addEventListener("click", async () => {

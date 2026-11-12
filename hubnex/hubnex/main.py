@@ -348,6 +348,10 @@ def create_app(settings: Settings | None = None, hq: HQ | None = None, start_wor
             w.cancel()
         if start_workers and hq.team_enabled:
             await hq.team.stop()
+        login = claude_login["process"]
+        if login and login.returncode is None:
+            login.terminate()
+            await login.wait()
         await hq.close()
 
     app = FastAPI(title="HubNEX", lifespan=lifespan)
@@ -418,6 +422,79 @@ def create_app(settings: Settings | None = None, hq: HQ | None = None, start_wor
     @app.get("/api/ping", dependencies=[Depends(auth)])
     async def ping(hq: HQ = Depends(get_hq)):
         return {"name": hq.org.boss_name}
+
+    @app.get("/api/claude/auth", dependencies=[Depends(full)])
+    async def claude_auth(hq: HQ = Depends(get_hq)):
+        from hubnex.claude_code import auth_status
+
+        status = await auth_status() if settings.claude_auth_mode != "api_key" else {"status": "off", "detail": ""}
+        return {"mode": settings.claude_auth_mode, "subscription_enabled": settings.claude_subscription_enabled,
+                "api_key_available": bool(os.environ.get("ANTHROPIC_API_KEY")),
+                "api_fallback": settings.claude_auth_mode == "hybrid" and settings.claude_api_fallback,
+                "subscription": status, "last_error": hq.client.claude_error}
+
+    claude_login: dict = {"process": None, "output": "", "task": None}
+
+    async def read_claude_login(master: int, process):
+        try:
+            while True:
+                try:
+                    chunk = await asyncio.to_thread(os.read, master, 4096)
+                except OSError:
+                    break
+                if not chunk:
+                    break
+                # The CLI owns authentication; keep only its terminal instructions in memory.
+                import re
+                clean = re.sub(r"\x1b\[[0-9;]*[A-Za-z]", "", chunk.decode(errors="replace"))
+                claude_login["output"] = (claude_login["output"] + clean)[-6000:]
+            await process.wait()
+        finally:
+            os.close(master)
+
+    @app.post("/api/claude/login", dependencies=[Depends(full)])
+    async def claude_login_start():
+        if settings.claude_auth_mode == "api_key" or not settings.claude_subscription_enabled:
+            raise HTTPException(400, "Abbonamento Claude non attivato")
+        if claude_login["process"] and claude_login["process"].returncode is None:
+            return {"running": True, "output": claude_login["output"]}
+        from hubnex.claude_code import cli_env
+        import pty
+        import shutil
+        import termios
+
+        binary = shutil.which("claude")
+        if not binary:
+            raise HTTPException(503, "Claude Code non installato")
+        master, slave = pty.openpty()
+        attrs = termios.tcgetattr(slave)
+        attrs[3] &= ~termios.ECHO  # never echo a pasted login code into the dashboard
+        termios.tcsetattr(slave, termios.TCSANOW, attrs)
+        try:
+            process = await asyncio.create_subprocess_exec(binary, "auth", "login", stdin=slave,
+                                                            stdout=slave, stderr=slave, env=cli_env())
+        except OSError:
+            os.close(master)
+            raise HTTPException(503, "Impossibile avviare Claude Code")
+        finally:
+            os.close(slave)
+        claude_login.update(process=process, master=master, output="", task=asyncio.create_task(
+            read_claude_login(master, process)))
+        return {"running": True, "output": ""}
+
+    @app.get("/api/claude/login", dependencies=[Depends(full)])
+    async def claude_login_progress():
+        process = claude_login["process"]
+        return {"running": bool(process and process.returncode is None), "output": claude_login["output"]}
+
+    @app.post("/api/claude/login/code", dependencies=[Depends(full)])
+    async def claude_login_code(body: dict):
+        process = claude_login["process"]
+        code = body.get("code")
+        if not process or process.returncode is not None or not isinstance(code, str) or not 1 <= len(code) <= 512:
+            raise HTTPException(400, "Nessun accesso Claude in attesa di un codice")
+        os.write(claude_login["master"], (code.strip() + "\n").encode())
+        return {"running": True}
 
     @app.get("/api/logs", dependencies=[Depends(full)])
     async def logs(before: int | None = None, limit: int = 25, hq: HQ = Depends(get_hq)):

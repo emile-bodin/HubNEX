@@ -66,7 +66,7 @@ export class CostsView {
     if (this.error) body = `<p class="costs-note">${esc(this.error)}</p>`;
     else if (!d) body = `<p class="costs-note">${t("Carico…")}</p>`;
     else body = this.summaryHTML(d) + this.chartHTML(d) + this.breakdownHTML(t("Per agente"), d.by_agent, d.period) + this.breakdownHTML(t("Per modello"), d.by_model, d.period)
-      + `<p class="costs-note">${t("Stima di HubNEX con i prezzi di listino di ogni chiamata. Il conto esatto è su console.anthropic.com.")}</p>`;
+      + `<p class="costs-note">${t("Stima delle chiamate API. Le richieste tramite abbonamento Claude Code non hanno un costo API.")}</p>`;
     this.el.innerHTML = `<section class="panel casa-panel costs">
       <h3>${t("Spesa Claude")}<span class="costs-head"><span class="costs-spans">${spans}</span>
         <button class="casa-x" data-costs-close aria-label="${t("Chiudi")}">×</button></span></h3>

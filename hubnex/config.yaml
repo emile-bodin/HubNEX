@@ -35,6 +35,9 @@ discovery:
   - hubnex
 options:
   anthropic_api_key: ""
+  claude_auth_mode: api_key
+  claude_subscription_enabled: false
+  claude_api_fallback: false
   model_jarvis: claude-sonnet-5-5
   model_mail: claude-haiku-5-5
   model_voice: claude-haiku-5-5
@@ -76,6 +79,9 @@ options:
   non_admin_access: casa
 schema:
   anthropic_api_key: password?
+  claude_auth_mode: list(api_key|subscription|hybrid)
+  claude_subscription_enabled: bool
+  claude_api_fallback: bool
   model_jarvis: str
   model_mail: str
   model_voice: str?

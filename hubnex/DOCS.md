@@ -8,8 +8,14 @@ della casa, il gruppo Telegram, la voce e i connettori per i programmi del tuo l
 
 ## Primo avvio
 
-1. Nella scheda **Configurazione** inserisci almeno la **chiave API Anthropic**
-   (console.anthropic.com → API Keys), avvia l'add-on e attiva **Mostra nella barra laterale**.
+1. In **Configurazione** usa la chiave API Anthropic predefinita oppure la modalità abbonamento personale qui sotto. Avvia l'add-on e attiva **Mostra nella barra laterale**.
+
+### Abbonamento Claude personale (un solo utente)
+
+Imposta `claude_auth_mode` su `subscription`, attiva `claude_subscription_enabled` e riavvia l'add-on. Apri HubNEX → Preferenze → Accesso Claude → **Accedi a Claude**. Apri l'indirizzo mostrato e, se richiesto, incolla il codice nella schermata di HubNEX. L'add-on usa la CLI Claude Code originale di Anthropic e conserva il suo accesso in `/data`; HubNEX non riceve password o cookie del browser. Controlla che lo stato sia **Collegato** prima di usare l'AI.
+
+Per usare la chiave API solo come riserva, scegli `hybrid`, attiva `claude_api_fallback` e inserisci `anthropic_api_key`. La riserva interviene solo se la CLI o il suo accesso non sono disponibili. Le chiamate API hanno una fatturazione separata su Anthropic Console; l'abbonamento ha i limiti d'uso di Claude Code. Il riquadro Spesa conta le chiamate API, non quelle in abbonamento. Questa modalità è destinata a un proprietario che usa il proprio account, non a più utenti di Home Assistant.
+Claude Code mostra l'avanzamento degli agenti, ma la CLI non espone gli stessi riassunti dei pensieri visibili del percorso API diretto.
 2. Apri **HubNEX** dalla barra laterale: vedi il quartier generale con l'assistente e gli agenti.
 3. Scrivigli nella chat in basso. Per la casa usa già Home Assistant: non serve creare token,
    l'add-on accede tramite il Supervisor.

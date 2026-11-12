@@ -14,6 +14,7 @@ from __future__ import annotations
 import base64
 import json
 import logging
+import os
 from dataclasses import dataclass
 from types import SimpleNamespace as NS
 from typing import Any
@@ -235,9 +236,31 @@ class ProviderRouter:
         self.anthropic = anthropic_client
         self.settings = settings
         self._http = http
+        self.claude_error = ""
         self.beta = NS(messages=NS(stream=self._stream, create=self._create))
 
-    _OWN = {"anthropic", "settings", "_http", "beta"}
+    _OWN = {"anthropic", "settings", "_http", "beta", "claude_error"}
+
+    async def _claude_call(self, kwargs: dict, on_event=None):
+        mode = self.settings.claude_auth_mode
+        if mode == "api_key":
+            return await self.anthropic.beta.messages.create(**kwargs)
+        if not self.settings.claude_subscription_enabled:
+            raise ProviderError("Attiva Claude subscription nelle opzioni dell'add-on")
+        from hubnex.claude_code import BridgeUnavailable, call
+
+        try:
+            reply = await call(kwargs["model"], kwargs, on_event=on_event)
+            self.claude_error = ""
+            return reply
+        except BridgeUnavailable as exc:
+            self.claude_error = str(exc)
+            if mode == "hybrid" and self.settings.claude_api_fallback and os.environ.get("ANTHROPIC_API_KEY"):
+                return await self.anthropic.beta.messages.create(**kwargs)
+            raise
+        except ProviderError as exc:
+            self.claude_error = str(exc)
+            raise
 
     def __getattr__(self, name):  # anything else is the Anthropic client's (and the tests' fakes')
         return getattr(self.anthropic, name)
@@ -275,11 +298,17 @@ class ProviderRouter:
     def _stream(self, **kwargs):
         provider, model = split_model(kwargs.get("model", ""))
         if provider == "anthropic":
-            return self.anthropic.beta.messages.stream(**kwargs)
+            if self.settings.claude_auth_mode == "api_key":
+                return self.anthropic.beta.messages.stream(**kwargs)
+            from hubnex.claude_code import ClaudeStream
+
+            if not self.settings.claude_subscription_enabled:
+                return _Done(self._claude_call(kwargs))
+            return ClaudeStream(self._claude_call, kwargs)
         return _Done(self._call(provider, model, kwargs))
 
     async def _create(self, **kwargs):
         provider, model = split_model(kwargs.get("model", ""))
         if provider == "anthropic":
-            return await self.anthropic.beta.messages.create(**kwargs)
+            return await self._claude_call(kwargs)
         return await self._call(provider, model, kwargs)

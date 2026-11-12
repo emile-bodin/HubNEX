@@ -1402,3 +1402,4 @@ html.light .casa-modal { background: rgba(20, 35, 55, 0.4); }
 html.light .casa-modal textarea { background: #fff; }
 /* chat at the bottom */
 html.light #chat { box-shadow: 0 4px 18px rgba(15, 40, 70, 0.18); }
+#pref-claude-output { white-space: pre-wrap; overflow-wrap: anywhere; max-height: 14rem; overflow: auto; }

@@ -8,8 +8,14 @@ Telegram group, voice and connectors for the programs you use at work.
 
 ## First start
 
-1. In the **Configuration** tab enter at least the **Anthropic API key**
-   (console.anthropic.com → API Keys), start the add-on and turn on **Show in sidebar**.
+1. In **Configuration**, choose the default Anthropic API key, or the personal Claude Code subscription mode described below. Start the add-on and turn on **Show in sidebar**.
+
+### Personal Claude subscription (single-user setup)
+
+Set `claude_auth_mode` to `subscription`, enable `claude_subscription_enabled`, then restart the add-on. Open HubNEX → Preferences → Claude access → **Sign in to Claude**. Open the URL displayed there and, if prompted, paste the login code into HubNEX. The add-on runs Anthropic's unmodified Claude Code CLI and keeps its own sign-in in persistent `/data`; HubNEX does not receive your password or browser cookies. Check that the status says **Connected** before sending an AI request.
+
+For an optional API backup, set `claude_auth_mode` to `hybrid`, enable `claude_api_fallback`, and supply `anthropic_api_key`. Only CLI availability or authentication failures trigger this fallback. An API fallback request is billed separately through Anthropic Console; subscription usage is subject to Claude Code's plan limits. The cost panel counts API calls, not subscription requests. This mode is intended for one owner using their own account, not shared AI access for other Home Assistant users.
+Claude Code reports agent progress, but its CLI output does not expose the same visible thinking summaries as HubNEX's direct API path.
 2. Open **HubNEX** from the sidebar: you see the headquarters with the assistant and its agents.
 3. Write to it in the chat at the bottom. It already uses Home Assistant for the house: no token
    to create, the add-on goes through the Supervisor.

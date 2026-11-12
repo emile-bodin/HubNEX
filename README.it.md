@@ -33,13 +33,16 @@ suo ruolo: posta, amministrazione, ricerche tecniche, casa, sicurezza… Gli par
 
 1. Home Assistant → Impostazioni → Componenti aggiuntivi → **Store** → ⋮ → **Repository** →
    aggiungi `https://github.com/P1pp89/HubNEX`.
-2. Installa **HubNEX**, apri **Configurazione**, inserisci la chiave API Anthropic, **Avvia** e
-   attiva **Mostra nella barra laterale**.
+2. Installa **HubNEX**, apri **Configurazione**, inserisci la chiave API Anthropic (oppure scegli
+   l'abbonamento Claude Code personale descritto nella documentazione), **Avvia** e attiva
+   **Mostra nella barra laterale**.
 
 La guida completa (team, connettori, voce, Telegram, posta, vista Casa) è in
 [`hubnex/DOCS.md`](hubnex/DOCS.md), visibile anche nella scheda **Documentazione** dell'add-on.
 
-Serve un account Anthropic con credito: HubNEX usa Claude Sonnet per l'assistente e gli agenti e
+La modalità API richiede un account Anthropic Console con credito. In un'installazione privata
+per un solo utente puoi invece accedere alla CLI Claude Code inclusa con il tuo abbonamento;
+vedi la documentazione. HubNEX usa Claude Sonnet per l'assistente e gli agenti e
 Claude Haiku per la posta. I comandi della vista Casa e, con Assist, i comandi semplici di Home
 Assistant non consumano credito.
 

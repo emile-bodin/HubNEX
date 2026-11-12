@@ -137,6 +137,18 @@
       <span data-i18n>Spesa Claude<small data-i18n>Per giorno, agente e modello, con la stima del mese</small></span>
       <button data-i18n type="button" id="pref-costs">Apri</button>
     </div>
+    <div class="pref-row pref-costs" id="pref-claude-row">
+      <span data-i18n>Accesso Claude<small data-i18n>Modalità, abbonamento e chiave API</small></span>
+      <button data-i18n type="button" id="pref-claude-refresh">Verifica</button>
+    </div>
+    <p class="pref-note" id="pref-claude-status" role="status"></p>
+    <div id="pref-claude-login" class="hidden">
+      <button data-i18n type="button" id="pref-claude-start">Accedi a Claude</button>
+      <pre id="pref-claude-output" class="pref-note" aria-live="polite"></pre>
+      <label data-i18n for="pref-claude-code">Codice di accesso (se richiesto)</label>
+      <input id="pref-claude-code" autocomplete="off">
+      <button data-i18n type="button" id="pref-claude-send">Invia codice</button>
+    </div>
     <div class="pref-backup">
       <div class="pref-row">
         <span data-i18n>Backup<small data-i18n>Memoria e mappa neurale, scadenze, chat, Casa, piantina, energia e agents.yaml. Le opzioni dell'add-on (chiave Anthropic, Telegram, posta) non sono incluse; agents.yaml sì, con gli eventuali token dei connettori: custodisci il file.</small></span>
