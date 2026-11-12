@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.21.1b
+- Beta con accesso a Claude tramite l'abbonamento Claude Code e fallback API facoltativo.
+- Immagini dell'add-on distribuite dal fork emile-bodin.
+
 ## 1.21.1
 - Tema chiaro: il riquadro in alto della Casa diventa un'unica card bianca, con le voci divise
   da linee sottili (prima a scacchiera).

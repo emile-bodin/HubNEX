@@ -1,10 +1,10 @@
 name: HubNEX
-version: "1.21.1"
+version: "1.21.1b"
 slug: hubnex
 description: Il quartier generale AI per casa e lavoro - un team di agenti Claude, plancia 3D di Home Assistant, Telegram, voce e connettori MCP.
-url: https://github.com/P1pp89/HubNEX
+url: https://github.com/emile-bodin/HubNEX
 # Immagini già pronte (GitHub Actions → ghcr.io): Home Assistant le scarica invece di costruirle
-image: ghcr.io/p1pp89/{arch}-addon-hubnex
+image: ghcr.io/emile-bodin/{arch}-addon-hubnex
 arch:
   - amd64
   - aarch64
