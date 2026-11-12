@@ -492,7 +492,7 @@ async function loadClaudeAuth() {
     note.textContent = `${mode} · ${state} · ${t("Chiave API")}: ${data.api_key_available ? t("presente") : t("assente")}`
       + (data.api_fallback ? ` · ${t("Riserva API attiva")}` : "")
       + (data.last_error ? ` · ${data.last_error}` : "")
-      + (data.subscription.status === "signed_out" ? ` · ${t("Accedi nel terminale dell'add-on con claude auth login")}` : "");
+      + (data.subscription.status === "signed_out" ? ` · ${t("Usa il pulsante qui sotto per accedere")}` : "");
   } catch (err) { note.textContent = `⚠ ${errorText(err)}`; }
 }
 $("pref-claude-refresh").addEventListener("click", loadClaudeAuth);
@@ -502,12 +502,17 @@ async function pollClaudeLogin() {
   try {
     const data = await (await api("/api/claude/login")).json();
     $("pref-claude-output").textContent = data.output;
+    const url = data.output.match(/https:\/\/claude\.ai\/oauth\/authorize\?[^\s\x1b\x07]+/)?.[0];
+    const link = $("pref-claude-url");
+    link.classList.toggle("hidden", !url);
+    if (url) link.href = url;
     if (data.running) claudeLoginTimer = setTimeout(pollClaudeLogin, 1200);
     else loadClaudeAuth();
   } catch (err) { $("pref-claude-output").textContent = `⚠ ${errorText(err)}`; }
 }
 $("pref-claude-start").addEventListener("click", async () => {
   clearTimeout(claudeLoginTimer);
+  $("pref-claude-url").classList.add("hidden");
   try {
     await api("/api/claude/login", { method: "POST" });
     pollClaudeLogin();

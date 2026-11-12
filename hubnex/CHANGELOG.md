@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.22.0b
+- Accesso Claude: link apribile nel browser e campo per il codice visibile sopra l'output.
+- Preferenze scorrevoli sugli schermi piccoli e indicazioni di accesso più chiare.
+
 ## 1.21.1b
 - Beta con accesso a Claude tramite l'abbonamento Claude Code e fallback API facoltativo.
 - Immagini dell'add-on distribuite dal fork emile-bodin.

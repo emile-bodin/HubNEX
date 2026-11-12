@@ -3,6 +3,8 @@
 export const EN = {
   "Stima delle chiamate API. Le richieste tramite abbonamento Claude Code non hanno un costo API.": "Estimated API call cost. Requests through the Claude Code subscription have no API charge.",
   "Accedi a Claude": "Sign in to Claude",
+  "Apri la pagina di accesso Claude": "Open Claude sign-in page",
+  "Usa il pulsante qui sotto per accedere": "Use the button below to sign in",
   "Codice di accesso (se richiesto)": "Sign-in code (if requested)",
   "Invia codice": "Submit code",
   "Accesso Claude": "Claude access",

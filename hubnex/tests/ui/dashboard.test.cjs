@@ -490,6 +490,35 @@ test("preferenze: il backup si scarica", { timeout: 30000 }, async () => {
   await done(page);
 });
 
+test("telefono: accesso Claude mostra link e codice sopra il terminale", { timeout: 30000 }, async () => {
+  const page = await browser.newPage({ viewport: { width: 390, height: 844 } });
+  page.errors = [];
+  page.on("pageerror", (e) => page.errors.push(e.message));
+  await page.addInitScript(() => localStorage.setItem("hq_lang", "en"));
+  const url = "https://claude.ai/oauth/authorize?state=test-code";
+  let submitted;
+  await page.route("**/api/claude/auth", (r) => r.fulfill({ json: {
+    mode: "subscription", subscription_enabled: true, subscription: { status: "signed_out" }, api_key_available: false,
+  } }));
+  await page.route("**/api/claude/login", (r) => r.fulfill({ json: r.request().method() === "POST"
+    ? { running: true } : { running: true, output: `Open ${url}\nPaste code here if prompted >` } }));
+  await page.route("**/api/claude/login/code", async (r) => {
+    submitted = r.request().postDataJSON().code;
+    await r.fulfill({ json: { running: true } });
+  });
+  await page.goto(URL);
+  await page.click("#ha-prefs");
+  await page.click("#pref-claude-start");
+  await page.locator("#pref-claude-url:not(.hidden)").waitFor();
+  assert.equal(await page.getAttribute("#pref-claude-url", "href"), url);
+  assert.ok(await page.locator("#pref-claude-code").evaluate((el) => el.compareDocumentPosition(document.querySelector("#pref-claude-output")) & Node.DOCUMENT_POSITION_FOLLOWING));
+  assert.equal(await page.locator("#prefs").evaluate((el) => getComputedStyle(el).overflowY), "auto");
+  await page.fill("#pref-claude-code", "my-code");
+  await page.click("#pref-claude-send");
+  assert.equal(submitted, "my-code");
+  await done(page);
+});
+
 test("spesa Claude: dalla scheda in HQ, per giorno, agente e modello", { timeout: 30000 }, async () => {
   const page = await open();
   await page.click("#view-hq");

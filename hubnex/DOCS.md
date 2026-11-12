@@ -12,7 +12,7 @@ della casa, il gruppo Telegram, la voce e i connettori per i programmi del tuo l
 
 ### Abbonamento Claude personale (un solo utente)
 
-Imposta `claude_auth_mode` su `subscription`, attiva `claude_subscription_enabled` e riavvia l'add-on. Apri HubNEX → Preferenze → Accesso Claude → **Accedi a Claude**. Apri l'indirizzo mostrato e, se richiesto, incolla il codice nella schermata di HubNEX. L'add-on usa la CLI Claude Code originale di Anthropic e conserva il suo accesso in `/data`; HubNEX non riceve password o cookie del browser. Controlla che lo stato sia **Collegato** prima di usare l'AI.
+Imposta `claude_auth_mode` su `subscription`, attiva `claude_subscription_enabled` e riavvia l'add-on. Apri HubNEX → Preferenze → Accesso Claude → **Accedi a Claude**. Il browser non si apre da solo dall'add-on: premi **Apri la pagina di accesso Claude** e, se richiesto, incolla il codice nel campo subito sotto il link. L'add-on usa la CLI Claude Code originale di Anthropic e conserva il suo accesso in `/data`; HubNEX non riceve password o cookie del browser. Controlla che lo stato sia **Collegato** prima di usare l'AI.
 
 Per usare la chiave API solo come riserva, scegli `hybrid`, attiva `claude_api_fallback` e inserisci `anthropic_api_key`. La riserva interviene solo se la CLI o il suo accesso non sono disponibili. Le chiamate API hanno una fatturazione separata su Anthropic Console; l'abbonamento ha i limiti d'uso di Claude Code. Il riquadro Spesa conta le chiamate API, non quelle in abbonamento. Questa modalità è destinata a un proprietario che usa il proprio account, non a più utenti di Home Assistant.
 Claude Code mostra l'avanzamento degli agenti, ma la CLI non espone gli stessi riassunti dei pensieri visibili del percorso API diretto.
