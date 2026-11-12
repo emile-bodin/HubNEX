@@ -185,7 +185,7 @@ async def call(model: str, kwargs: dict, on_event=None) -> NS:
             builtins.append("WebSearch")
         if "web_fetch" in hosted:
             builtins.append("WebFetch")
-        args = [binary, "--bare", "-p", "Completa la richiesta ricevuta su stdin.", "--output-format",
+        args = [binary, "--safe-mode", "-p", "Completa la richiesta ricevuta su stdin.", "--output-format",
                 "stream-json" if on_event else "json",
                 "--json-schema", json.dumps(REPLY_SCHEMA), "--model", model,
                 "--tools", ",".join(builtins), "--permission-mode", "dontAsk",

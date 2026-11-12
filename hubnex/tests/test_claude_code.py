@@ -54,6 +54,7 @@ async def test_cli_subprocess_returns_a_structured_answer(monkeypatch, tmp_path)
     assert result.content[0].text == "Ciao"
     assert "saluta" in seen[1]
     assert "--append-system-prompt-file" in seen[0]
+    assert "--safe-mode" in seen[0] and "--bare" not in seen[0]
     assert "ANTHROPIC_API_KEY" not in claude_code.cli_env() or not claude_code.cli_env()["ANTHROPIC_API_KEY"]
 
 

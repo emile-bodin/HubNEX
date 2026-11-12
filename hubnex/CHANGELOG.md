@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.21.2d
+- Claude subscription chats now use safe mode, which keeps the saved sign-in available while disabling CLI customizations.
+
+## 1.21.2c
+- Updated the bundled Claude Code to 2.1.293 for Haiku 5.5 support.
+- Model errors are no longer reported as expired Claude Code sign-ins.
+
 ## 1.21.2b
 - Accesso Claude: link apribile nel browser e campo per il codice visibile sopra l'output.
 - Preferenze scorrevoli sugli schermi piccoli e indicazioni di accesso più chiare.
