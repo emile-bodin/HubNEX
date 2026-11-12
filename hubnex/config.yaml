@@ -1,5 +1,5 @@
 name: HubNEX
-version: "1.22.0b"
+version: "1.21.2b"
 slug: hubnex
 description: Il quartier generale AI per casa e lavoro - un team di agenti Claude, plancia 3D di Home Assistant, Telegram, voce e connettori MCP.
 url: https://github.com/emile-bodin/HubNEX

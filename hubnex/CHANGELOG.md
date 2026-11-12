@@ -1,6 +1,6 @@
 # Changelog
 
-## 1.22.0b
+## 1.21.2b
 - Accesso Claude: link apribile nel browser e campo per il codice visibile sopra l'output.
 - Preferenze scorrevoli sugli schermi piccoli e indicazioni di accesso più chiare.
 
