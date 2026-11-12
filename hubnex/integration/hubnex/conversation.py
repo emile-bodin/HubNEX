@@ -44,14 +44,12 @@ class HubNEXConversationEntity(conversation.ConversationEntity):
     async def _async_handle_message(
         self, user_input: conversation.ConversationInput, chat_log: conversation.ChatLog
     ) -> conversation.ConversationResult:
-        italian = (user_input.language or "").lower().startswith("it")
         try:
-            reply = await self._client.ask(user_input.text, user_input.language)
+            reply = await self._client.ask(user_input.text, "en")
         except HubNEXError as err:
             _LOGGER.warning("HubNEX unreachable: %s", err)
-            reply = ("Mi scusi, in questo momento non riesco a raggiungere HubNEX." if italian
-                     else "I'm sorry, I can't reach HubNEX right now.")
+            reply = "I'm sorry, I can't reach HubNEX right now."
         chat_log.async_add_assistant_content_without_tools(
-            conversation.AssistantContent(agent_id=user_input.agent_id, content=reply or ("Fatto." if italian else "Done."))
+            conversation.AssistantContent(agent_id=user_input.agent_id, content=reply or "Done.")
         )
         return conversation.async_get_result_from_chat_log(user_input, chat_log)

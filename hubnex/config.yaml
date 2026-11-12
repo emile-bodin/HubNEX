@@ -1,7 +1,7 @@
 name: HubNEX
 version: "1.21.3"
 slug: hubnex
-description: Il quartier generale AI per casa e lavoro - un team di agenti Claude, plancia 3D di Home Assistant, Telegram, voce e connettori MCP.
+description: AI headquarters for home and work, with Claude agents, a 3D Home Assistant dashboard, Telegram, voice and MCP connectors.
 url: https://github.com/emile-bodin/HubNEX
 # Immagini già pronte (GitHub Actions → ghcr.io): Home Assistant le scarica invece di costruirle
 image: ghcr.io/emile-bodin/{arch}-addon-hubnex
@@ -73,7 +73,6 @@ options:
   voice_tts_entity: ""
   voice_tts_voice: ""
   voice_answers: completa
-  language: auto
   ha_blocked_services: lock.unlock,lock.open,alarm_control_panel.alarm_disarm
   install_assist_integration: true
   non_admin_access: casa
@@ -117,7 +116,6 @@ schema:
   voice_tts_entity: str?
   voice_tts_voice: str?
   voice_answers: list(completa|riassunto)
-  language: list(auto|it|en)
   ha_blocked_services: str?
   install_assist_integration: bool
   non_admin_access: list(casa|completo)

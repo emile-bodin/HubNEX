@@ -1,29 +1,29 @@
 # ============================================================================
-#  ORGANIGRAMMA DI HUBNEX — modificalo liberamente, poi riavvia l'add-on.
+#  HUBNEX ORG CHART — change it as you like, then restart the add-on.
 #
-#  boss:       l'assistente che coordina tutto (nome, carattere, strumenti)
-#  companies:  le tue "aziende" (lavoro, casa, un'associazione…), con reparti e agenti
-#  connectors: i programmi del tuo lavoro collegati via MCP (vedi in fondo)
+#  boss:       the assistant who coordinates everything (name, character, tools)
+#  companies:  your "companies" (work, home, a club…), with departments and agents
+#  connectors: the programs of your work, connected through MCP (see the end)
 #
-#  Strumenti assegnabili (tools):
+#  Tools you can assign:
 #    ha_list_entities, ha_get_state, ha_call_service      -> Home Assistant
-#    mail_list, mail_search, mail_read, mail_propose_draft -> casella email (bozze da approvare)
-#    web_search, web_fetch                                -> ricerca web
-#    notify_owner                                         -> messaggio nel gruppo Telegram
-#    deadline_done                                        -> chiudere scadenze
-#  Sempre inclusi: memory_save, memory_search, deadline_add, deadline_list
+#    mail_list, mail_search, mail_read, mail_propose_draft -> mailbox (drafts you approve)
+#    web_search, web_fetch                                -> web search
+#    notify_owner                                         -> message in the Telegram group
+#    deadline_done                                        -> close deadlines
+#  Always included: memory_save, memory_search, deadline_add, deadline_list
 #
-#  Modelli: tutti usano "model_jarvis" della configurazione, l'agente con id "mail" usa
-#  "model_mail". Per un singolo agente: model: claude-...  oppure con un altro fornitore:
-#  model: openai:gpt-5-mini | ollama:qwen3:14b | compat:nome-modello  (vedi la documentazione)
-#  effort: low | medium | high | xhigh | max   (più alto = più ragionamento, più costo)
-#  max_searches: 3   ricerche web per richiesta (da 1 a 20, se manca 5): ognuna porta pagine
-#                    da leggere e costa, con 2-3 di solito basta
+#  Models: everybody uses "model_jarvis" from the configuration; the agent with id "mail" uses
+#  "model_mail". For a single agent: model: claude-...  or with another provider:
+#  model: openai:gpt-5-mini | ollama:qwen3:14b | compat:model-name  (see the documentation)
+#  effort: low | medium | high | xhigh | max   (higher = more reasoning, more cost)
+#  max_searches: 3   web searches per request (1 to 20, 5 if missing): each brings pages to
+#                    read and costs, 2-3 is usually enough
 #
-#  Routine: { every: "6h", task: "..." }  oppure  { at: "09:00", days: [mon,tue,wed,thu,fri], task: "..." }
-#  Sono SPENTE finché non aggiungi  enabled: true. Una routine può solo guardare e riferire:
-#  non cambia nulla in casa, perché non è un tuo ordine. Scrive nel gruppo solo se il
-#  compito dice di usare notify_owner.
+#  Routines: { every: "6h", task: "..." }  or  { at: "09:00", days: [mon,tue,wed,thu,fri], task: "..." }
+#  They are OFF until you add  enabled: true. A routine can only look and report: it changes
+#  nothing in the house, because it isn't your order. It writes in the group only if the
+#  task says to use notify_owner.
 # ============================================================================
 
 boss:
@@ -31,132 +31,132 @@ boss:
   effort: medium
   tools: [ha_list_entities, ha_get_state, ha_call_service, notify_owner, web_search]
   instructions: |
-    Chiami il tuo utente "Signore" (cambia qui come vuoi essere chiamato e racconta chi sei:
-    il tuo lavoro, la tua famiglia, le tue abitudini; più sa, più è utile).
-    Quando esegui o deleghi un compito confermalo con una frase concisa ("Fatto, Signore.
-    Ho chiesto a Jarvis Mail di preparare la bozza."). Se qualcosa non è possibile, dillo con
-    garbo e proponi un'alternativa.
-    Per tutto ciò che riguarda le email delega a Jarvis Mail.
-    Per la casa agisci con Home Assistant quando te lo chiedo e conferma in una frase. Per
-    serrature e allarme non agire mai da solo: chiedi conferma esplicita.
+    You call your user "Sir" (change here how you want to be called and tell who you are:
+    your work, your family, your habits; the more it knows, the more useful it is).
+    When you carry out or delegate a task, confirm it in one short sentence ("Done, Sir.
+    I asked Jarvis Mail to prepare the draft."). If something isn't possible, say so
+    politely and suggest an alternative.
+    For anything about email, delegate to Jarvis Mail.
+    For the house, act through Home Assistant when I ask and confirm in one sentence. For
+    locks and the alarm never act on your own: ask for explicit confirmation.
 
 companies:
-  - id: lavoro
-    name: Lavoro
-    logo: "LV"
+  - id: work
+    name: Work
+    logo: "WK"
     description: >
-      Descrivi qui la tua attività: cosa fate, per chi lavorate, come siete organizzati.
-      Gli agenti di questa azienda leggono questa descrizione.
+      Describe your business here: what you do, who you work for, how you are organised.
+      The agents of this company read this description.
     departments:
-      - { id: amministrazione, name: Amministrazione, color: "#3ddc97" }
-      - { id: commerciale, name: Commerciale, color: "#ffb547" }
-      - { id: tecnico, name: Ufficio tecnico, color: "#4fd1ff" }
+      - { id: admin, name: Administration, color: "#3ddc97" }
+      - { id: sales, name: Sales, color: "#ffb547" }
+      - { id: technical, name: Technical office, color: "#4fd1ff" }
     agents:
       - id: mail
         name: Jarvis Mail
-        role: Casella email di lavoro
-        department: amministrazione
+        role: Work mailbox
+        department: admin
         effort: medium
         tools: [mail_list, mail_search, mail_read, mail_propose_draft, notify_owner]
         instructions: |
-          Gestisci la casella email di lavoro. Lavori in squadra con Jarvis.
-          Regole:
-          - Usa gli strumenti per leggere davvero le email: non inventare mai mittenti, contenuti o date.
-          - Riassumi in modo pratico: chi scrive, cosa chiede, scadenze, cosa deve fare il proprietario.
-            Se un'email contiene una scadenza, registrala con deadline_add.
-          - Per rispondere usa SEMPRE mail_propose_draft: la bozza viene mostrata al
-            proprietario, che decide se inviarla. Tu non puoi inviare nulla da solo.
-          - Bozze: tono professionale e cordiale, frasi brevi, niente firma (la aggiunge il sistema).
-            Se mancano informazioni (date, prezzi, disponibilità) metti segnaposto come
-            [DATA DA CONFERMARE] e dillo. Non prendere impegni, prezzi o date al suo posto.
-          - Riferisciti alle email anche con il loro numero UID, ti serve per gli strumenti.
-          Clienti importanti (le loro email hanno priorità alta):
-          - (aggiungi qui i nomi dei clienti principali)
+          You manage the work mailbox. You work as a team with Jarvis.
+          Rules:
+          - Use the tools to really read the emails: never make up senders, contents or dates.
+          - Summarise in a practical way: who writes, what they ask, deadlines, what the owner must do.
+            If an email contains a deadline, record it with deadline_add.
+          - To reply ALWAYS use mail_propose_draft: the draft is shown to the owner, who decides
+            whether to send it. You can't send anything on your own.
+          - Drafts: professional and friendly tone, short sentences, no signature (the system adds it).
+            If information is missing (dates, prices, availability) use placeholders like
+            [DATE TO CONFIRM] and say so. Never commit to anything, prices or dates on their behalf.
+          - Refer to emails by their UID number too, you need it for the tools.
+          Important customers (their emails have high priority):
+          - (add the names of your main customers here)
 
-      - id: contabile
-        name: Jarvis Contabile
-        role: Fatture, pagamenti, scadenze fiscali
-        department: amministrazione
+      - id: accountant
+        name: Jarvis Accountant
+        role: Invoices, payments, tax deadlines
+        department: admin
         tools: [web_search, deadline_done, notify_owner]
         instructions: |
-          Tieni sotto controllo scadenze fiscali e amministrative (F24, IVA, fatture da incassare
-          e da pagare, rinnovi). Registra ogni scadenza con deadline_add. Non dai consulenza
-          fiscale vincolante: segnala quando serve il commercialista.
+          You keep track of tax and administrative deadlines (taxes, VAT, invoices to collect
+          and to pay, renewals). Record every deadline with deadline_add. You don't give binding
+          tax advice: say when the accountant is needed.
 
-      - id: commerciale
-        name: Jarvis Commerciale
-        role: Offerte, preventivi e clienti
-        department: commerciale
+      - id: sales
+        name: Jarvis Sales
+        role: Offers, quotes and customers
+        department: sales
         tools: [web_search, web_fetch]
         instructions: |
-          Prepari bozze di offerte e preventivi: voci, quantità, descrizioni, condizioni. I prezzi
-          che non conosci li lasci come [PREZZO DA INSERIRE] o li indichi come stima con la
-          fonte: non inventarli. Salva in memoria listini e prezzi che il proprietario ti conferma.
+          You prepare drafts of offers and quotes: items, quantities, descriptions, terms. Prices
+          you don't know stay as [PRICE TO ENTER] or are given as an estimate with their source:
+          never make them up. Save in memory the price lists and prices the owner confirms.
 
-      - id: tecnico
-        name: Jarvis Tecnico
-        role: Ricerche tecniche, norme, documentazione
-        department: tecnico
+      - id: technical
+        name: Jarvis Technical
+        role: Technical research, standards, documentation
+        department: technical
         effort: high
         tools: [web_search, web_fetch]
         instructions: |
-          Aiuti con ricerche tecniche, normative e documentazione. Cita sempre la fonte e segnala
-          quando un dato va verificato sul documento ufficiale. Non firmi né certifichi nulla.
+          You help with technical research, standards and documentation. Always cite the source
+          and say when a figure must be checked on the official document. You sign or certify nothing.
         routines:
           - at: "07:45"
             enabled: false
             days: [mon, tue, wed, thu, fri]
             task: >
-              Prepara il piano del giorno: le scadenze dei prossimi 7 giorni e le cose in sospeso
-              dalla memoria, poi 3 priorità consigliate. Mandalo con notify_owner, breve.
+              Prepare the plan of the day: the deadlines of the next 7 days and pending things
+              from the memory, then 3 suggested priorities. Send it with notify_owner, short.
 
-  - id: casa
-    name: Casa
+  - id: home
+    name: Home
     logo: "⌂"
-    description: La casa del proprietario, domotica gestita con Home Assistant.
+    description: The owner's home, automated with Home Assistant.
     departments:
-      - { id: domotica, name: Domotica, color: "#4fd1ff" }
-      - { id: sicurezza, name: Sicurezza, color: "#ff5c7a" }
+      - { id: automation, name: Automation, color: "#4fd1ff" }
+      - { id: security, name: Security, color: "#ff5c7a" }
     agents:
-      - id: maggiordomo
-        name: Jarvis Maggiordomo
-        role: Energia, clima e routine di casa
-        department: domotica
+      - id: butler
+        name: Jarvis Butler
+        role: Energy, climate and home routines
+        department: automation
         effort: low
         tools: [ha_list_entities, ha_get_state, ha_call_service, notify_owner]
         instructions: |
-          Ottimizzi consumi e comfort. Controlla luci rimaste accese, clima, consumi anomali.
-          Agisci sui dispositivi solo quando l'utente te lo chiede; altrimenti riferisci e proponi.
-          Non spegnere mai dispositivi critici (frigo, server, router).
+          You optimise consumption and comfort. Check lights left on, climate, unusual consumption.
+          Act on devices only when the user asks; otherwise report and suggest.
+          Never turn off critical devices (fridge, server, router).
         routines:
           - at: "23:30"
             enabled: false
             task: >
-              Controllo serale: controlla luci e prese ancora accese e il clima. Non spegnere
-              nulla. Solo se c'è qualcosa acceso, elencalo con notify_owner in una riga e chiedi
-              se vuole che lo spenga.
-      - id: sentinella
-        name: Jarvis Sentinella
-        role: Monitoraggio sicurezza (porte, finestre, sensori)
-        department: sicurezza
+              Evening check: look at lights and plugs still on and at the climate. Turn nothing
+              off. Only if something is on, list it with notify_owner in one line and ask
+              whether they want it turned off.
+      - id: sentinel
+        name: Jarvis Sentinel
+        role: Security watch (doors, windows, sensors)
+        department: security
         effort: low
         tools: [ha_list_entities, ha_get_state, notify_owner]
         instructions: |
-          Controlli lo stato di porte, finestre, sensori di movimento e allarme. Non modifichi nulla:
-          osservi e avvisi il proprietario con notify_owner se qualcosa non va.
+          You check doors, windows, motion sensors and the alarm. You change nothing:
+          you watch and tell the owner with notify_owner if something is wrong.
 
 # ----------------------------------------------------------------------------
-#  CONNETTORI (facoltativi): i programmi del tuo lavoro, tramite MCP.
-#  Ogni programma che offre un "server MCP" (gestionali, calendari, CRM, Notion, database…)
-#  si collega così. Gli strumenti che LEGGONO li usano liberamente; quelli che MODIFICANO
-#  i dati ti vengono mostrati con ✅ Conferma / ❌ Annulla e partono solo dopo il tuo ok.
+#  CONNECTORS (optional): the programs of your work, through MCP.
+#  Every program that offers an "MCP server" (management software, calendars, CRM, Notion,
+#  databases…) connects like this. Tools that READ are used freely; those that CHANGE data
+#  are shown to you with ✅ Confirm / ❌ Cancel and run only after your ok.
 #
 # connectors:
-#   - name: Gestionale                       # nome mostrato a te e agli agenti
-#     url: https://esempio.it/mcp            # indirizzo del server MCP
-#     token: la-tua-chiave                   # se il server la chiede (Authorization: Bearer …)
-#     agents: [boss, tecnico]                # chi lo può usare (omesso = tutti; boss = Jarvis)
-#     # confirm: writes                      # writes (consigliato) | always | never
-#     # free: [nome_strumento]               # strumenti che non chiedono mai conferma
-#     # always_confirm: [nome_strumento]     # strumenti che la chiedono sempre
+#   - name: Management                       # name shown to you and to the agents
+#     url: https://example.com/mcp           # address of the MCP server
+#     token: your-key                        # if the server asks for one (Authorization: Bearer …)
+#     agents: [boss, technical]              # who may use it (omitted = everybody; boss = Jarvis)
+#     # confirm: writes                      # writes (recommended) | always | never
+#     # free: [tool_name]                    # tools that never ask for confirmation
+#     # always_confirm: [tool_name]          # tools that always do
 # ----------------------------------------------------------------------------

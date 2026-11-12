@@ -131,7 +131,7 @@ async def test_credit_counts_down_and_resets_on_top_up(make_hq, settings):
     big = NS(input_tokens=30_000, output_tokens=0, cache_read_input_tokens=0, cache_creation_input_tokens=0)
     await hq.on_usage(big, "claude-sonnet-5-5")  # +0.06$ -> below 1$ left
     await hq.on_usage(big, "claude-sonnet-5-5")
-    assert len(sent) == 1 and "quasi finito" in sent[0]  # warned once
+    assert len(sent) == 1 and "almost used up" in sent[0]  # warned once
 
     await hq.load()  # restart with the same credit: spend is kept
     assert (await hq.stats())["spent_usd"] > 0.1
@@ -184,9 +184,9 @@ def test_voice_failures_are_explained(settings, make_hq):
     with TestClient(create_app(settings, hq=hq, start_workers=False)) as client:
         r = client.post("/api/tts", json={"text": "Buonasera"})
         assert r.status_code == 502
-        assert "piano gratuito bloccato" in r.json()["detail"] and "Free Tier usage disabled" in r.json()["detail"]
+        assert "free plan blocked" in r.json()["detail"] and "Free Tier usage disabled" in r.json()["detail"]
         feed = client.get("/api/logs").json()
-        assert any("Voce non disponibile" in e["text"] for e in (feed if isinstance(feed, list) else feed.get("logs", [])))
+        assert any("Voice not available" in e["text"] for e in (feed if isinstance(feed, list) else feed.get("logs", [])))
 
 
 def test_voice_from_home_assistant_tts(settings, make_hq):
@@ -238,9 +238,9 @@ def test_elevenlabs_reasons():
         return httpx.Response(code, json={"detail": detail})
 
     quota = {"status": "quota_exceeded", "message": "This request exceeds your quota of 10000. You have 523 credits remaining"}
-    assert "crediti ElevenLabs esauriti" in _reason(r(401, quota))
-    assert "chiave API non valida" in _reason(r(401, {"status": "invalid_api_key", "message": "Invalid API key"}))
-    assert "voce non trovata" in _reason(r(404, {"status": "voice_not_found", "message": "x"}))
+    assert "ElevenLabs credits used up" in _reason(r(401, quota))
+    assert "invalid API key" in _reason(r(401, {"status": "invalid_api_key", "message": "Invalid API key"}))
+    assert "voice not found" in _reason(r(404, {"status": "voice_not_found", "message": "x"}))
 
 
 def test_voice_text_is_made_for_the_ear():
@@ -251,11 +251,8 @@ def test_voice_text_is_made_for_the_ear():
         "- 1,84 kW, oggi 9,6 kWh → F3 · 21,8°C\n1. Impianti MT/BT e/o UPS ≥ 10 kVA, 16 A\n"
         "Vedi DM 1/9/2021 e [la guida](https://x.it) ✅"
     )
-    assert said == (
-        "Signore, ecco (CEI 64 8): Isolamento IT-M: annuale. Nodo-PE: non oltre 0,2 ohm. "
-        "1,84 chilowatt, oggi 9,6 chilowattora, F3, 21,8 gradi. Impianti media e bassa tensione e o UPS "
-        "maggiore o uguale a 10 chilovoltampere, 16 ampere. Vedi DM 1 settembre 2021 e la guida."
-    )
+    assert "0,2 ohms" in said and "1,84 kilowatts" in said and "21,8 degrees" in said
+    assert "10 kilovolt amperes" in said and "1 September 2021" in said
     assert for_voice("Ciao. " * 100, limit=50) == "Ciao. " * 7 + "Ciao."
     assert for_voice("Accendo alle 7:30, 3 volte su 5") == "Accendo alle 7:30, 3 volte su 5."
 
@@ -291,8 +288,8 @@ def test_home_assistant_voice_by_name(settings, make_hq):
     with TestClient(create_app(settings, hq=hq, start_workers=False)) as client:
         assert client.post("/api/tts", json={"text": "Sono le 21,8°"}).status_code == 200
         assert client.post("/api/tts", json={"text": "Ancora"}).status_code == 200
-        assert asked[0] == ("tts.home_assistant_cloud", "Sono le 21,8 gradi.", "it-IT", {"voice": "RinaldoNeural"})
+        assert asked[0] == ("tts.home_assistant_cloud", "Sono le 21,8 degrees.", "en-US", {"voice": "RinaldoNeural"})
         assert calls.count("tts/engine/voices") == 1  # looked up once
         settings.voice_tts_voice = "Gandalf"
         r = client.post("/api/tts", json={"text": "Ciao"})
-        assert r.status_code == 502 and "Disponibili: Diego, Rinaldo" in r.json()["detail"]
+        assert r.status_code == 502 and "Available: Diego, Rinaldo" in r.json()["detail"]

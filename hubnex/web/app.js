@@ -10,7 +10,7 @@ import { Orb, describeTool } from "./orb.js";
 import { CasaView } from "./casa.js";
 import { CostsView, money } from "./costs.js";
 import { AlertsView } from "./alerts.js";
-import { t, LANG, LOCALE, setLang, translatePage } from "./i18n.js";
+import { t, LANG, LOCALE, translatePage } from "./i18n.js";
 
 translatePage();
 
@@ -653,8 +653,6 @@ for (const k of ["hq", "ai"]) {
 }
 $("ha-prefs").classList.remove("hidden");
 // Language: automatic (Home Assistant's) or chosen here; applied by reloading the page.
-try { $("pref-lang").value = localStorage.getItem("hq_lang") || ""; } catch { /* private mode */ }
-$("pref-lang").addEventListener("change", (e) => { setLang(e.target.value); location.reload(); });
 // Theme: automatic (the device's), dark or light; applied at once, remembered on this device.
 $("pref-theme").value = window.hqTheme?.() || "";
 $("pref-theme").addEventListener("change", (e) => window.hqTheme?.(e.target.value));
@@ -1327,7 +1325,7 @@ const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
 if (!SR) $("mic").classList.add("hidden");
 else {
   const rec = new SR();
-  rec.lang = LANG === "it" ? "it-IT" : (navigator.language || "en-GB");
+  rec.lang = LOCALE;
   rec.interimResults = true; // your words appear under the orb while you speak
   let heard = "";
   const pulse = () => {

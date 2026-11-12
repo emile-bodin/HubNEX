@@ -227,20 +227,16 @@ class HAWatcher:
         return dev.get("area_id") if dev else None
 
     async def tts_voice(self, engine: str, wanted: str = "") -> tuple[str | None, str | None]:
-        """The language (Home Assistant's own, as the engine spells it) and the voice id for
+        """The engine's English language and the voice id for
         a TTS engine; `wanted` is the voice's name as people see it ("Rinaldo") or its id.
         Unknown voice: an error listing the ones there are."""
-        config = await self._command({"type": "get_config"}) or {}
-        lang = (config.get("language") or "").lower()
         info = await self._command({"type": "tts/engine/get", "engine_id": engine}) or {}
         langs = (info.get("provider") or {}).get("supported_languages") or []
-        language = next((x for x in langs if x.lower() == lang), None) or next(
-            (x for x in langs if x.lower().replace("_", "-").split("-")[0] == lang.split("-")[0]), None
-        )
+        language = next((x for x in langs if x.lower().replace("_", "-").split("-")[0] == "en"), None)
         if not wanted:
             return language, None
         if not language:
-            raise HAWatcherError(tr("{a} non parla la lingua di Home Assistant ({b})", a=engine, b=lang or '?'))
+            raise HAWatcherError(tr("{a} non supporta l'inglese", a=engine))
         res = await self._command({"type": "tts/engine/voices", "engine_id": engine, "language": language}) or {}
         voices = res.get("voices") or []
         w = wanted.casefold()

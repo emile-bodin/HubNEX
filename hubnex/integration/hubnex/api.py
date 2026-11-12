@@ -47,7 +47,7 @@ class HubNEXClient:
         return await self._post("/api/ping")
 
     async def ask(self, text: str, language: str | None = None) -> str:
-        """Jarvis' answer, in the language Assist is speaking."""
+        """Jarvis' answer in English."""
         data = await self._post(
             "/api/chat",
             {"text": text, "channel": "assist", "voice": True},

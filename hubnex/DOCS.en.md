@@ -1,6 +1,6 @@
 # HubNEX
 
-*[Italiano](DOCS.md) · English*
+*English only*
 
 The AI headquarters for home and work: an assistant (called **Jarvis** out of the box) with its
 team of Claude agents, a 3D dashboard in Home Assistant's sidebar, the house's dashboard, a
@@ -22,9 +22,8 @@ Claude Code reports agent progress, but its CLI output does not expose the same 
 4. Tell it who you are and how you work in `agents.yaml` (below): the more it knows, the more
    useful it is.
 
-**Language**: the add-on speaks Home Assistant's language (Italian, otherwise English); the
-**Language** option chooses it by hand. On the first start the example `agents.yaml` is in
-the same language.
+HubNEX uses English for the dashboard, assistant, agents, Telegram and add-on messages. New
+installations receive an English example `agents.yaml`; an existing file is kept as written.
 
 Everything else is optional and can be added whenever you like, in this suggested order:
 
@@ -55,8 +54,8 @@ add-on**.
 - Routines: tasks an agent does by itself at fixed times. They are **off** until you write
   `enabled: true`.
 
-The example file is commented line by line. Instructions can be written in any language: the
-assistant answers in the add-on's language anyway.
+The example file is commented line by line. Custom instructions are kept as written; the
+assistant answers in English.
 
 ## Connectors: the programs of your work
 
@@ -299,9 +298,6 @@ born without an area: set it in Home Assistant or add them from here.
      space (or **+ Room**) to draw a new one. In the panel choose the area, or "drawing only"
      for a space without entities; **outline** for balconies and terraces. Tick the
      **Outdoors** areas (garden, parking…).
-     For L-shaped or angled rooms choose **Draw corners**, tap each corner in order, then
-     tap the first point or **Finish shape**. Select a room and use **Edit corners** to
-     move vertices, add one on an edge, or remove the selected vertex.
   4. **Save floor plan**. **+ Floor** adds more floors.
 
   If you prefer, **Text** lets you write the layout in YAML (positions `x, y, w, h` in percent of
@@ -431,10 +427,7 @@ the browser's menu.
 **Open HubNEX when Home Assistant starts**: inside Home Assistant, at the top **⚙** → the
 switch. It applies to your account only; the other users keep their dashboard.
 
-**Language**: the dashboard is in Italian or English, following the Home Assistant language of
-whoever opens it (not Italian = English). At the top **⚙ → Language** chooses it by hand, for
-that browser only. Jarvis, the agents, Telegram and the add-on's messages follow the
-**Language** option of the configuration (auto = Home Assistant's).
+The dashboard and HubNEX messages use English, regardless of Home Assistant's language.
 
 **Light theme, for reading in sunlight**: at the top **⚙ → Theme**. **Automatic** follows the
 phone (light when the phone is light), **Light** and **Dark** fix it. It applies to the House:

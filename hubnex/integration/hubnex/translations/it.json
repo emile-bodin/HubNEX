@@ -3,22 +3,22 @@
     "step": {
       "user": {
         "title": "HubNEX",
-        "description": "Di solito non serve: riavvia l'add-on HubNEX e conferma \"HubNEX rilevato\". A mano: http://<nome host dell'add-on>:8765 (il nome host è nella pagina dell'add-on) e il Token HQ della configurazione dell'add-on.",
+        "description": "Usually not needed: restart the HubNEX add-on and confirm \"HubNEX discovered\". By hand: http://<add-on hostname>:8765 (the hostname is on the add-on page) and the HQ token from the add-on configuration.",
         "data": { "url": "URL", "token": "Token" }
       },
       "hassio_confirm": {
         "title": "HubNEX",
-        "description": "Usare l'assistente di HubNEX come agente di conversazione di Assist?"
+        "description": "Use the HubNEX assistant as an Assist conversation agent?"
       }
     },
     "error": {
-      "cannot_connect": "Impossibile raggiungere HubNEX.",
-      "invalid_auth": "Token errato."
+      "cannot_connect": "Cannot reach HubNEX.",
+      "invalid_auth": "Wrong token."
     },
     "abort": {
-      "already_configured": "HubNEX è già configurato.",
-      "cannot_connect": "Impossibile raggiungere HubNEX.",
-      "invalid_auth": "Token errato."
+      "already_configured": "HubNEX is already configured.",
+      "cannot_connect": "Cannot reach HubNEX.",
+      "invalid_auth": "Wrong token."
     }
   }
 }

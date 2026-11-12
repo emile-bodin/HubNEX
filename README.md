@@ -1,10 +1,10 @@
 # HubNEX
 
-*English · [Italiano](README.it.md)*
+*English only*
 
 **The AI headquarters for home and work**, as a Home Assistant add-on.
 
-[![Checks](https://github.com/P1pp89/HubNEX/actions/workflows/ci.yaml/badge.svg)](https://github.com/P1pp89/HubNEX/actions/workflows/ci.yaml)
+[![Checks](https://github.com/emile-bodin/HubNEX/actions/workflows/ci.yaml/badge.svg)](https://github.com/emile-bodin/HubNEX/actions/workflows/ci.yaml)
 
 **[See the presentation →](https://p1pp89.github.io/HubNEX/en/)**
 
@@ -28,22 +28,20 @@ its own role: mail, administration, technical research, home, security… You ta
   text-to-speech in the dashboard.
 - **No initiative without your order**: routines off by default, no action in the house without
   your request, permanent rules that apply to the whole team.
-- **Italian and English**: the dashboard follows each user's Home Assistant language; the
-  assistant and the add-on follow the **Language** option.
+- **English throughout**: the dashboard, assistant, agents and add-on messages use English.
 
 ## Installation
 
-[![Add the repository to your Home Assistant](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2FP1pp89%2FHubNEX)
+[![Add the repository to your Home Assistant](https://my.home-assistant.io/badges/supervisor_add_addon_repository.svg)](https://my.home-assistant.io/redirect/supervisor_add_addon_repository/?repository_url=https%3A%2F%2Fgithub.com%2Femile-bodin%2FHubNEX)
 
 1. Home Assistant → Settings → Add-ons → **Add-on store** → ⋮ → **Repositories** → add
-   `https://github.com/P1pp89/HubNEX` (or press the button above).
+   `https://github.com/emile-bodin/HubNEX` (or press the button above).
 2. Install **HubNEX**, open **Configuration**, enter the Anthropic API key (or choose the
    personal Claude Code subscription mode described in the documentation), **Start** and turn
    on **Show in sidebar**.
 
 The full guide (team, connectors, voice, Telegram, mail, Home view) is in
-[`hubnex/DOCS.en.md`](hubnex/DOCS.en.md) (Italian: [`hubnex/DOCS.md`](hubnex/DOCS.md), the
-add-on's **Documentation** tab).
+[`hubnex/DOCS.md`](hubnex/DOCS.md), also available in the add-on's **Documentation** tab.
 
 API-key mode needs an Anthropic Console account with credit. A private single-user setup can
 instead sign in to the included Claude Code CLI with its own Claude subscription; see the add-on

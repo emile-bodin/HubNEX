@@ -456,7 +456,7 @@ def create_app(settings: Settings | None = None, hq: HQ | None = None, start_wor
     @app.post("/api/claude/login", dependencies=[Depends(full)])
     async def claude_login_start():
         if settings.claude_auth_mode == "api_key" or not settings.claude_subscription_enabled:
-            raise HTTPException(400, "Abbonamento Claude non attivato")
+            raise HTTPException(400, "Claude subscription is not enabled")
         if claude_login["process"] and claude_login["process"].returncode is None:
             return {"running": True, "output": claude_login["output"]}
         from hubnex.claude_code import cli_env
@@ -466,7 +466,7 @@ def create_app(settings: Settings | None = None, hq: HQ | None = None, start_wor
 
         binary = shutil.which("claude")
         if not binary:
-            raise HTTPException(503, "Claude Code non installato")
+            raise HTTPException(503, "Claude Code is not installed")
         master, slave = pty.openpty()
         attrs = termios.tcgetattr(slave)
         attrs[3] &= ~termios.ECHO  # never echo a pasted login code into the dashboard
@@ -476,7 +476,7 @@ def create_app(settings: Settings | None = None, hq: HQ | None = None, start_wor
                                                             stdout=slave, stderr=slave, env=cli_env())
         except OSError:
             os.close(master)
-            raise HTTPException(503, "Impossibile avviare Claude Code")
+            raise HTTPException(503, "Could not start Claude Code")
         finally:
             os.close(slave)
         claude_login.update(process=process, master=master, output="", task=asyncio.create_task(
@@ -493,7 +493,7 @@ def create_app(settings: Settings | None = None, hq: HQ | None = None, start_wor
         process = claude_login["process"]
         code = body.get("code")
         if not process or process.returncode is not None or not isinstance(code, str) or not 1 <= len(code) <= 512:
-            raise HTTPException(400, "Nessun accesso Claude in attesa di un codice")
+            raise HTTPException(400, "No Claude sign-in is waiting for a code")
         os.write(claude_login["master"], (code.strip() + "\n").encode())
         return {"running": True}
 

@@ -86,9 +86,6 @@ configuration:
   voice_tts_voice:
     name: Home Assistant engine voice
     description: The name of the voice to use with the engine above (e.g. Rinaldo or Diego for Home Assistant Cloud). Empty = its default voice. The language is Home Assistant's.
-  language:
-    name: Language
-    description: auto = Home Assistant's; it = Italian; en = English. Used by the assistant, the agents, Telegram and the add-on's messages; the dashboard follows the language of whoever opens it.
   voice_answers:
     name: Spoken answers
     description: completa = the voice reads the whole answer; riassunto = for long answers the voice says only the gist in one or two sentences, the written text stays complete.

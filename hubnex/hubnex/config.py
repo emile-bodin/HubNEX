@@ -65,7 +65,6 @@ ADDON_OPTIONS = {
     "voice_tts_entity": "VOICE_TTS_ENTITY",
     "voice_tts_voice": "VOICE_TTS_VOICE",
     "voice_answers": "VOICE_ANSWERS",
-    "language": "HUBNEX_LANGUAGE",
     "ha_blocked_services": "HA_BLOCKED_SERVICES",
     "install_assist_integration": "HUBNEX_INSTALL_ASSIST",
     "non_admin_access": "HUBNEX_NON_ADMIN_ACCESS",
@@ -78,12 +77,6 @@ DEFAULT_AGENTS = Path(__file__).resolve().parent.parent / "config" / "agents.yam
 DEFAULT_AGENTS_EN = DEFAULT_AGENTS.with_name("agents.en.yaml")
 
 
-def ha_language(storage: str = "/homeassistant/.storage/core.config") -> str | None:
-    """Home Assistant's language, read from its configuration (the add-on maps it)."""
-    try:
-        return json.loads(Path(storage).read_text())["data"].get("language")
-    except (OSError, ValueError, KeyError, TypeError):
-        return None
 DEFAULT_MODEL = "claude-sonnet-5-5"
 DEFAULT_MAIL_MODEL = "claude-haiku-5-5"
 DEFAULT_VOICE_MODEL = "claude-haiku-5-5"  # Assist: speed first
@@ -118,12 +111,8 @@ def _load_addon_options(options_file: str = "/data/options.json", config_dir: st
     os.environ.setdefault("HUBNEX_INTERNAL_TOKEN", token_file.read_text().strip())
     agents = Path(config_dir) / "agents.yaml"
     if Path(config_dir).is_dir() and not agents.exists():
-        # The example team in the owner's language: the option, else Home Assistant's.
-        lang = os.environ.get("HUBNEX_LANGUAGE", "auto")
-        if lang not in ("it", "en"):
-            lang = ha_language() or "it"
-        shutil.copy(DEFAULT_AGENTS if lang.startswith("it") else DEFAULT_AGENTS_EN, agents)
-    os.environ.setdefault("HUBNEX_AGENTS_FILE", str(agents if agents.exists() else DEFAULT_AGENTS))
+        shutil.copy(DEFAULT_AGENTS_EN, agents)
+    os.environ.setdefault("HUBNEX_AGENTS_FILE", str(agents if agents.exists() else DEFAULT_AGENTS_EN))
     if Path(config_dir).is_dir():  # the floor plan must survive updates: keep it in /config
         os.environ.setdefault("HUBNEX_CASA_FILE", str(Path(config_dir) / "casa.yaml"))
     return True
@@ -190,7 +179,7 @@ class Settings:
     mail: MailSettings = field(default_factory=MailSettings)
     # Voice from Home Assistant's own text-to-speech (Piper, HA Cloud, Google…) instead of ElevenLabs
     voice_tts_entity: str = ""  # e.g. tts.piper
-    language: str = "auto"  # auto (Home Assistant's) | it | en
+    language: str = "en"
     voice_answers: str = "completa"  # completa | riassunto: what the voice reads of a long answer
     voice_tts_voice: str = ""  # that engine's voice by name, e.g. Rinaldo (empty: its default)
     elevenlabs_key: str = ""
@@ -198,7 +187,7 @@ class Settings:
     elevenlabs_model: str = "eleven_flash_v2_5"
     timezone: str = "Europe/Rome"
     db_path: str = "data/hubnex.db"
-    agents_file: str = "config/agents.yaml"
+    agents_file: str = "config/agents.en.yaml"
     casa_file: str = ""  # floor plan of the house view; default: casa.yaml next to agents.yaml
     # Client IP whose requests skip the token check (HA ingress); None outside the add-on
     trusted_proxy: str | None = None
@@ -265,11 +254,11 @@ class Settings:
             elevenlabs_model=e("ELEVENLABS_MODEL") or "eleven_flash_v2_5",
             voice_tts_entity=(e("VOICE_TTS_ENTITY") or "").strip(),
             voice_tts_voice=(e("VOICE_TTS_VOICE") or "").strip(),
-            language=(e("HUBNEX_LANGUAGE") or "auto").strip().lower(),
+            language="en",
             voice_answers="riassunto" if (e("VOICE_ANSWERS") or "").strip().lower() == "riassunto" else "completa",
             timezone=e("TZ") or "Europe/Rome",
             db_path=e("HUBNEX_DB") or "data/hubnex.db",
-            agents_file=e("HUBNEX_AGENTS_FILE") or "config/agents.yaml",
+            agents_file=e("HUBNEX_AGENTS_FILE") or "config/agents.en.yaml",
             casa_file=e("HUBNEX_CASA_FILE", ""),
             trusted_proxy=INGRESS_PROXY_IP if addon else None,
             non_admin_access="completo" if (e("HUBNEX_NON_ADMIN_ACCESS") or "").strip().lower() == "completo" else "casa",

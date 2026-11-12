@@ -1,582 +1,572 @@
 # HubNEX
 
-*Italiano · [English](https://github.com/P1pp89/HubNEX/blob/main/hubnex/DOCS.en.md)*
+*English only*
 
-Il quartier generale AI per casa e lavoro: un assistente (di serie si chiama **Jarvis**) con il
-suo team di agenti Claude, una dashboard 3D nella barra laterale di Home Assistant, la plancia
-della casa, il gruppo Telegram, la voce e i connettori per i programmi del tuo lavoro.
+The AI headquarters for home and work: an assistant (called **Jarvis** out of the box) with its
+team of Claude agents, a 3D dashboard in Home Assistant's sidebar, the house's dashboard, a
+Telegram group, voice and connectors for the programs you use at work.
 
-## Primo avvio
+## First start
 
-1. In **Configurazione** usa la chiave API Anthropic predefinita oppure la modalità abbonamento personale qui sotto. Avvia l'add-on e attiva **Mostra nella barra laterale**.
+1. In **Configuration**, choose the default Anthropic API key, or the personal Claude Code subscription mode described below. Start the add-on and turn on **Show in sidebar**.
 
-### Abbonamento Claude personale (un solo utente)
+### Personal Claude subscription (single-user setup)
 
-Imposta `claude_auth_mode` su `subscription`, attiva `claude_subscription_enabled` e riavvia l'add-on. Apri HubNEX → Preferenze → Accesso Claude → **Accedi a Claude**. Il browser non si apre da solo dall'add-on: premi **Apri la pagina di accesso Claude** e, se richiesto, incolla il codice nel campo subito sotto il link. L'add-on usa la CLI Claude Code originale di Anthropic e conserva il suo accesso in `/data`; HubNEX non riceve password o cookie del browser. Controlla che lo stato sia **Collegato** prima di usare l'AI.
+Set `claude_auth_mode` to `subscription`, enable `claude_subscription_enabled`, then restart the add-on. Open HubNEX → Preferences → Claude access → **Sign in to Claude**. The add-on cannot open a browser by itself: select **Open Claude sign-in page** and, if prompted, paste the login code into the field directly below the link. The add-on runs Anthropic's unmodified Claude Code CLI and keeps its own sign-in in persistent `/data`; HubNEX does not receive your password or browser cookies. Check that the status says **Connected** before sending an AI request.
 
-Per usare la chiave API solo come riserva, scegli `hybrid`, attiva `claude_api_fallback` e inserisci `anthropic_api_key`. La riserva interviene solo se la CLI o il suo accesso non sono disponibili. Le chiamate API hanno una fatturazione separata su Anthropic Console; l'abbonamento ha i limiti d'uso di Claude Code. Il riquadro Spesa conta le chiamate API, non quelle in abbonamento. Questa modalità è destinata a un proprietario che usa il proprio account, non a più utenti di Home Assistant.
-Claude Code mostra l'avanzamento degli agenti, ma la CLI non espone gli stessi riassunti dei pensieri visibili del percorso API diretto.
-2. Apri **HubNEX** dalla barra laterale: vedi il quartier generale con l'assistente e gli agenti.
-3. Scrivigli nella chat in basso. Per la casa usa già Home Assistant: non serve creare token,
-   l'add-on accede tramite il Supervisor.
-4. Racconta chi sei e come lavori in `agents.yaml` (sotto): più sa, più è utile.
+For an optional API backup, set `claude_auth_mode` to `hybrid`, enable `claude_api_fallback`, and supply `anthropic_api_key`. Only CLI availability or authentication failures trigger this fallback. An API fallback request is billed separately through Anthropic Console; subscription usage is subject to Claude Code's plan limits. The cost panel counts API calls, not subscription requests. This mode is intended for one owner using their own account, not shared AI access for other Home Assistant users.
+Claude Code reports agent progress, but its CLI output does not expose the same visible thinking summaries as HubNEX's direct API path.
+2. Open **HubNEX** from the sidebar: you see the headquarters with the assistant and its agents.
+3. Write to it in the chat at the bottom. It already uses Home Assistant for the house: no token
+   to create, the add-on goes through the Supervisor.
+4. Tell it who you are and how you work in `agents.yaml` (below): the more it knows, the more
+   useful it is.
 
-Tutto il resto è facoltativo e si aggiunge quando vuoi, in quest'ordine consigliato:
+HubNEX uses English for the dashboard, assistant, agents, Telegram and add-on messages. New
+installations receive an English example `agents.yaml`; an existing file is kept as written.
 
-| Cosa | Dove | Sezione |
+Everything else is optional and can be added whenever you like, in this suggested order:
+
+| What | Where | Section |
 | --- | --- | --- |
-| Il tuo team, la tua azienda | `agents.yaml` | Il team |
-| Piantina della casa | Casa → ⚙ Piantina | Vista Casa |
-| Parlare con Assist (app, speaker) | integrazione HubNEX + Assistenti vocali | Voce |
-| Voce nella dashboard | opzione *Voce da Home Assistant* o ElevenLabs | Voce |
-| Gruppo Telegram | opzioni dei bot | Il gruppo Telegram |
-| Posta di lavoro | opzioni IMAP/SMTP | Posta di lavoro |
-| I programmi del lavoro | `connectors` in `agents.yaml` | Connettori |
-| Tablet o telefono fuori da HA | Token HQ e porta | Usarla fuori da Home Assistant |
+| Your team, your business | `agents.yaml` | The team |
+| Floor plan of the house | Home → ⚙ Floor plan | Home view |
+| Talking through Assist (app, speakers) | HubNEX integration + Voice assistants | Voice |
+| Voice in the dashboard | *Voice from Home Assistant* option or ElevenLabs | Voice |
+| Telegram group | the bots' options | The Telegram group |
+| Work mailbox | IMAP/SMTP options | Work mailbox |
+| The programs of your work | `connectors` in `agents.yaml` | Connectors |
+| Tablet or phone outside HA | HQ token and port | Using it outside Home Assistant |
 
-Ogni opzione della scheda **Configurazione** ha la sua spiegazione accanto al campo.
+Every option of the **Configuration** tab has its explanation next to the field.
 
-## Il team: `agents.yaml`
+## The team: `agents.yaml`
 
-Al primo avvio viene creato `agents.yaml` nella cartella di configurazione dell'add-on,
-`/addon_configs/<id>_hubnex/agents.yaml`. Lo apri con l'add-on **File editor** o **Studio Code
-Server**, oppure via Samba nella condivisione `addon_configs`. Dopo una modifica **riavvia
-l'add-on**.
+On the first start `agents.yaml` is created in the add-on's configuration folder,
+`/addon_configs/<id>_hubnex/agents.yaml`. Open it with the **File editor** or **Studio Code
+Server** add-on, or through Samba in the `addon_configs` share. After a change **restart the
+add-on**.
 
-- `boss`: l'assistente che coordina tutto: nome, carattere, istruzioni, strumenti.
-- `companies`: le tue "aziende" (il lavoro, la casa, un'associazione…), con reparti e agenti.
-  Ogni agente ha un ruolo, istruzioni e gli strumenti che può usare.
-- `connectors`: i programmi del tuo lavoro (vedi **Connettori**).
-- Routine: compiti che un agente fa da solo a orari fissi. Sono **spente** finché non scrivi
+- `boss`: the assistant who coordinates everything: name, character, instructions, tools.
+- `companies`: your "companies" (work, home, a club…), with departments and agents. Every agent
+  has a role, instructions and the tools it may use.
+- `connectors`: the programs of your work (see **Connectors**).
+- Routines: tasks an agent does by itself at fixed times. They are **off** until you write
   `enabled: true`.
 
-Il file d'esempio è commentato riga per riga.
+The example file is commented line by line. Custom instructions are kept as written; the
+assistant answers in English.
 
-## Connettori: i programmi del tuo lavoro
+## Connectors: the programs of your work
 
-HubNEX si collega ai programmi che usi al lavoro (gestionale, calendario, CRM, Notion,
-database…) tramite **MCP** (Model Context Protocol), lo standard aperto per collegare le AI ai
-programmi. Molti software hanno già un "server MCP", e chi sviluppa un gestionale può
-aggiungerne uno.
+HubNEX connects to the programs you use at work (management software, calendar, CRM, Notion,
+databases…) through **MCP** (Model Context Protocol), the open standard to connect AI to
+programs. Many programs already have an "MCP server", and whoever develops one can add it.
 
 In `agents.yaml`:
 
 ```yaml
 connectors:
-  - name: Gestionale                    # nome mostrato a te e agli agenti
-    url: https://esempio.it/mcp         # indirizzo del server MCP
-    token: la-tua-chiave                # se il server la chiede (Authorization: Bearer …)
-    agents: [boss, tecnico]             # chi lo può usare (omesso = tutti; boss = l'assistente)
+  - name: Management                    # name shown to you and to the agents
+    url: https://example.com/mcp        # address of the MCP server
+    token: your-key                     # if the server asks for one (Authorization: Bearer …)
+    agents: [boss, technical]           # who may use it (omitted = everybody; boss = the assistant)
 ```
 
-HubNEX legge da solo quali strumenti offre il programma e li dà agli agenti indicati.
+HubNEX reads by itself which tools the program offers and gives them to the agents listed.
 
-- Gli strumenti che **leggono** li usano liberamente.
-- Quelli che **modificano** i dati non partono subito: ti vengono mostrati con un riepilogo e
-  **✅ Conferma / ❌ Annulla**, nel gruppo Telegram e nel pannello "Da approvare" della
-  dashboard. Partono solo dopo il tuo ok, una volta sola anche se premi due volte.
-- Come lo capisce: il server dichiara quali strumenti sono di sola lettura. Se non lo dichiara,
-  sono di sola lettura quelli che iniziano con `get`, `list`, `search`, `read`, `find`… e tutti
-  gli altri chiedono conferma. Puoi correggere con `free: [nome]` (mai conferma) e
-  `always_confirm: [nome]` (sempre), oppure `confirm: always` per l'intero connettore.
-- `/stato` nel gruppo Telegram dice se ogni connettore risponde e quanti strumenti offre; gli
-  errori compaiono anche nell'attività della dashboard.
+- Tools that **read** are used freely.
+- Tools that **change** data don't run at once: you see a summary with **✅ Confirm / ❌
+  Cancel**, in the Telegram group and in the "To approve" panel of the dashboard. They run only
+  after your ok, and only once even if you press twice.
+- How it knows: the server declares which tools are read-only. If it doesn't, the read-only ones
+  are those starting with `get`, `list`, `search`, `read`, `find`… and all the others ask for
+  confirmation. You can correct this with `free: [name]` (never ask) and
+  `always_confirm: [name]` (always ask), or `confirm: always` for the whole connector.
+- `/stato` in the Telegram group says whether each connector answers and how many tools it
+  offers; errors also appear in the dashboard's activity.
 
-## Voce
+## Voice
 
-Puoi parlare con l'assistente in tre modi. Tutti sono facoltativi.
+You can talk to the assistant in three ways. All are optional.
 
-**1. Assist di Home Assistant** (app, smart speaker, parola di attivazione)
+**1. Home Assistant's Assist** (app, smart speakers, wake word)
 
-L'add-on installa da solo l'integrazione **HubNEX**, che rende l'assistente un *agente di
-conversazione* di Assist. Il riconoscimento e la voce li fa Home Assistant, con il motore che
-preferisci: Piper (locale e gratuito), Home Assistant Cloud, ElevenLabs, Google…
+The add-on installs the **HubNEX** integration by itself, which makes the assistant an Assist
+*conversation agent*. Speech recognition and the voice are Home Assistant's, with the engine you
+prefer: Piper (local and free), Home Assistant Cloud, ElevenLabs, Google…
 
-1. Avvia l'add-on: arriva una notifica. **Riavvia Home Assistant**.
-2. Impostazioni → Dispositivi e servizi: compare **HubNEX rilevato** → *Configura* → *Invia*.
-3. Impostazioni → Assistenti vocali → il tuo assistente → **Agente di conversazione**: scegli
-   l'assistente di HubNEX e lascia attivo **"Preferisci gestire i comandi localmente"**: i
-   comandi semplici ("accendi la luce della cucina") li esegue Home Assistant, subito e senza
-   consumare credito; tutto il resto va all'assistente.
+1. Start the add-on: a notification arrives. **Restart Home Assistant**.
+2. Settings → Devices & services: **HubNEX discovered** appears → *Configure* → *Submit*.
+3. Settings → Voice assistants → your assistant → **Conversation agent**: choose HubNEX's
+   assistant and keep **"Prefer handling commands locally"** on: simple commands ("turn on
+   the kitchen light") are run by Home Assistant, at once and without using credit; everything
+   else goes to the assistant.
 
-Se l'integrazione non viene rilevata: Dispositivi e servizi → Aggiungi → "HubNEX", con
-l'indirizzo dell'add-on (`http://<hostname dell'add-on>:8765`, l'hostname è nella pagina
-dell'add-on) e il **Token HQ**. Di solito basta riavviare l'add-on HubNEX.
+If the integration is not discovered: Devices & services → Add → "HubNEX", with the add-on's
+address (`http://<add-on hostname>:8765`, the hostname is on the add-on page) and the
+**HQ token**. Usually it's enough to restart the HubNEX add-on.
 
-Le risposte a voce sono brevi (al massimo due frasi). Ogni richiesta, da Assist o dalla
-dashboard, segue la strada più veloce possibile:
+Spoken answers are short (two sentences at most), in the language Assist is speaking. Every
+request, from Assist or the dashboard, takes the fastest possible road:
 
-1. **Home Assistant da solo** ("accendi la luce della cucina"): istantaneo, senza AI. Assist lo
-   fa già; la dashboard lo prova per prima. Esponi le entità ad Assist e dai loro un alias con
-   il nome che pronunci. Serrature, allarme e porte non passano mai di qui.
-2. **La via rapida** per le altre richieste sulla casa: il **Modello per i comandi rapidi** (di
-   serie Haiku) con l'elenco delle entità e del loro stato già in mano. Nella chat, sotto la
-   risposta, compare la scritta RISPOSTA RAPIDA (o HOME ASSISTANT per il punto 1).
-3. **Jarvis** con il suo modello e tutte le istruzioni per tutto il resto: domande complesse,
-   lavoro, agenti, serrature e allarme (con la conferma).
+1. **Home Assistant by itself** ("turn on the kitchen light"): instant, no AI. Assist does it
+   already; the dashboard tries it first. Expose the entities to Assist and give them an alias
+   with the name you say. Locks, the alarm and doors never go this way.
+2. **The quick route** for the other requests about the house: the **Quick command model**
+   (Haiku out of the box) with the list of entities and their states already in hand. In the
+   chat, under the answer, it says QUICK ANSWER (or HOME ASSISTANT for point 1).
+3. **Jarvis** with its model and all its instructions for everything else: complex questions,
+   work, agents, locks and the alarm (with confirmation).
 
-**2. Dashboard** (microfono e altoparlante nella barra in basso)
+**2. Dashboard** (microphone and speaker in the bottom bar)
 
-- Quello che dici lo riconosce il browser (gratis). I browser lo permettono solo su `https://`:
-  funziona dall'app di Home Assistant e da Nabu Casa, non da `http://homeassistant.local`.
-- L'assistente risponde con la voce scelta nella configurazione:
-  - **Voce da Home Assistant**: scrivi un motore di sintesi vocale di Home Assistant, per
-    esempio `tts.piper` (locale, gratuito) o `tts.home_assistant_cloud`. Ha la precedenza.
-    In **Voce del motore di Home Assistant** puoi scegliere la voce per nome (per esempio
-    `Rinaldo` o `Diego` con Home Assistant Cloud): se il nome non esiste, il messaggio d'errore
-    elenca quelle disponibili. La lingua è quella di Home Assistant;
-  - oppure **ElevenLabs**: chiave API (elevenlabs.io → Profilo → API Keys), ID della voce
-    (Voices → la voce → ID) e modello (`eleven_flash_v2_5`, il più economico, parla italiano).
-- Se la voce non parte, sotto la risposta compare il motivo.
-- Prima di leggere, il testo viene preparato per l'ascolto: niente simboli, emoji o link,
-  unità e sigle in parole (Ω → "ohm", kW → "chilowatt", MT/BT → "media e bassa tensione"),
-  date per esteso, una pausa per ogni punto di un elenco. Lo scritto resta com'è.
-- **Risposte a voce**: `completa` (la voce legge tutta la risposta) oppure `riassunto`: per le
-  risposte lunghe la voce dice solo il succo in una o due frasi e il testo scritto resta
-  completo. Le risposte brevi vengono lette per intero. Vale per la dashboard con
-  l'altoparlante acceso e per i vocali di Telegram; Assist risponde già in due frasi.
+- What you say is recognised by the browser (free). Browsers allow it only on `https://`: it
+  works from the Home Assistant app and through Nabu Casa, not from `http://homeassistant.local`.
+- The assistant answers with the voice chosen in the configuration:
+  - **Voice from Home Assistant**: write one of Home Assistant's text-to-speech engines, e.g.
+    `tts.piper` (local, free) or `tts.home_assistant_cloud`. It takes precedence. In **Home
+    Assistant engine voice** you can choose the voice by name (e.g. `Ryan` or `Jenny` with Home
+    Assistant Cloud): if the name doesn't exist, the error message lists the available ones. The
+    language is Home Assistant's;
+  - or **ElevenLabs**: API key (elevenlabs.io → Profile → API Keys), voice ID (Voices → the
+    voice → ID) and model (`eleven_flash_v2_5`, the cheapest).
+- If the voice doesn't start, the reason appears under the answer.
+- Before it is read, the text is prepared for listening: no symbols, emoji or links, units and
+  abbreviations in words (Ω → "ohms", kWh → "kilowatt hours"), dates spelled out, a pause for
+  every item of a list. The written text stays as it is.
+- **Spoken answers**: `completa` (the voice reads the whole answer) or `riassunto` (summary):
+  for long answers the voice says only the gist in one or two sentences and the written text
+  stays complete. Short answers are read whole. It applies to the dashboard with the speaker on
+  and to Telegram voice notes; Assist already answers in two sentences.
 
-**3. Telegram**: mandi un vocale, viene trascritto con ElevenLabs e l'assistente risponde anche
-a voce (`telegram_voice_replies`). La trascrizione dei vocali richiede ElevenLabs.
+**3. Telegram**: send a voice note, it is transcribed with ElevenLabs and the assistant also
+answers by voice (`telegram_voice_replies`). Transcription needs ElevenLabs.
 
-**Note su ElevenLabs (piano gratuito):** le voci prese dalla libreria pubblica non si possono
-usare tramite API; l'account può essere bloccato per "attività insolita" anche con caratteri
-disponibili. In questi casi il messaggio d'errore lo dice.
+**About ElevenLabs (free plan):** voices from the public library can't be used through the API;
+the account can be blocked for "unusual activity" even with characters left. In these cases the
+error message says so.
 
-## Il gruppo Telegram
+## The Telegram group
 
-Un gruppo con **un bot per l'assistente** e, facoltativo, **uno per l'agente della posta**. Gli
-agenti senza un bot proprio parlano tramite l'assistente, con il loro nome davanti.
+A group with **one bot for the assistant** and, optionally, **one for the mail agent**. Agents
+without a bot of their own speak through the assistant, with their name in front.
 
-1. Crea i bot con @BotFather (`/newbot`) e disattiva la privacy di gruppo (*Bot Settings →
-   Group Privacy → Turn off*), poi aggiungili a un gruppo.
-2. Metti i token nella configurazione, avvia e scrivi `/id` nel gruppo: ti dice l'ID del gruppo
-   (numero negativo, `allowed_chat_id`) e il tuo (`allowed_user_id`). I bot ignorano tutti gli
-   altri.
+1. Create the bots with @BotFather (`/newbot`) and turn group privacy off (*Bot Settings →
+   Group Privacy → Turn off*), then add them to a group.
+2. Put the tokens in the configuration, start and send `/id` in the group: it tells you the
+   group's ID (a negative number, `allowed_chat_id`) and yours (`allowed_user_id`). The bots
+   ignore everybody else.
 
-Uso:
+Use:
 
-- Messaggio normale → risponde l'assistente, che fa da sé o delega. L'agente a cui delega
-  risponde direttamente nel gruppo.
-- Rispondi a un messaggio dell'agente della posta, o scrivi `@nome_bot_mail` → risponde lui.
-- Rispondi a una **bozza** con cosa cambiare ("più formale") → arriva la nuova versione.
-- Comandi: `/id`, `/stato`, `/posta` (controlla subito la posta), `/regole`.
+- A normal message → the assistant answers, doing it itself or delegating. The agent it
+  delegates to answers directly in the group.
+- Reply to a message of the mail agent, or write `@mail_bot_name` → it answers.
+- Reply to a **draft** with what to change ("more formal") → the new version arrives.
+- Commands: `/id`, `/stato` (status), `/posta` (check the mail now), `/regole` (your rules).
 
-Un bot può essere ascoltato da un solo programma: due installazioni con gli stessi token vanno
-in conflitto.
+A bot can be listened to by one program only: two installations with the same tokens conflict.
 
-## Allegati: foto e documenti
+## Attachments: photos and documents
 
-Puoi mandare all'assistente e agli agenti **foto, PDF e file di testo** (txt, csv, md, json):
-utile, per esempio, dal cantiere.
+You can send the assistant and the agents **photos, PDFs and text files** (txt, csv, md, json):
+handy, for instance, from a building site.
 
-- **Telegram**: invia una foto, un album o un file, con la richiesta nella didascalia ("guarda
-  questa crepa: è da preoccuparsi?"). Oppure rispondi a una foto già inviata con la domanda. Come
-  per i messaggi, va all'assistente; per un agente con un bot suo, rispondi a un suo messaggio o
-  scrivi `@nome_bot` nella didascalia. Senza testo, l'assistente guarda e ti chiede cosa serve.
-- **Dashboard**: la graffetta accanto al campo della chat (dal telefono anche la fotocamera); puoi
-  anche incollare uno screenshot o trascinare i file sulla chat. Le foto grandi vengono
-  rimpicciolite prima dell'invio, per consumare meno dati.
-- **API**: `POST /api/attachments?name=foto.jpg` con il file come corpo → `{"id": …}`; poi
-  `"attachments": ["id"]` in `/api/chat` o in `/api/agents/{id}/task`.
+- **Telegram**: send a photo, an album or a file, with the request in the caption ("look at this
+  crack: should I worry?"). Or reply to a photo already sent with the question. As with messages,
+  it goes to the assistant; for an agent with its own bot, reply to one of its messages or write
+  `@bot_name` in the caption. Without text, the assistant looks and asks you what you need.
+- **Dashboard**: the paperclip next to the chat field (on a phone, the camera too); you can also
+  paste a screenshot or drop files on the chat. Large photos are scaled down before sending, to
+  use less data.
+- **API**: `POST /api/attachments?name=photo.jpg` with the file as the body → `{"id": …}`; then
+  `"attachments": ["id"]` in `/api/chat` or `/api/agents/{id}/task`.
 
-L'assistente vede gli allegati e, quando delega un lavoro, li passa all'agente insieme al
-compito. La conversazione ne conserva solo una nota con il loro codice (`#1a2b3c4d`): le foto non
-si pagano di nuovo a ogni messaggio e chiunque del team può riguardarle quando servono ("nella
-foto di prima…").
+The assistant sees the attachments and, when it delegates a job, hands them to the agent with
+the task. The conversation keeps only a note with their code (`#1a2b3c4d`): photos are not paid
+for again with every message, and anyone in the team can look at them again when needed ("in
+the photo from before…").
 
-Limiti: 20 MB per file (lo stesso limite dei bot Telegram), PDF fino a 100 pagine, 10 allegati
-per messaggio. Le foto sono ruotate come scattate e ridotte a 1568 pixel sul lato lungo (quello
-che Claude legge comunque). Word ed Excel non si leggono direttamente: salvali in PDF (o CSV per
-un foglio). Ogni foto costa circa quanto 1.500 parole di testo; un PDF circa 1.500–3.000 per
-pagina. Gli allegati restano 30 giorni in `/data/allegati`, poi vengono cancellati.
+Limits: 20 MB per file (the same limit as Telegram bots), PDFs up to 100 pages, 10 attachments
+per message. Photos are rotated as taken and scaled to 1568 pixels on the long side (what Claude
+reads anyway). Word and Excel files are not read directly: save them as PDF (or CSV for a
+sheet). Each photo costs about as much as 1,500 words of text; a PDF about 1,500–3,000 per page.
+Attachments are kept for 30 days in `/data/allegati`, then deleted.
 
-## Posta di lavoro
+## Work mailbox
 
-Imposta IMAP/SMTP del tuo provider (server, porte SSL 993/465, utente, password).
+Set your provider's IMAP/SMTP (servers, SSL ports 993/465, user, password).
 
-- Ogni `check_interval_minutes` controlla la casella, classifica le nuove email (alta, media,
-  bassa) e ti avvisa da `notify_min_priority` in su. Le email non vengono segnate come lette.
-- **Mittenti da non segnalare** (`mail_ignore`): separati da virgola, un indirizzo
-  (`offerte@negozio.it`), un dominio (`@newsletter.it`) o una parola dell'indirizzo (`noreply`).
-  Le loro email restano nella casella e Jarvis Mail le legge se glielo chiedi, ma non arriva
-  nessun messaggio su Telegram e non vengono nemmeno classificate (niente credito Claude).
-- **Niente parte senza di te**: ogni risposta è una bozza con Invia, Salva in Bozze, Modifica,
-  Scarta, su Telegram e nella dashboard.
-- **Firma**: puoi incollare quella in HTML del tuo programma di posta.
-- Nelle istruzioni dell'agente della posta elenca i tuoi **clienti importanti**: le loro email
-  hanno priorità alta.
+- Every `check_interval_minutes` it checks the mailbox, sorts the new emails (high, medium, low
+  priority: `alta`, `media`, `bassa`) and tells you from `notify_min_priority` up. Emails are
+  not marked as read.
+- **Senders not to announce** (`mail_ignore`): comma separated, an address
+  (`offers@shop.com`), a domain (`@newsletter.com`) or a word of the address (`noreply`).
+  Their emails stay in the mailbox and Jarvis Mail reads them if you ask, but no Telegram
+  message arrives and they aren't even sorted (no Claude credit).
+- **Nothing goes out without you**: every reply is a draft with Send, Save to Drafts, Edit,
+  Discard, on Telegram and in the dashboard.
+- **Signature**: you can paste the HTML one from your mail program.
+- In the mail agent's instructions list your **important customers**: their emails get high
+  priority.
 
-## Vista Casa
+## Home view
 
-Il pulsante **⌂ Casa** apre la plancia di Home Assistant. In alto il **cruscotto**: chi è in
-casa, allarme, clima medio, luci accese, energia e telecamere; sotto le scene. Ogni entità ha la
-sua **card**: luci (tocca la card, barra della luminosità; se la lampadina li ha, il pallino
-accanto allo stato apre temperatura colore e colori), clima con quadrante, tapparelle con la
-finestra disegnata, valvole, media con copertina, avanzamento, casuale/ripeti, volume e sorgente, **robot
-aspirapolvere** con la sua mappa (dove il robot si vede muovere), stato, batteria e comandi,
-prese con il consumo, porte e finestre
-(rosse quando aperte, "da quanto"), sensori con il grafico delle ultime 24 ore, persone,
-telecamere. Le **serrature** con un codice in Home Assistant chiedono il codice sul tastierino,
-le altre una conferma nella card; l'**allarme** si disinserisce con il tastierino. Le **stanze sono le aree di Home
-Assistant**: le entità di un'area (o del suo dispositivo) compaiono da sole nella stanza.
+The **⌂ Home** button opens Home Assistant's dashboard. At the top the **HUD**: who is home,
+alarm, average climate, lights on, energy and cameras; below, the scenes. Every entity has its
+**card**: lights (tap the card, brightness bar; when the bulb has them, the dot next
+to the state opens colour temperature and colours), climate with a dial, blinds with the window drawn,
+valves, media with cover art, progress, shuffle/repeat, volume and source, **robot vacuums**
+with their map (where the robot is seen moving), state, battery and commands, plugs with their
+consumption, doors and windows (red
+when open, "for how long"), sensors with the chart of the last 24 hours, people, cameras.
+**Locks** with a code in Home Assistant ask for it on a keypad, the others for a confirmation in
+the card; the **alarm** is disarmed with the keypad. The **rooms are Home Assistant's areas**:
+the entities of an area (or of its device) appear in the room by themselves.
 
-Intorno alla piantina, a colpo d'occhio:
+Around the floor plan, at a glance:
 
-- **Meteo** nel cruscotto: condizione, temperatura, minima/massima e pioggia; un tocco apre le
-  previsioni dei prossimi giorni, con umidità e vento. Usa l'entità `weather.*` di Home Assistant.
-- **Oggi e prossimi giorni**: le scadenze tue e degli agenti nei prossimi 7 giorni, con la spunta
-  per chiuderle. Lo vedi solo tu: gli utenti di Home Assistant con accesso alla sola casa no.
-- **Sulla piantina**, sotto il nome della stanza: una persona dove c'è presenza o movimento, una
-  nota dove suona qualcosa, il robot dove pulisce, una lavatrice dove lavatrice o lavastoviglie
-  sono in funzione.
-- **Elettrodomestici**: lavatrice, lavastoviglie, asciugatrice, forno e bollitore con una presa
-  che misura la potenza (riconosciuti dal nome): "in funzione" e, per 3 ore, "finito … fa".
-- **Ultimi eventi**: le ultime variazioni delle ultime 24 ore di porte, finestre, serrature,
-  allarme e persone.
+- **Weather** in the HUD: condition, temperature, low/high and rain; a tap opens the forecast for
+  the next days, with humidity and wind. It uses Home Assistant's `weather.*` entity.
+- **Today and next days**: your and the agents' deadlines in the next 7 days, with a tick to close
+  them. Only you see it: Home Assistant users with access to the house only don't.
+- **On the floor plan**, under the room's name: a person where there is presence or motion, a note
+  where something is playing, the robot where it cleans, a washing machine where the washing
+  machine or dishwasher is running.
+- **Appliances**: washing machine, dishwasher, dryer, oven and kettle on a plug that measures
+  power (recognised by name): "running" and, for 3 hours, "finished … ago".
+- **Recent events**: the last changes in the last 24 hours of doors, windows, locks, alarm and
+  people.
 
-**Scorte (pellet e simili).** Un aiutante *Numero* o un *Contatore* di Home Assistant con
-"pellet", "sacchi" o "scorta" nel nome diventa una card **Scorta**; per gli altri scegli
-"Scorta" nel tipo, modificando la stanza. Mostra quanti ne restano, quanti se ne usano al giorno
-e da quando (dallo storico degli ultimi 30 giorni), i **giorni rimasti** e l'ultima consegna;
-**−1 caricato** quando ne usi uno, **+consegna** quando arriva il pellet. In **Imposta** scegli
-quanti ne arrivano in una consegna e sotto quanti avvisarti: allora la card diventa rossa e
-arriva la notifica **Scorte da riordinare** (regola nelle Notifiche della casa).
+**Stocks (pellet and the like).** A Home Assistant *Number* helper or *Counter* with "pellet",
+"bags" or "stock" in its name becomes a **Stock** card; for others pick "Stock" as the type when
+editing the room. It shows how many are left, how many go per day and the last delivery (from
+the last 30 days of history), the **days left**; **−1 loaded** when you use one, **+delivery**
+when the pellet arrives. In **Settings** choose how many come in a delivery and below how many to
+warn: then the card turns red and the **Stocks to reorder** notification comes (a rule in the
+house notifications).
 
-**Card libera.** Con **Modifica stanza → + Card libera** costruisci una card a blocchi su una
-griglia da 4 colonne (2 sul telefono). Blocchi: **valore grande**, **indicatore ad anello**,
-**interruttore**, **pulsante** (scena, script, pulsante), **cursore** (luminosità o numero),
-**grafico** delle ultime 24 ore, **barra**, **fascia oraria** (un orario di inizio e uno di fine),
-**selettore**, **stato** (com'è e da quanto) e **testo**. Per ogni blocco scegli l'entità (la
-ricerca propone solo quelle adatte), un'etichetta, la dimensione (da 1×1 a 4×2) e, per anello e
-barra, minimo e massimo; **Prima/Dopo** lo spostano. La card ha un nome, un colore e uno stile
-(**Pulito**, di partenza: i blocchi direttamente sulla card; **Riquadri**: ognuno nel suo); al centro
-dell'editor vedi l'anteprima con i valori veri. Si riapre con **Modifica**.
+**Free card.** With **Edit room → + Free card** you build a card from blocks on a 4-column grid
+(2 on a phone). Blocks: **big value**, **ring gauge**, **switch**, **button** (scene, script,
+button), **slider** (brightness or a number), **chart** of the last 24 hours, **bar**, **time
+band** (a start and an end time), **selector**, **state** (how it is and since when) and
+**text**. For each block choose the entity (the search offers only the suitable ones), a label,
+the size (1×1 to 4×2) and, for ring and bar, minimum and maximum; **Before/After** move it. The
+card has a name, a colour and a style (**Clean**, the default: the blocks right on the card;
+**Boxes**: each in its own); in the middle of the editor you see the preview with the real
+values. **Edit** opens it again.
 
-Altri blocchi: **media** (copertina, titolo, comandi e volume), **telecamera** (dal vivo, un tocco
-la apre in grande) e **Domanda a Jarvis** (una domanda pronta: un tocco la manda in chat). Per
-ogni blocco puoi anche impostare:
+More blocks: **media** (cover art, title, controls and volume), **camera** (live; a tap opens it
+big) and **Question for Jarvis** (a ready question: a tap sends it to the chat). For each block you
+can also set:
 
-- **Colore secondo il valore**: fino a 4 regole, es. "sopra 23 → rosso", "sotto 19 → azzurro",
-  "uguale a open → arancio";
-- **Mostra solo se**: il blocco compare solo quando un'entità vale qualcosa (es. la TV "uguale a
-  playing"); nell'editor resta visibile, sbiadito;
-- **Al tocco**: accendi/spegni, avvia una scena o uno script, chiedi a Jarvis, apri un'altra stanza.
+- **Colour by value**: up to 4 rules, e.g. "above 23 → red", "below 19 → blue", "equal to open →
+  orange";
+- **Show only if**: the block appears only while an entity has a value (e.g. the TV "equal to
+  playing"); in the editor it stays visible, dimmed;
+- **On tap**: turn on/off, run a scene or script, ask Jarvis, open another room.
 
-I valori sono quelli di Home Assistant: `on`, `off`, `open`, `playing`… oppure un numero. Per
-partire veloce ci sono i **modelli** (Stufa, Ingresso, Lavanderia, Clima stanza, Energia, Musica),
-che prendono le entità adatte della stanza; i blocchi si spostano anche **trascinandoli**.
+Values are Home Assistant's: `on`, `off`, `open`, `playing`… or a number. To start quickly there
+are **templates** (Stove, Entrance, Laundry, Room climate, Energy, Music), which take the room's
+suitable entities; blocks can also be moved by **dragging** them.
 
-La **linea in alto** di ogni card (libera o composta) si accende da sola: arancione quando qualcosa
-è acceso o un sensore rileva, rossa per un allarme (porta o finestra aperta, acqua, fumo, gas). In
-una card con un interruttore principale, come la stufa, decide lui; le regole di colore impostate
-a mano si aggiungono a queste.
+The **line on top** of every card (free or composed) lights up by itself: amber while something is
+on or a sensor detects, red for an alarm (door or window open, water, smoke, gas). In a card with a
+main switch, like the stove, that switch decides; the colour rules set by hand add to these.
 
-**Descrivila a Jarvis**: in cima all'editor scrivi cosa vuoi ("la stufa con temperatura,
-accensione, orari e pellet; rossa sopra 23 gradi") e tocca **Crea**: Jarvis compone la card con
-le entità vere della casa (quelle che non esistono vengono scartate) e la apre nell'editor, da
-controllare e salvare. È una richiesta a Claude, pochi centesimi.
+**Describe it to Jarvis**: at the top of the editor write what you want ("the stove with
+temperature, power, times and pellet; red above 23 degrees") and tap **Create**: Jarvis composes
+the card with the house's real entities (made-up ones are left out) and opens it in the editor, to
+check and save. It is one Claude request, a few cents.
 
-**Esporta / Importa card**: **Esporta** copia la card come testo, da condividere; **Modifica
-stanza → Importa card** la incolla in un'altra casa, e i blocchi con entità che lì non ci sono
-restano da scegliere. Nelle condizioni e nelle regole, con "uguale a" e "diverso da", il valore
-si sceglie da un elenco (acceso/spento, aperta/chiusa, in riproduzione…).
+**Export / Import card**: **Export** copies the card as text, to share; **Edit room → Import
+card** pastes it into another house, and blocks whose entities aren't there are left to choose. In
+conditions and rules, with "equal to" and "not equal to", the value is picked from a list (on/off,
+open/closed, playing…).
 
-**Aggiungere entità.** Con **Modifica stanza → Aggiungi entità** puoi mettere in una stanza
-qualsiasi entità di Home Assistant, anche senza area o di un tipo che HubNEX non disegna
-(compare con il suo stato). Gli aiutanti nascono senza area: assegnala in Home Assistant oppure
-aggiungili da qui.
+**Adding entities.** With **Edit room → Add entity** you can put any Home Assistant entity in a
+room, also one without an area or of a kind HubNEX doesn't draw (it shows its state). Helpers are
+born without an area: set it in Home Assistant or add them from here.
 
-- **Piantina**: **⚙ Piantina** apre l'editor.
-  1. **Carica planimetria**: una foto o un PDF della pianta (i margini bianchi vengono
-     tolti da soli). Resta solo nella cartella dell'add-on.
-  2. **Proponi le stanze**: Claude guarda la pianta e propone le stanze, già collegate alle
-     aree di Home Assistant quando il nome corrisponde (una richiesta, pochi centesimi).
-  3. Sistema a mano: trascina una stanza per spostarla, l'angolo in basso a destra per
-     ridimensionarla, trascina sul vuoto (o **+ Stanza**) per disegnarne una nuova. Nel
-     pannello scegli l'area, oppure "solo disegno" per un ambiente senza entità; **contorno**
-     per balconi e terrazzi. Spunta le aree **Fuori casa** (giardino, parcheggio…).
-     Per una stanza a L o con muri obliqui scegli **Disegna angoli**, tocca gli angoli in ordine
-     e chiudi sul primo punto o con **Completa forma**. Seleziona una stanza e usa
-     **Modifica angoli** per spostarli, aggiungerne uno sul bordo o eliminare quello selezionato.
-  4. **Salva piantina**. Con **+ Piano** aggiungi altri piani.
+- **Floor plan**: **⚙ Floor plan** opens the editor.
+  1. **Upload floor plan**: a photo or a PDF of the plan (white margins are trimmed by
+     themselves). It stays only in the add-on's folder.
+  2. **Suggest rooms**: Claude looks at the plan and suggests the rooms, already linked to Home
+     Assistant's areas when the name matches (one request, a few cents).
+  3. Fix by hand: drag a room to move it, the bottom-right corner to resize it, drag on empty
+     space (or **+ Room**) to draw a new one. In the panel choose the area, or "drawing only"
+     for a space without entities; **outline** for balconies and terraces. Tick the
+     **Outdoors** areas (garden, parking…).
+  4. **Save floor plan**. **+ Floor** adds more floors.
 
-  Chi preferisce può usare **Testo** e scrivere la disposizione in YAML (posizioni `x, y, w, h`
-  in percentuale del disegno); facoltativo `energy: { power: sensor.…, today: sensor.… }`.
-  Tutto finisce in `casa.yaml` nella cartella dell'add-on; senza piantina le aree compaiono
-  come riquadri.
+  If you prefer, **Text** lets you write the layout in YAML (positions `x, y, w, h` in percent of
+  the drawing); optional `energy: { power: sensor.…, today: sensor.… }`. Everything ends up in
+  `casa.yaml` in the add-on's folder; without a floor plan the areas appear as tiles.
   ```yaml
   floors:
-    - name: Piano terra
-      aspect: 1.2          # larghezza / altezza del disegno
+    - name: Ground floor
+      aspect: 1.2          # width / height of the drawing
       rooms:
-        - { area: Soggiorno, x: 0, y: 0, w: 50, h: 60 }
-        - { area: Cucina, x: 50, y: 0, w: 50, h: 60 }
-        - { area: Camera da letto, x: 0, y: 60, w: 100, h: 40 }
-  outside: [Giardino]
+        - { area: Living room, x: 0, y: 0, w: 50, h: 60 }
+        - { area: Kitchen, x: 50, y: 0, w: 50, h: 60 }
+        - { area: Bedroom, x: 0, y: 60, w: 100, h: 40 }
+  outside: [Garden]
   ```
-- **Nomi**: se a un'entità hai dato degli **alias** in Home Assistant (impostazioni
-  dell'entità → Alias), HubNEX mostra il primo; altrimenti il nome di Home Assistant. Nella
-  ricerca per aggiungere entità valgono tutti i nomi.
-- **Energia**: tocca "Energia" nel cruscotto: si apre un popup (F1 arancione, F2 blu, F3 verde). Tre viste a scelta, anche insieme: **il reattore**
-  (il periodo diviso per fascia attorno alla potenza adesso, in % del contatore), **la
-  giornata** (la potenza di oggi sulle fasce, con i kWh per fascia) e **la bolletta** (spesa,
-  stima a fine periodo al ritmo attuale, fasce a confronto col periodo precedente e un
-  consiglio quando una fascia cresce). Con **Configura** scegli le viste e i tuoi sensori: la
-  fascia (calendario ARERA calcolato da HubNEX con i festivi, un tuo sensore, o tariffa unica),
-  i kWh per fascia (es. i contatori "utility meter" di Home Assistant: da loro arrivano inizio
-  del periodo e confronto), prezzi o spesa, la potenza e la taglia del contatore, altri valori
-  (tensione, fattore di potenza…). Nessun calcolo usa l'AI.
-- **Persone**: le persone di Home Assistant (Impostazioni → Persone, con l'app sul telefono o un
-  dispositivo di tracciamento) compaiono in alto nella Casa: *a casa*, *fuori* o il nome della
-  zona in cui si trovano.
-- **Orari e impostazioni**: gli helper di Home Assistant si usano dalla Casa. Un orario
-  (`input_datetime`, `time`) si cambia toccando l'ora o con −15 / +15; i numeri con il cursore,
-  le liste scegliendo l'opzione, i testi scrivendo. Il valore lo salva Home Assistant e le
-  automazioni lo usano come prima.
-- **Card su misura**: in *Modifica stanza* → **+ Nuova card** dai un nome, aggiungi le entità
-  (anche di altre stanze), le metti in ordine, scegli il **gruppo** (Clima, Luci…; di base
-  quello della prima entità) e piccola o larga. Esempio: una card
-  "Stufa" con l'ora di accensione e di spegnimento mostra anche la fascia sulla giornata e
-  "attiva fino alle 22:00"; se nella card c'è l'interruttore che attiva gli orari (es.
-  "automatica", si sceglie nell'editor), da spento la card dice "orari non attivi". I sensori numerici mostrano il grafico delle
-  ultime 24 ore: nell'editor lo spegni con l'interruttore "grafico", sulle card singole con
-  "Togli grafico" in modifica. Sempre in modifica ogni card si sposta dentro il suo gruppo
-  (trascinando ⋮⋮ o con ‹ ›), si rinomina solo in HubNEX, diventa larga o piccola, si toglie;
-  *Ordine automatico* rimette l'ordine di partenza. Tutto resta in HubNEX: in Home Assistant non cambia nulla.
-- **Stanza**: toccala per la scheda rapida, **Apri stanza** per tutte le entità divise per
-  tipo. Con più sensori di temperatura scegli quale usare ("temperatura da").
-- **Modifica stanza**: aggiungi **qualsiasi entità** di Home Assistant (anche quelle che Home
-  Assistant nasconde, come i lettori nascosti da Music Assistant), spostando l'area anche in Home
-  Assistant (consigliato) o solo nella plancia; **Togli** la nasconde solo dalla plancia; **Mostra come** cambia il
-  tipo (Luce, Presa / interruttore, Cancello / porta a impulso, Sirena, Solo stato). Per un relè
-  che accende una luce è ancora meglio "Mostra come → Luce" nelle impostazioni dell'entità in
-  Home Assistant: così anche Assist e l'assistente la trattano da luce.
-- **Media**: accendi e spegni, ▶ / ❚❚ e volume.
-- **Telecamere**: le miniature nelle stanze sono **dal vivo** (fino a 3 alla volta, le altre si
-  aggiornano ogni 5 secondi); toccandone una si apre grande, subito dal vivo, e dentro Home
-  Assistant passa al suo video in alta qualità. In una **card composta** con una telecamera e i
-  suoi sensori (un veicolo, una persona, il movimento), i sensori compaiono sopra l'immagine e si
-  accendono in rosso quando scattano. Il pulsante **Telecamere** in alto le mostra tutte.
-- **Allarme**: pulsante in alto con lo stato; In casa / Fuori / Notte e Disinserisci con
-  tastierino per il codice.
-- I comandi della vista Casa vanno diretti a Home Assistant e **non usano credito Claude**.
+- **Names**: if you gave an entity **aliases** in Home Assistant (entity settings → Aliases),
+  HubNEX shows the first one; otherwise Home Assistant's name. When searching for entities to
+  add, all names count.
+- **Energy**: tap "Energy" in the HUD: a popup opens. Three views, one or more: **the reactor**
+  (the period split by band around the power now, in % of the meter), **the day** (today's power,
+  over the bands when there are any) and **the bill** (cost, estimate at the end of the period at
+  the current pace, comparison with the previous period). With **Configure** choose the views
+  and your sensors: the time band (a **single rate**, your own sensor with state F1/F2/F3, or the
+  Italian ARERA calendar computed by HubNEX), the kWh of the period (e.g. Home Assistant's
+  "utility meters": the start of the period and the comparison come from them), prices or cost,
+  the power and the size of the meter, other readings (voltage, power factor…). No calculation
+  uses AI.
+- **People**: Home Assistant's people (Settings → People, with the phone app or a tracker)
+  appear at the top of the Home view: *home*, *away* or the name of the zone they are in.
+- **Times and settings**: Home Assistant's helpers can be used from the Home view. A time
+  (`input_datetime`, `time`) changes by tapping the time or with −15 / +15; numbers with the
+  slider, lists by choosing the option, texts by writing. Home Assistant saves the value and
+  your automations use it as before.
+- **Custom cards**: in *Edit room* → **+ New card** give it a name, add entities (from other
+  rooms too), order them, choose the **group** (Climate, Lights…; by default the first entity's)
+  and small or wide. Example: a "Stove" card with its on and off times also shows the band over
+  the day and "on until 22:00"; if the switch that enables the times is in the card (e.g.
+  "automatic", chosen in the editor), when it is off the card says "times not active". Numeric
+  sensors show the chart of the last 24 hours: in the editor turn it off with the "chart" switch,
+  on single cards with "Hide chart" while editing. Still while editing every card moves within
+  its group (dragging ⋮⋮ or with ‹ ›), can be renamed in HubNEX only, made wide or small,
+  removed; *Automatic order* restores the original order. Everything stays in HubNEX: nothing
+  changes in Home Assistant.
+- **Room**: tap it for its quick card, **Open room** for all its entities grouped by type. With
+  several temperature sensors choose which one to use ("temperature from").
+- **Edit room**: add **any entity** of Home Assistant (including those Home Assistant hides, like
+  players hidden by Music Assistant), moving the area in Home Assistant too (recommended) or only
+  in the dashboard; **Remove** hides it from the dashboard only; **Show as** changes its type
+  (Light, Plug / switch, Gate / door with a pulse, Siren, State only). For a relay that powers a
+  light, "Show as → Light" in the entity's settings in Home Assistant is even better: Assist and
+  the assistant then treat it as a light too.
+- **Media**: on and off, ▶ / ❚❚ and volume.
+- **Cameras**: the thumbnails in the rooms are **live** (up to 3 at once, the others refresh
+  every 5 seconds); tapping one opens it large, live at once, and inside Home Assistant it moves
+  to its high-quality video. In a **composed card** with a camera and its sensors (a vehicle, a
+  person, motion), the sensors show over the picture and light up in red when they trigger. The
+  **Cameras** button at the top shows them all.
+- **Alarm**: a button at the top with its state; Home / Away / Night and Disarm with a keypad
+  for the code.
+- The Home view's commands go straight to Home Assistant and **use no Claude credit**.
 
-## Notifiche della casa
+## House notifications
 
-HubNEX controlla la casa da solo e ti avvisa quando qualcosa non va. **Non usa Claude**: sono
-regole fisse sugli stati di Home Assistant, quindi gli avvisi sono immediati e gratis. Si
-configurano in ⚙ Preferenze → **Notifiche della casa**.
+HubNEX watches the house by itself and warns you when something is wrong. **It doesn't use
+Claude**: these are fixed rules on Home Assistant's states, so the warnings are immediate and
+free. Set them up in ⚙ Preferences → **House notifications**.
 
-| Regola | Quando avvisa |
+| Rule | When it warns |
 |---|---|
-| Perdite, fumo, gas | Un sensore di acqua, fumo, gas o monossido scatta: subito, anche nelle ore di silenzio |
-| Finestre aperte | Una finestra resta aperta con il riscaldamento o il condizionatore acceso, o mentre piove |
-| Casa vuota | Tutte le persone sono fuori e una porta, il cancello o una serratura sono aperti. Pulsante **Chiudi** |
-| Consumo alto | La potenza della casa (il sensore scelto in Energia) resta sopra la soglia |
-| Luci accese di notte | Luci ancora accese nella fascia notturna (23:30–06:00 di serie). Pulsante **Spegni** |
-| Batterie scariche | Sensori con la batteria sotto il 15% |
-| Dispositivi non raggiungibili | Dispositivi che non rispondono da più di un'ora |
+| Leaks, smoke, gas | A water, smoke, gas or carbon monoxide sensor goes off: at once, even in the quiet hours |
+| Windows open | A window stays open while the heating or the air conditioning is on, or while it rains |
+| Nobody home | Everybody is out and a door, the gate or a lock is open. **Close** button |
+| High consumption | The house's power (the sensor chosen in Energy) stays above the threshold |
+| Lights on at night | Lights still on during the night hours (23:30–06:00 by default). **Turn off** button |
+| Low batteries | Sensors with the battery below 15% |
+| Devices not responding | Devices that haven't answered for more than an hour |
 
-**Dove arrivano**, regola per regola:
+**Where they arrive**, rule by rule:
 
-- **App** di Home Assistant sul telefono: notifica push con i pulsanti. HubNEX trova da solo i
-  telefoni con l'app; puoi escluderne qualcuno. Gli avvisi urgenti arrivano con priorità alta.
-- **Telegram**, nel gruppo di Jarvis, con gli stessi pulsanti.
-- **Home Assistant**: le notifiche nella campanella.
+- the Home Assistant **app** on your phone: a push notification with the buttons. HubNEX finds
+  the phones with the app by itself; you can leave some out. Urgent warnings come with high
+  priority.
+- **Telegram**, in Jarvis' group, with the same buttons.
+- **Home Assistant**: the notifications under the bell.
 
-Come si comportano:
+How they behave:
 
-- ogni regola aspetta che il problema duri qualche minuto (lo scegli tu), così una finestra
-  aperta per un attimo non disturba;
-- avvisa **una volta** per problema; se nel frattempo se ne aggiunge un altro (una seconda
-  finestra) aggiorna l'avviso;
-- quando il problema si risolve, la notifica sul telefono e nella campanella **sparisce da
-  sola**, e su Telegram spariscono i pulsanti;
-- nelle **ore di silenzio** gli avvisi aspettano la fine della fascia (tranne perdite, fumo e
-  gas);
-- **agisce solo se premi un pulsante** della notifica. Senza il tuo tocco non cambia nulla.
+- every rule waits for the problem to last a few minutes (you choose how many), so a window
+  opened for a moment doesn't bother you;
+- it warns **once** per problem; if another one joins in the meantime (a second window) it
+  updates the warning;
+- when the problem is solved, the notification on the phone and under the bell **goes away by
+  itself**, and on Telegram the buttons disappear;
+- in the **quiet hours** warnings wait for the end of the slot (except leaks, smoke and gas);
+- **it acts only if you press a button** on the notification. Without your tap nothing changes.
 
-In ogni regola, «Controlla N di N» elenca le entità che guarda: togli la spunta a quelle da
-ignorare (per esempio un sensore di umidità del terreno visto come perdita d'acqua). **Invia una
-prova** manda una notifica su tutti i canali in uso.
+In every rule, «Watches N of N» lists the entities it looks at: untick those to ignore (for
+example a soil moisture sensor seen as a water leak). **Send a test** sends a notification on
+every channel in use.
 
-## Mappa neurale
+## Neural map
 
-Il pulsante **✺ Mappa** mostra la "mente" del team in 3D: l'assistente al centro, aziende,
-reparti e agenti, e intorno tutto ciò che il team sa (memorie, compiti, scadenze, bozze),
-collegato a chi l'ha prodotto e alle parole chiave in comune. Cerca un nome per evidenziare
-tutto quello che lo riguarda.
+The **✺ Map** button shows the team's "mind" in 3D: the assistant in the middle, companies,
+departments and agents, and around them everything the team knows (memories, tasks, deadlines,
+drafts), linked to whoever produced it and to the keywords they share. Search for a name to
+highlight everything about it.
 
-## Niente iniziative senza il tuo ordine
+## No initiative without your order
 
-- Le routine sono spente finché non scrivi `enabled: true`. Anche accese, **non possono
-  cambiare nulla in casa**, e lo stesso vale per gli eventi delle automazioni: guardano e ti
-  scrivono cosa propongono.
-- Gli agenti fanno solo il compito ricevuto; il resto lo propongono.
-- Le modifiche ai programmi collegati e le email partono solo dopo la tua conferma.
-- **Le tue regole**: quando dici all'assistente qualcosa che deve valere sempre ("non fare
-  mai…", "d'ora in poi…"), la salva come regola per **tutto** il team. `/regole` le elenca.
+- Routines are off until you write `enabled: true`. Even when on, **they can't change anything
+  in the house**, and the same goes for events from automations: they look and write to you what
+  they suggest.
+- Agents do only the task they were given; the rest they suggest.
+- Changes to connected programs and emails go out only after your confirmation.
+- **Your rules**: when you tell the assistant something that must always apply ("never…",
+  "from now on…"), it saves it as a rule for the **whole** team. `/regole` lists them.
 
-## Usarla fuori da Home Assistant
+## Using it outside Home Assistant
 
-**Con Nabu Casa** (consigliato): apri HubNEX dalla barra laterale, copia l'indirizzo e
-aggiungilo alla schermata Home del telefono.
+**With Nabu Casa** (recommended): open HubNEX from the sidebar, copy the address and add it to
+the phone's home screen.
 
-**Solo in rete locale**: imposta un **Token HQ**, scrivi `8765` nella porta (Configurazione →
-Rete), riavvia e apri `http://IP-DI-HOME-ASSISTANT:8765`. Puoi installarla come app dal menu del
-browser.
+**Local network only**: set an **HQ token**, write `8765` in the port (Configuration →
+Network), restart and open `http://HOME-ASSISTANT-IP:8765`. You can install it as an app from
+the browser's menu.
 
-**Aprire HubNEX all'avvio di Home Assistant**: dentro Home Assistant, in alto **⚙** →
-interruttore. Vale solo per il tuo account; gli altri utenti restano sulla loro plancia.
+**Open HubNEX when Home Assistant starts**: inside Home Assistant, at the top **⚙** → the
+switch. It applies to your account only; the other users keep their dashboard.
 
-**Lingua**: la dashboard è in italiano o in inglese, secondo la lingua di Home Assistant di chi
-la apre (non italiano = inglese). In alto **⚙ → Lingua** si sceglie a mano, solo per quel
-browser. Jarvis, gli agenti, Telegram e i messaggi dell'add-on seguono l'opzione **Lingua**
-nella configurazione (auto = quella di Home Assistant).
+The dashboard and HubNEX messages use English, regardless of Home Assistant's language.
 
-**Tema chiaro, per leggere al sole**: in alto **⚙ → Tema**. **Automatico** segue il telefono
-(chiaro di giorno se il telefono è in chiaro), **Chiaro** e **Scuro** lo fissano. Vale per la
-Casa: HQ e Mappa restano scuri. La scelta resta su quel dispositivo, così il telefono può
-essere chiaro e il tablet a muro scuro.
+**Light theme, for reading in sunlight**: at the top **⚙ → Theme**. **Automatic** follows the
+phone (light when the phone is light), **Light** and **Dark** fix it. It applies to the House:
+HQ and Map stay dark. The choice stays on that device, so the phone can be light and the wall
+tablet dark.
 
-**Solo la Casa, per chi vuole solo accendere una luce**: in alto **⚙** → spegni **Schede HQ e
-Mappa** (HubNEX apre direttamente la Casa) e/o **Assistente AI** (spariscono chat, voce e
-approvazioni: nessun credito Claude). Dentro Home Assistant la scelta è salvata con l'account
-di chi è collegato e vale su tutti i suoi dispositivi; fuori resta nel browser. È una comodità,
-non un blocco: chiunque può riaccenderle dallo stesso menu.
+**Home only, for whoever just wants to turn on a light**: at the top **⚙** → turn off **HQ and
+Map tabs** (HubNEX opens straight on the Home view) and/or **AI assistant** (chat, voice and
+approvals disappear: no Claude credit). Inside Home Assistant the choice is saved with the
+account of whoever is signed in and applies on all their devices; outside, it stays in the
+browser. It's a convenience, not a lock: anybody can turn them back on from the same menu.
 
-**Utenti non amministratori**: HubNEX compare nella barra laterale di **tutti** gli utenti di
-Home Assistant. Chi non è amministratore ha solo la **Casa**: luci, clima, tapparelle, scene,
-telecamere e allarme (con codice), come in Home Assistant. Non vede l'assistente, la posta, gli
-agenti, l'attività e i costi, e non può modificare piantina e stanze. Il controllo lo fa l'add-on
-a ogni richiesta, non solo l'interfaccia. Per dare tutto anche a loro: opzione
-**Utenti non amministratori → completo**.
+**Non-admin users**: HubNEX appears in the sidebar of **all** Home Assistant users. Who isn't an
+administrator gets the **Home** view only: lights, climate, blinds, scenes, cameras and alarm
+(with the code), as in Home Assistant. They don't see the assistant, mail, agents, activity or
+costs, and can't change the floor plan or the rooms. The add-on checks it on every request, not
+only the interface. To give them everything: option **Non-admin users → completo** (full).
 
-## Eventi dalle automazioni
+## Events from automations
 
-Le automazioni possono passare un evento all'assistente, che ti scrive cosa propone. Con un
-**Token HQ**, in `configuration.yaml`:
+Automations can hand an event to the assistant, which writes to you what it suggests. With an
+**HQ token**, in `configuration.yaml`:
 
 ```yaml
 rest_command:
   hubnex_event:
-    url: "http://<hostname dell'add-on>:8765/api/ha/event"
+    url: "http://<add-on hostname>:8765/api/ha/event"
     method: POST
     headers:
-      Authorization: "Bearer IL_TUO_TOKEN_HQ"
+      Authorization: "Bearer YOUR_HQ_TOKEN"
     content_type: "application/json"
     payload: '{"message": "{{ message }}"}'
 ```
 
-## Sicurezza
+## Security
 
-- Dalla barra laterale accedi solo tu, perché passi dal login di Home Assistant.
-- La porta 8765 è chiusa di default; se la apri serve il **Token HQ**.
-- I servizi in **Servizi HA bloccati** (serrature, disinserimento allarme) l'assistente non li
-  chiama mai da solo; dalla plancia puoi farlo tu, con conferma o codice.
-- Le chiavi stanno solo nella configurazione dell'add-on e in `agents.yaml`, sul tuo Home
-  Assistant.
+- From the sidebar only you get in, through Home Assistant's login.
+- Port 8765 is closed by default; if you open it, the **HQ token** is needed.
+- The services in **Blocked HA services** (locks, disarming the alarm) are never called by the
+  assistant on its own; from the dashboard you can do it, with a confirmation or the code.
+- The keys stay only in the add-on's configuration and in `agents.yaml`, on your Home Assistant.
 
-## Altri fornitori AI: OpenAI e modelli locali
+## Other AI providers: OpenAI and local models
 
-Claude resta il consigliato, ma Jarvis e ogni agente possono usare anche **OpenAI** o un
-**modello locale** (Ollama, LM Studio), gratis e senza cloud. Il modello si sceglie per nome,
-con il prefisso del fornitore:
+Claude stays the recommended choice, but Jarvis and every agent can also use **OpenAI** or a
+**local model** (Ollama, LM Studio), free and cloud-free. You pick the model by name, with the
+provider's prefix:
 
-| Scrivi | Fornitore | Opzioni da compilare |
+| Write | Provider | Options to fill in |
 |---|---|---|
-| `claude-sonnet-5-5` | Anthropic (come prima) | Chiave API Anthropic |
-| `openai:gpt-5-mini` | OpenAI | Chiave API OpenAI |
-| `ollama:qwen3:14b` | Ollama, sul tuo computer o server | Indirizzo di Ollama, es. `http://192.168.1.20:11434` |
-| `compat:nome-modello` | Qualsiasi servizio compatibile con OpenAI: LM Studio, OpenRouter, Gemini, Mistral, DeepSeek, Groq | Indirizzo (fino a `/v1`) e, se serve, chiave |
+| `claude-sonnet-5-5` | Anthropic (as before) | Anthropic API key |
+| `openai:gpt-5-mini` | OpenAI | OpenAI API key |
+| `ollama:qwen3:14b` | Ollama, on your computer or server | Ollama address, e.g. `http://192.168.1.20:11434` |
+| `compat:model-name` | Any OpenAI-compatible service: LM Studio, OpenRouter, Gemini, Mistral, DeepSeek, Groq | Address (up to `/v1`) and, if needed, key |
 
-Si scrive in **Modello di Jarvis**, **Modello di Jarvis Mail** e **Modello per i comandi
-rapidi**, oppure per un singolo agente in `agents.yaml` con `model: ollama:qwen3:14b`. Si
-possono mescolare: per esempio Jarvis su Claude e la posta su un modello locale gratuito. Se
-usi solo altri fornitori, la chiave Anthropic può restare vuota.
+Write it in **Jarvis model**, **Jarvis Mail model** and **Quick command model**, or for a single
+agent in `agents.yaml` with `model: ollama:qwen3:14b`. You can mix them: for example Jarvis on
+Claude and mail on a free local model. If you only use other providers, the Anthropic key can
+stay empty.
 
-Esempi di indirizzi per `compat`:
+Addresses for `compat`, for example:
 
-- LM Studio: `http://IP-DEL-PC:1234/v1`
-- OpenRouter: `https://openrouter.ai/api/v1` (modelli come `compat:openai/gpt-5-mini`)
-- Gemini: `https://generativelanguage.googleapis.com/v1beta/openai` (modelli come `compat:gemini-2.5-flash`)
+- LM Studio: `http://PC-IP:1234/v1`
+- OpenRouter: `https://openrouter.ai/api/v1` (models like `compat:openai/gpt-5-mini`)
+- Gemini: `https://generativelanguage.googleapis.com/v1beta/openai` (models like `compat:gemini-2.5-flash`)
 
-**Cosa cambia rispetto a Claude**
+**What changes compared to Claude**
 
-- La **ricerca web** c'è solo con Claude. La **lettura di una pagina** da un link (`web_fetch`)
-  la fa HubNEX stesso e funziona con tutti, solo su indirizzi pubblici.
-- Le **foto** arrivano ai modelli che le vedono; i **PDF** arrivano come testo.
-- I **pensieri** di Jarvis nella vista 3D compaiono solo con Claude.
-- **Spesa**: i modelli di Ollama costano zero. Per quelli `openai` e `compat` scrivi il prezzo
-  del listino in **Prezzo input/output altri modelli** ($ per milione di token), altrimenti non
-  vengono contati. Il **credito Anthropic** scala solo le chiamate a Claude.
-- **Qualità**: Jarvis usa molti strumenti (casa, memoria, team). I modelli locali piccoli li
-  usano peggio: per un uso vero servono modelli da almeno 14 miliardi di parametri che
-  supportano gli strumenti (qwen3, llama3.1, mistral-small). Con quelli più piccoli, meglio
-  affidargli solo agenti semplici, come la posta.
+- **Web search** exists only with Claude. **Reading a page** from a link (`web_fetch`) is done
+  by HubNEX itself and works with all of them, public addresses only.
+- **Photos** reach the models that can see them; **PDFs** arrive as text.
+- Jarvis' **thoughts** in the 3D view appear only with Claude.
+- **Spend**: Ollama models cost nothing. For `openai` and `compat` ones, enter the list price in
+  **Other models' input/output price** ($ per million tokens), otherwise they aren't counted.
+  The **Anthropic credit** counts down Claude's calls only.
+- **Quality**: Jarvis uses many tools (house, memory, team). Small local models use them worse:
+  for real use you need models of at least 14 billion parameters that support tools (qwen3,
+  llama3.1, mistral-small). With smaller ones, give them only simple agents, such as mail.
 
-## Credito Anthropic
+## Anthropic credit
 
-Il riquadro **Credito Claude** è una **stima**: in `anthropic_credit_usd` scrivi il saldo che
-vedi su console.anthropic.com → Billing e HubNEX scala il costo di ogni richiesta. Sotto 1 $
-ricevi un avviso. Con `0` vedi solo quanto hai speso.
+The **Claude credit** tile is an **estimate**: in `anthropic_credit_usd` write the balance you
+see at console.anthropic.com → Billing and HubNEX subtracts the cost of every request. Below
+$1 you get a warning. With `0` you only see how much you spent.
 
-### Storico della spesa
+### Spend history
 
-Clic sul riquadro **Spesa/Credito Claude** in HQ (sul telefono: ⚙ Preferenze → **Spesa Claude**)
-per aprire lo storico:
+Click the **Claude spend/credit** tile in HQ (on the phone: ⚙ Preferences → **Claude spend**)
+to open the history:
 
-- **oggi**, **questo mese** e la **stima a fine mese**, calcolata sul ritmo dei giorni passati;
-- una barra per giorno negli ultimi 7, 30 o 90 giorni (passaci sopra per cifra e chiamate);
-- la spesa **per agente** (Jarvis, Jarvis Mail, gli agenti del team, la proposta della
-  piantina) e **per modello** (Sonnet, Haiku…), con le chiamate e i token.
+- **today**, **this month** and the **end-of-month estimate**, based on the pace of the days
+  gone by;
+- one bar per day over the last 7, 30 or 90 days (hover for the amount and the calls);
+- the spend **by agent** (Jarvis, Jarvis Mail, the team's agents, the floor plan proposal) and
+  **by model** (Sonnet, Haiku…), with calls and tokens.
 
-Con `monthly_budget_usd` imposti un budget mensile: all'80% e al 100% ricevi un avviso nel
-gruppo Telegram e nelle notifiche di Home Assistant, e nel popup compare la barra del budget.
-È solo un avviso: HubNEX non si ferma. Lo storico parte dall'installazione di questa versione
-ed è incluso nel backup.
+With `monthly_budget_usd` you set a monthly budget: at 80% and 100% you get a warning in the
+Telegram group and in Home Assistant's notifications, and the popup shows the budget bar. It is
+only a warning: HubNEX doesn't stop. The history starts when you install this version and is
+included in the backup.
 
-Le cifre sono la stima di HubNEX con i prezzi di listino di ogni chiamata: il conto esatto è su
+The figures are HubNEX's estimate at list price for every call: the exact bill is on
 console.anthropic.com.
 
-Per spendere poco: l'agente della posta usa il modello economico; con Assist i comandi semplici
-li fa Home Assistant; le routine e le ricerche web consumano, usale quando servono. In
-`agents.yaml`, per Jarvis e per ogni agente:
+To spend little: the mail agent uses the cheap model; with Assist simple commands are done by
+Home Assistant; routines and web searches cost credit, use them when needed. In
+`agents.yaml`, for Jarvis and for each agent:
 
-- `effort: medium` invece di `high`: ragiona ancora, ma si dilunga meno;
-- `max_searches: 3`: al massimo 3 ricerche web per richiesta invece di 5. Ogni ricerca porta
-  dentro pagine di risultati, che poi vengono rilette a ogni passaggio;
-- quando cambi argomento in chat, chiudi la conversazione (×): le domande nuove non si
-  trascinano dietro gli ultimi scambi.
+- `effort: medium` instead of `high`: it still reasons, but at less length;
+- `max_searches: 3`: at most 3 web searches per request instead of 5. Each search brings in
+  result pages, which are then read again at every step;
+- when you change topic in the chat, close the conversation (×): new questions don't drag the
+  last exchanges along.
 
-## Dati e backup
+## Data and backup
 
-Memoria, scadenze, bozze, regole e cronologia sono in `/data/hubnex.db`; `agents.yaml` e
-`casa.yaml` nella cartella di configurazione dell'add-on. Finiscono tutti nei backup di Home
-Assistant.
+Memory, deadlines, drafts, rules and history are in `/data/hubnex.db`; `agents.yaml` and
+`casa.yaml` in the add-on's configuration folder. All of them go into Home Assistant's backups.
 
-### Backup di HubNEX e trasferimento su un'altra installazione
+### HubNEX backup and moving to another installation
 
-Da **⚙ Preferenze → Backup → Scarica** ottieni un unico file `.zip` con tutto ciò che HubNEX
-sa: memoria e mappa neurale, scadenze, chat, impostazioni della Casa (card, nomi, ordine,
-energia), piantina con le sue immagini e `agents.yaml`. Le opzioni dell'add-on (chiave Anthropic,
-Telegram, posta) **non** sono incluse; `agents.yaml` sì, con gli eventuali token dei connettori
-MCP: custodisci il file come una password. Solo per gli amministratori.
+**⚙ Preferences → Backup → Download** gives you one `.zip` file with everything HubNEX knows:
+memory and neural map, deadlines, chat, Home view settings (cards, names, order, energy), the
+floor plan with its images and `agents.yaml`. The add-on's options (Anthropic key, Telegram,
+mail) are **not** included; `agents.yaml` is, with any MCP connector tokens: keep the file like a
+password. Administrators only.
 
-**Ripristina → Carica…** su un'altra installazione mette tutto al suo posto e riavvia HubNEX.
-I file che sostituisce restano accanto con il suffisso `.prima-del-ripristino`.
+**Restore → Upload…** on another installation puts everything in place and restarts HubNEX.
+The files it replaces stay next to them with the `.prima-del-ripristino` suffix.
 
-Per passare da una copia locale (`/addons/local`) all'add-on del repository:
+To move from a local copy (`/addons/local`) to the repository's add-on:
 
-1. Nella copia locale: **Preferenze → Backup → Scarica**.
-2. Nella pagina dell'add-on locale: **Configurazione → ⋮ → Modifica in YAML**, copia tutto
-   (sono le tue opzioni e chiavi) e **arresta** l'add-on locale.
-3. Installa HubNEX dal repository, apri **Configurazione → ⋮ → Modifica in YAML**, incolla,
-   salva e avvia.
-4. Apri HubNEX: **Preferenze → Ripristina → Carica…** e scegli il backup. HubNEX si riavvia
-   con i tuoi dati.
-5. Assist: in **Dispositivi e servizi** elimina la vecchia integrazione HubNEX, poi
-   **riavvia l'add-on HubNEX**: compare "HubNEX rilevato", premi *Configura* (nessun token da
-   inserire).
-6. Quando tutto funziona, disinstalla l'add-on locale.
+1. In the local copy: **Preferences → Backup → Download**.
+2. On the local add-on's page: **Configuration → ⋮ → Edit in YAML**, copy everything (your
+   options and keys) and **stop** the local add-on.
+3. Install HubNEX from the repository, open **Configuration → ⋮ → Edit in YAML**, paste, save
+   and start.
+4. Open HubNEX: **Preferences → Restore → Upload…** and choose the backup. HubNEX restarts with
+   your data.
+5. Assist: in **Devices & services** delete the old HubNEX integration, then **restart the
+   HubNEX add-on**: "HubNEX discovered" appears, press *Configure* (no token to enter).
+6. When everything works, uninstall the local add-on.

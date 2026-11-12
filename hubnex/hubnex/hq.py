@@ -20,7 +20,7 @@ from hubnex import __version__
 from hubnex.config import AgentSpec, OrgChart, Settings
 from hubnex.integrations.elevenlabs import ElevenLabs
 from hubnex.speech import VOICE_HINT, for_voice, split_voice
-from hubnex.i18n import LANGS, lang, set_system_lang, system_lang, tr, tr_sys
+from hubnex.i18n import tr, tr_sys
 from hubnex.actions import ActionDesk
 from hubnex.attachments import Attachment, Attachments, join, note, with_blocks
 from hubnex.alerts import Alerts
@@ -125,11 +125,6 @@ class HQ:
         self.tz = ZoneInfo(settings.timezone)
         self.ha = HomeAssistant(settings.ha_url, settings.ha_token, settings.ha_blocked_services)
         self.watcher = HAWatcher(settings.ha_url, settings.ha_token, self._ha_event)
-        # The add-on's language: the option, else Home Assistant's (known once connected).
-        if settings.language in LANGS:
-            set_system_lang(settings.language)
-        else:
-            self.watcher.on_language = set_system_lang
         casa_file = settings.casa_file or str(Path(settings.agents_file).parent / "casa.yaml")
         self.casa = Casa(self.watcher, casa_file, store)
         self._tts_cache: dict[tuple[str, str], tuple[str | None, str | None]] = {}
@@ -500,11 +495,7 @@ class HQ:
 
     @staticmethod
     def _speak() -> str:
-        """The language Jarvis and the agents answer in (the instructions stay as written)."""
-        return "Parli in italiano" if lang() == "it" else (
-            "Rispondi sempre in inglese (English), anche se queste istruzioni sono in italiano; "
-            "nomi propri, entità e citazioni restano come sono"
-        )
+        return "Always reply in English. Keep proper names, entity IDs, and quotations unchanged."
 
     def _rules_text(self) -> str:
         if not self.rules:

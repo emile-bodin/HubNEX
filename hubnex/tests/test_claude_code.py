@@ -130,7 +130,7 @@ async def test_login_status(monkeypatch, exit_code, method, expected):
 async def test_missing_cli_is_reported_without_fallback(monkeypatch):
     monkeypatch.setattr(claude_code.shutil, "which", lambda _: None)
     assert (await claude_code.auth_status())["status"] == "unavailable"
-    with pytest.raises(claude_code.BridgeUnavailable, match="non installato"):
+    with pytest.raises(claude_code.BridgeUnavailable, match="not installed"):
         await claude_code.call("claude-sonnet-5-5", {"messages": []})
 
 
@@ -156,7 +156,7 @@ async def test_cli_failure_distinguishes_model_from_login(monkeypatch, error, ex
         return Process()
 
     monkeypatch.setattr(claude_code.asyncio, "create_subprocess_exec", spawn)
-    with pytest.raises(expected, match="model not found|Accesso Claude Code"):
+    with pytest.raises(expected, match="model not found|Claude Code sign-in"):
         await claude_code.call("claude-sonnet-5-5", {"messages": []})
 
 

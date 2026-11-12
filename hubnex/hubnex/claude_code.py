@@ -46,7 +46,7 @@ def cli_env() -> dict[str, str]:
 async def auth_status() -> dict:
     binary = shutil.which("claude")
     if not binary:
-        return {"status": "unavailable", "detail": "Claude Code non installato"}
+        return {"status": "unavailable", "detail": "Claude Code is not installed"}
     proc = None
     try:
         proc = await asyncio.create_subprocess_exec(binary, "auth", "status", stdout=asyncio.subprocess.PIPE,
@@ -59,12 +59,12 @@ async def auth_status() -> dict:
         if proc and proc.returncode is None:
             proc.kill()
             await proc.wait()
-        return {"status": "unavailable", "detail": "Stato di Claude Code non disponibile"}
+        return {"status": "unavailable", "detail": "Claude Code status is unavailable"}
     if proc.returncode:
-        return {"status": "signed_out", "detail": "Accedi con claude auth login"}
+        return {"status": "signed_out", "detail": "Sign in with claude auth login"}
     if data.get("authMethod") != "claude.ai":
-        return {"status": "wrong_account", "detail": "Claude Code non usa l'abbonamento Claude"}
-    return {"status": "ready", "detail": "Accesso Claude confermato"}
+        return {"status": "wrong_account", "detail": "Claude Code is not using a Claude subscription"}
+    return {"status": "ready", "detail": "Claude sign-in confirmed"}
 
 
 def _render_messages(messages: list, directory: Path) -> tuple[str, bool]:
@@ -83,14 +83,14 @@ def _render_messages(messages: list, directory: Path) -> tuple[str, bool]:
                         media.partition(";")[0][5:], ".jpg")
                     path = directory / f"attachment-{attachment}{suffix}"
                     path.write_bytes(base64.b64decode(data))
-                    rendered.append(f"Immagine allegata: {path} (usa Read per guardarla)")
+                    rendered.append(f"Attached image: {path} (use Read to inspect it)")
                 else:
                     rendered.append(part.get("text", ""))
             content = "\n".join(rendered)
         else:
             content = parts or ""
         if message.get("tool_calls"):
-            content += "\nTool richiesti: " + json.dumps(message["tool_calls"], ensure_ascii=False)
+            content += "\nRequested tools: " + json.dumps(message["tool_calls"], ensure_ascii=False)
         result.append(f"{message['role'].upper()}: {content}")
     return "\n\n".join(result), attachment > 0
 
@@ -101,9 +101,9 @@ def _response(data: dict) -> NS:
         try:
             answer = json.loads(data.get("result") or "")
         except ValueError as exc:
-            raise ProviderError("Claude Code non ha restituito una risposta strutturata") from exc
+            raise ProviderError("Claude Code did not return a structured response") from exc
     if not isinstance(answer, dict) or not isinstance(answer.get("text"), str) or not isinstance(answer.get("tool_calls"), list):
-        raise ProviderError("Risposta Claude Code incompleta")
+        raise ProviderError("Incomplete Claude Code response")
     blocks = [NS(type="text", text=answer["text"])] if answer["text"] else []
     for i, call in enumerate(answer["tool_calls"]):
         if not isinstance(call, dict) or not isinstance(call.get("name"), str) or not isinstance(call.get("input"), dict):
@@ -161,7 +161,7 @@ async def call(model: str, kwargs: dict, on_event=None) -> NS:
     # ponytail: one CLI run per HubNEX tool turn; a persistent MCP session would reduce latency.
     binary = shutil.which("claude")
     if not binary:
-        raise BridgeUnavailable("Claude Code non installato")
+        raise BridgeUnavailable("Claude Code is not installed")
     status = await auth_status()
     if status["status"] != "ready":
         raise BridgeUnavailable(status["detail"])
@@ -173,19 +173,19 @@ async def call(model: str, kwargs: dict, on_event=None) -> NS:
         tools = [t for t in kwargs.get("tools") or [] if "input_schema" in t]
         hosted = {t.get("name") for t in kwargs.get("tools") or [] if "input_schema" not in t}
         if tools:
-            prompt += "\n\nSTRUMENTI HUBNEX DISPONIBILI:\n" + json.dumps(tools, ensure_ascii=False)
+            prompt += "\n\nAVAILABLE HUBNEX TOOLS:\n" + json.dumps(tools, ensure_ascii=False)
         required_format = (kwargs.get("output_config") or {}).get("format") or {}
         if required_format.get("type") == "json_schema":
-            prompt += "\n\nIl testo finale deve essere JSON valido per questo schema: " + json.dumps(required_format["schema"])
-        prompt += ("\n\nRispondi con text e tool_calls secondo lo schema. Se serve uno strumento HubNEX, "
-                   "richiedilo in tool_calls e attendi il risultato; non inventare il risultato. "
-                   "Non usare altri strumenti o file, salvo Read per gli allegati qui sopra.")
+            prompt += "\n\nThe final text must be valid JSON for this schema: " + json.dumps(required_format["schema"])
+        prompt += ("\n\nReply with text and tool_calls according to the schema. If a HubNEX tool is needed, "
+                   "request it in tool_calls and wait for its result; never invent the result. "
+                   "Do not use other tools or files, except Read for attachments above.")
         builtins = ["Read"] if has_attachment else []
         if "web_search" in hosted:
             builtins.append("WebSearch")
         if "web_fetch" in hosted:
             builtins.append("WebFetch")
-        args = [binary, "--safe-mode", "-p", "Completa la richiesta ricevuta su stdin.", "--output-format",
+        args = [binary, "--safe-mode", "-p", "Complete the request received on stdin.", "--output-format",
                 "stream-json" if on_event else "json",
                 "--json-schema", json.dumps(REPLY_SCHEMA), "--model", model,
                 "--tools", ",".join(builtins), "--permission-mode", "dontAsk",
@@ -233,16 +233,16 @@ async def call(model: str, kwargs: dict, on_event=None) -> NS:
             if "proc" in locals() and proc.returncode is None:
                 proc.kill()
                 await proc.wait()
-            raise BridgeUnavailable(f"Claude Code non raggiungibile: {exc}") from exc
+            raise BridgeUnavailable(f"Claude Code unavailable: {exc}") from exc
     if proc.returncode:
         detail = err.decode(errors="replace")[-400:] or out.decode(errors="replace")[-400:]
         if any(word in detail.lower() for word in ("login", "auth", "credential")):
-            raise BridgeUnavailable("Accesso Claude Code scaduto o non disponibile")
+            raise BridgeUnavailable("Claude Code sign-in expired or unavailable")
         raise ProviderError(f"Claude Code: {detail}")
     try:
         data = json.loads(out)
     except ValueError as exc:
-        raise ProviderError("Claude Code non ha restituito JSON valido") from exc
+        raise ProviderError("Claude Code did not return valid JSON") from exc
     if data.get("is_error"):
-        raise ProviderError(f"Claude Code: {str(data.get('result', 'errore'))[:400]}")
+        raise ProviderError(f"Claude Code: {str(data.get('result', 'error'))[:400]}")
     return _response(data)

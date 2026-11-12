@@ -3,6 +3,7 @@ Kept complete by tests/test_i18n.py; list what is missing with:
     python dev/i18n_keys.py --python --missing"""
 
 EN: dict[str, str] = {
+    "{a} non supporta l'inglese": "{a} does not support English",
     "+{n} a bassa priorità non mostrate": "+{n} low priority not shown",
     "1 nuova email": "1 new email",
     "A": "To",

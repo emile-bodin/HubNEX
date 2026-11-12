@@ -1,115 +1,101 @@
 configuration:
   anthropic_api_key:
-    name: Chiave API Anthropic
-    description: La chiave per usare Claude (console.anthropic.com). Non serve se usi solo altri fornitori.
+    name: Anthropic API key
+    description: The key to use Claude (console.anthropic.com). Not needed if you only use other providers.
   model_jarvis:
-    name: Modello di Jarvis
-    description: Usato da Jarvis e dagli agenti che non ne indicano uno in agents.yaml. Claude per nome (claude-sonnet-5-5), gli altri con il prefisso del fornitore - openai:gpt-5-mini, ollama:qwen3:14b, compat:nome-modello.
+    name: Jarvis model
+    description: Used by Jarvis and by agents that don't set their own in agents.yaml. Claude by name (claude-sonnet-5-5), others with the provider's prefix - openai:gpt-5-mini, ollama:qwen3:14b, compat:model-name.
   model_mail:
-    name: Modello di Jarvis Mail
-    description: Usato dall'agente email e per classificare la posta.
+    name: Jarvis Mail model
   model_voice:
-    name: Modello per i comandi rapidi
-    description: La via rapida per le richieste sulla casa (dashboard e Assist). Haiku è il più veloce; le domande complesse passano comunque al modello di Jarvis. Vuoto = niente via rapida.
+    name: Quick command model
+    description: The quick route for requests about the house (dashboard and Assist). Haiku is the fastest; complex questions still go to Jarvis' model. Empty = no quick route.
   anthropic_credit_usd:
-    name: Credito Anthropic ($)
-    description: Il saldo che vedi su console.anthropic.com (es. 4.90). La dashboard scala da qui il costo stimato di ogni richiesta. Quando ricarichi, scrivi il nuovo saldo e il conteggio riparte. 0 = mostra solo la spesa.
+    name: Anthropic credit ($)
+    description: Your balance on console.anthropic.com. The dashboard counts down the estimated cost of each request. Enter the new balance after a top-up. 0 = show spend only.
   monthly_budget_usd:
-    name: Budget mensile Claude ($)
-    description: Avviso nel gruppo Telegram e nelle notifiche quando la spesa del mese arriva all'80% e al 100%. È solo un avviso, HubNEX non si ferma. 0 = nessun avviso.
+    name: Monthly Claude budget ($)
+    description: A warning in the Telegram group and in the notifications when this month's spend reaches 80% and 100%. Only a warning, HubNEX doesn't stop. 0 = no warning.
   openai_api_key:
-    name: Chiave API OpenAI
-    description: Per i modelli scritti come openai:nome (platform.openai.com).
+    name: OpenAI API key
+    description: For models written as openai:name (platform.openai.com).
   openai_base_url:
-    name: Indirizzo API OpenAI
-    description: Vuoto = quello di OpenAI. Cambialo solo per un servizio che imita OpenAI con la stessa chiave.
+    name: OpenAI API address
+    description: Empty = OpenAI's own. Change it only for a service that mimics OpenAI with the same key.
   ollama_url:
-    name: Indirizzo di Ollama
-    description: Per i modelli locali scritti come ollama:nome, es. http://192.168.1.20:11434. Gratis e senza cloud; serve un modello che sappia usare gli strumenti (qwen3, llama3.1, mistral-small).
+    name: Ollama address
+    description: For local models written as ollama:name, e.g. http://192.168.1.20:11434. Free and cloud-free; you need a model that can use tools (qwen3, llama3.1, mistral-small).
   compat_base_url:
-    name: Indirizzo di un altro servizio compatibile
-    description: Per i modelli scritti come compat:nome. Qualsiasi server compatibile con OpenAI, fino a /v1 - LM Studio (http://IP:1234/v1), OpenRouter (https://openrouter.ai/api/v1), Gemini (https://generativelanguage.googleapis.com/v1beta/openai), Mistral, DeepSeek, Groq.
+    name: Another compatible service's address
+    description: For models written as compat:name. Any OpenAI-compatible server, up to /v1 - LM Studio (http://IP:1234/v1), OpenRouter (https://openrouter.ai/api/v1), Gemini (https://generativelanguage.googleapis.com/v1beta/openai), Mistral, DeepSeek, Groq.
   compat_api_key:
-    name: Chiave del servizio compatibile
-    description: La chiave di quel servizio; vuota se non la chiede (LM Studio).
+    name: Compatible service's key
+    description: That service's key; empty if it asks for none (LM Studio).
   other_price_input:
-    name: Prezzo input altri modelli ($ per milione di token)
-    description: Per contare la spesa dei modelli openai e compat, come da listino del fornitore. 0 = non contata. I modelli di Ollama sono sempre gratis.
+    name: Other models' input price ($ per million tokens)
+    description: To count the spend of openai and compat models, from the provider's price list. 0 = not counted. Ollama models are always free.
   other_price_output:
-    name: Prezzo output altri modelli ($ per milione di token)
-    description: Come sopra, per i token di risposta.
+    name: Other models' output price ($ per million tokens)
+    description: As above, for the reply tokens.
   telegram_token_jarvis:
-    name: Token bot Jarvis
-    description: Da @BotFather. Deve essere un bot che nessun altro programma sta ascoltando.
+    name: Jarvis bot token
   telegram_token_mail:
-    name: Token bot Jarvis Mail
-    description: Il secondo bot del gruppo, quello che parla per la posta.
+    name: Jarvis Mail bot token
   allowed_chat_id:
-    name: ID del gruppo
-    description: Numero negativo, con il segno meno. Scrivi /id nel gruppo per vederlo.
+    name: Group ID
+    description: Negative number. Send /id in the group to see it.
   allowed_user_id:
-    name: Il tuo user ID Telegram
-    description: I bot obbediscono solo a te.
+    name: Your Telegram user ID
   telegram_voice_replies:
-    name: Risposte vocali su Telegram
-    description: Se mandi un vocale a Jarvis, risponde anche a voce (serve ElevenLabs).
+    name: Voice replies on Telegram
   imap_host:
-    name: Server IMAP
+    name: IMAP server
   imap_port:
-    name: Porta IMAP
+    name: IMAP port
   smtp_host:
-    name: Server SMTP
+    name: SMTP server
   smtp_port:
-    name: Porta SMTP
+    name: SMTP port
   mail_user:
-    name: Casella email
+    name: Mailbox
   mail_password:
-    name: Password email
+    name: Mail password
   mail_from_name:
-    name: Nome mittente
-    description: Es. "Ing. Mario Rossi - Azienda srl".
+    name: Sender name
   mail_signature:
-    name: Firma
-    description: Testo semplice (usa \n per andare a capo) oppure HTML incollato dal tuo programma di posta.
+    name: Signature
   check_interval_minutes:
-    name: Controllo posta (minuti)
+    name: Mail check (minutes)
   notify_min_priority:
-    name: Avvisami da priorità
-    description: bassa, media (consigliato) o alta.
+    name: Notify from priority
   mail_ignore:
-    name: Mittenti da non segnalare
-    description: Separati da virgola. Un indirizzo (offerte@negozio.it), un dominio (@newsletter.it) o una parola dell'indirizzo (noreply). Le loro email restano nella casella, ma niente messaggio su Telegram.
+    name: Senders not to announce
+    description: Comma separated. An address (offers@shop.com), a domain (@newsletter.com) or a word of the address (noreply). Their emails stay in the mailbox, but no Telegram message.
   hq_token:
-    name: Token HQ
-    description: Password per aprire la dashboard fuori da HA e per l'API (rest_command). Dalla barra laterale non serve.
+    name: HQ token
+    description: Password for the dashboard outside HA and for the API. Not needed from the sidebar.
   elevenlabs_api_key:
-    name: Chiave API ElevenLabs
-    description: Per la voce di Jarvis e per trascrivere i tuoi vocali.
+    name: ElevenLabs API key
   elevenlabs_voice_id:
-    name: Voce ElevenLabs
+    name: ElevenLabs voice ID
   elevenlabs_model:
-    name: Modello ElevenLabs
-    description: eleven_flash_v2_5 è il più economico e parla italiano.
+    name: ElevenLabs model
   voice_tts_entity:
-    name: Voce da Home Assistant
-    description: In alternativa a ElevenLabs, un motore di sintesi vocale di Home Assistant (es. tts.piper, gratuito e locale, o tts.home_assistant_cloud). Se impostato, ha la precedenza.
+    name: Voice from Home Assistant
+    description: Instead of ElevenLabs, one of Home Assistant's TTS engines (e.g. tts.piper, free and local). Takes precedence when set.
   voice_tts_voice:
-    name: Voce del motore di Home Assistant
-    description: Il nome della voce da usare con il motore qui sopra, per esempio Rinaldo o Diego per Home Assistant Cloud. Vuoto = la voce predefinita. La lingua è quella di Home Assistant.
-  language:
-    name: Lingua
-    description: auto = quella di Home Assistant; it = italiano; en = inglese. Vale per l'assistente, gli agenti, Telegram e i messaggi dell'add-on; la dashboard segue la lingua di chi la apre.
+    name: Home Assistant engine voice
+    description: The name of the voice to use with the engine above (e.g. Rinaldo or Diego for Home Assistant Cloud). Empty = its default voice. The language is Home Assistant's.
   voice_answers:
-    name: Risposte a voce
-    description: completa = la voce legge tutta la risposta; riassunto = per le risposte lunghe la voce dice solo il succo in una o due frasi, il testo scritto resta completo (dashboard e vocali Telegram).
+    name: Spoken answers
+    description: completa = the voice reads the whole answer; riassunto = for long answers the voice says only the gist in one or two sentences, the written text stays complete.
   ha_blocked_services:
-    name: Servizi HA bloccati
-    description: Servizi che Jarvis non può mai chiamare da solo, separati da virgola.
+    name: Blocked HA services
   install_assist_integration:
-    name: Integrazione Assist
-    description: Installa e aggiorna l'integrazione che rende Jarvis l'agente di conversazione di Assist (voce da app di HA e speaker).
+    name: Assist integration
+    description: Install and update the integration that makes Jarvis an Assist conversation agent.
   non_admin_access:
-    name: Utenti non amministratori
-    description: "casa: gli utenti di Home Assistant che non sono amministratori vedono solo la Casa (niente assistente, posta, agenti, modifiche alla piantina). completo: vedono tutto come un amministratore."
+    name: Non-admin users
+    description: "casa: Home Assistant users who are not administrators only get the house view (no assistant, mail, agents or floor plan changes). completo: they get everything, like an administrator."
 network:
-  8765/tcp: Dashboard e API (facoltativa, richiede il token HQ)
+  8765/tcp: Dashboard and API (optional, requires the HQ token)
