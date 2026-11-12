@@ -236,7 +236,7 @@ async def call(model: str, kwargs: dict, on_event=None) -> NS:
             raise BridgeUnavailable(f"Claude Code non raggiungibile: {exc}") from exc
     if proc.returncode:
         detail = err.decode(errors="replace")[-400:] or out.decode(errors="replace")[-400:]
-        if any(word in detail.lower() for word in ("login", "auth", "credential", "not found")):
+        if any(word in detail.lower() for word in ("login", "auth", "credential")):
             raise BridgeUnavailable("Accesso Claude Code scaduto o non disponibile")
         raise ProviderError(f"Claude Code: {detail}")
     try:

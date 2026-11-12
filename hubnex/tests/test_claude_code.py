@@ -133,6 +133,32 @@ async def test_missing_cli_is_reported_without_fallback(monkeypatch):
         await claude_code.call("claude-sonnet-5-5", {"messages": []})
 
 
+@pytest.mark.parametrize("error,expected", [
+    ('{"error":"model not found"}', ProviderError),
+    ("Login expired", claude_code.BridgeUnavailable),
+])
+async def test_cli_failure_distinguishes_model_from_login(monkeypatch, error, expected):
+    monkeypatch.setattr(claude_code.shutil, "which", lambda _: "claude")
+
+    async def ready():
+        return {"status": "ready"}
+
+    monkeypatch.setattr(claude_code, "auth_status", ready)
+
+    class Process:
+        returncode = 1
+
+        async def communicate(self, prompt):
+            return b"", error.encode()
+
+    async def spawn(*args, **kwargs):
+        return Process()
+
+    monkeypatch.setattr(claude_code.asyncio, "create_subprocess_exec", spawn)
+    with pytest.raises(expected, match="model not found|Accesso Claude Code"):
+        await claude_code.call("claude-sonnet-5-5", {"messages": []})
+
+
 async def test_cli_stream_reports_agent_progress():
     async def runner(kwargs, on_event):
         await on_event("tool_use", "memory_search")
