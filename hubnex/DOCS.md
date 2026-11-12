@@ -296,6 +296,9 @@ aggiungili da qui.
      ridimensionarla, trascina sul vuoto (o **+ Stanza**) per disegnarne una nuova. Nel
      pannello scegli l'area, oppure "solo disegno" per un ambiente senza entità; **contorno**
      per balconi e terrazzi. Spunta le aree **Fuori casa** (giardino, parcheggio…).
+     Per una stanza a L o con muri obliqui scegli **Disegna angoli**, tocca gli angoli in ordine
+     e chiudi sul primo punto o con **Completa forma**. Seleziona una stanza e usa
+     **Modifica angoli** per spostarli, aggiungerne uno sul bordo o eliminare quello selezionato.
   4. **Salva piantina**. Con **+ Piano** aggiungi altri piani.
 
   Chi preferisce può usare **Testo** e scrivere la disposizione in YAML (posizioni `x, y, w, h`

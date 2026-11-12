@@ -299,6 +299,9 @@ born without an area: set it in Home Assistant or add them from here.
      space (or **+ Room**) to draw a new one. In the panel choose the area, or "drawing only"
      for a space without entities; **outline** for balconies and terraces. Tick the
      **Outdoors** areas (garden, parking…).
+     For L-shaped or angled rooms choose **Draw corners**, tap each corner in order, then
+     tap the first point or **Finish shape**. Select a room and use **Edit corners** to
+     move vertices, add one on an edge, or remove the selected vertex.
   4. **Save floor plan**. **+ Floor** adds more floors.
 
   If you prefer, **Text** lets you write the layout in YAML (positions `x, y, w, h` in percent of

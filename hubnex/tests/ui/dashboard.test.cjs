@@ -11,7 +11,7 @@ const URL = `http://127.0.0.1:${PORT}/`;
 let server, browser;
 
 async function waitForServer() {
-  for (let i = 0; i < 100; i++) {
+  for (let i = 0; i < 250; i++) {
     try { if ((await fetch(URL)).ok) return; } catch {}
     await new Promise((r) => setTimeout(r, 200));
   }
@@ -594,4 +594,63 @@ test("in inglese: Casa, stanza, Energia e preferenze senza testi italiani mancan
   const missing = await page.evaluate(() => [...(window.__i18nMissing || [])]);
   assert.deepEqual(missing, [], "testi senza inglese mostrati nella pagina");
   await done(page);
+});
+
+test("piantina: disegna e modifica una stanza a L con mouse e tocco", { timeout: 60000 }, async () => {
+  const page = await open();
+  await casa(page);
+  await page.click("[data-act='layout']");
+  await page.waitForSelector(".ped-stage");
+  await page.click("[data-ed='tool-polygon']");
+  const stage = await page.locator(".ped-stage").boundingBox();
+  for (const [x, y] of [[10, 10], [80, 10], [80, 30], [40, 30], [40, 80], [10, 80]]) {
+    await page.mouse.click(stage.x + stage.width * x / 100, stage.y + stage.height * y / 100);
+  }
+  await page.click("[data-ed='finish-polygon']");
+  assert.equal(await page.locator(".ped-room.sel.polygon").count(), 1);
+  assert.equal(await page.locator("[data-point]").count(), 6);
+  const selectedRoom = await page.locator(".ped-room.sel.polygon").getAttribute("data-room");
+  assert.equal(await page.evaluate(({ stage, selectedRoom }) => document.elementFromPoint(
+    stage.x + stage.width * .7, stage.y + stage.height * .7
+  )?.closest(`[data-room="${selectedRoom}"]`)?.dataset.room || null, { stage, selectedRoom }), null, "de uitsparing van de L-vorm vangt geen tik op");
+  await page.click("[data-edge='2']");
+  assert.equal(await page.locator("[data-point]").count(), 7);
+  await page.click("[data-ed='delete-point']");
+  assert.equal(await page.locator("[data-point]").count(), 6);
+  const vertex = await page.locator("[data-point='3']").boundingBox();
+  await page.mouse.move(vertex.x + vertex.width / 2, vertex.y + vertex.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(vertex.x + vertex.width / 2 + 18, vertex.y + vertex.height / 2 + 8);
+  await page.mouse.up();
+  await page.selectOption("[data-ed='area']", { label: "Soggiorno" });
+  await page.click("[data-ed='save']");
+  await page.waitForSelector(".plan-room.polygon[data-area='soggiorno']");
+  assert.match(await page.locator(".plan-room.polygon[data-area='soggiorno']").last().evaluate((el) => getComputedStyle(el).clipPath), /polygon/);
+  await page.click("[data-act='layout']");
+  await page.waitForSelector(".ped-room.polygon");
+  assert.equal(await page.locator(".ped-room.polygon").count(), 1, "de vorm blijft bewaard na opnieuw openen");
+  await page.locator(".ped-room:not(.outline):not(.polygon)").last().click({ timeout: 5000 });
+  await page.click("[data-ed='edit-points']");
+  assert.equal(await page.locator("[data-point]").count(), 4, "een rechthoek kan hoekpunten krijgen");
+  await page.locator("[data-ed='outline']").check();
+  assert.equal(await page.locator(".ped-room.sel.polygon.outline").count(), 1);
+  await done(page);
+
+  const touch = await browser.newPage({ viewport: { width: 390, height: 844 }, hasTouch: true });
+  touch.errors = [];
+  touch.on("pageerror", (e) => touch.errors.push(e.message));
+  await touch.goto(URL);
+  await casa(touch);
+  await touch.click("[data-act='layout']");
+  await touch.click("[data-ed='tool-polygon']");
+  const mobileStage = await touch.locator(".ped-stage").boundingBox();
+  await touch.touchscreen.tap(mobileStage.x + mobileStage.width * .15, mobileStage.y + mobileStage.height * .15);
+  await touch.click("[data-ed='cancel-polygon']");
+  assert.equal(await touch.locator("[data-draft-point]").count(), 0);
+  for (const [x, y] of [[15, 15], [70, 15], [70, 65], [15, 65]]) {
+    await touch.touchscreen.tap(mobileStage.x + mobileStage.width * x / 100, mobileStage.y + mobileStage.height * y / 100);
+  }
+  await touch.click("[data-draft-point='0']");
+  assert.equal(await touch.locator(".ped-room.sel.polygon").count(), 1);
+  await done(touch);
 });

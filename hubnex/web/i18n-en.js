@@ -1,6 +1,19 @@
 // English texts of the dashboard: the Italian text (as written in the code) -> English.
 // Kept complete by tests/ui/i18n.test.cjs; list what is missing with: python dev/i18n_keys.py --missing
 export const EN = {
+  "Angolo": "Corner",
+  "Aggiungi angolo": "Add corner",
+  "Chiudi forma": "Close shape",
+  "Elimina angolo": "Remove corner",
+  "Modifica angoli": "Edit corners",
+  "Tocca gli angoli in ordine; chiudi sul primo punto o premi Completa forma.": "Tap the corners in order; tap the first point or press Finish shape.",
+  "Rettangolo": "Rectangle",
+  "Disegna angoli": "Draw corners",
+  "Completa forma": "Finish shape",
+  "Servono almeno tre angoli": "At least three corners are needed",
+  "Forma non valida": "Invalid shape",
+  "Forme non valide ignorate: {n}.": "Invalid suggested shapes skipped: {n}.",
+  "Completa o annulla prima la forma": "Finish or cancel the shape first",
   "Stima delle chiamate API. Le richieste tramite abbonamento Claude Code non hanno un costo API.": "Estimated API call cost. Requests through the Claude Code subscription have no API charge.",
   "Accedi a Claude": "Sign in to Claude",
   "Apri la pagina di accesso Claude": "Open Claude sign-in page",

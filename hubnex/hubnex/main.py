@@ -185,10 +185,11 @@ class LayoutIn(BaseModel):
 
 class PlanRoomIn(BaseModel):
     area: str = Field(min_length=1, max_length=80)
-    x: float
-    y: float
-    w: float
-    h: float
+    x: float | None = None
+    y: float | None = None
+    w: float | None = None
+    h: float | None = None
+    points: list[dict[str, float]] | None = Field(default=None, max_length=32)
     outline: bool = False
 
 
@@ -1047,7 +1048,7 @@ def create_app(settings: Settings | None = None, hq: HQ | None = None, start_wor
             raw = await complete(
                 hq.client,
                 model=hq.settings.model,
-                system="Leggi planimetrie di abitazioni e ne ricavi le stanze come rettangoli.",
+                system="Leggi planimetrie di abitazioni e ne ricavi i contorni delle stanze.",
                 prompt=[
                     {"type": "image", "source": {"type": "base64", "media_type": "image/jpeg", "data": image}},
                     {"type": "text", "text": suggest_prompt(areas)},
@@ -1056,11 +1057,13 @@ def create_app(settings: Settings | None = None, hq: HQ | None = None, start_wor
                 schema=SUGGEST_SCHEMA,
                 on_usage=hq.usage_for("plan"),
             )
-            rooms = clean_suggestion(json.loads(raw), areas)
+            rooms, skipped = clean_suggestion(json.loads(raw), areas)
+            if not rooms:
+                raise ValueError("nessuna stanza valida nella proposta")
         except Exception as exc:
             raise HTTPException(502, f"{tr('proposta non riuscita')}: {exc}")
         await hq.log("system", tr_sys("Proposta della piantina: {n} stanze riconosciute", n=len(rooms)))
-        return {"rooms": rooms}
+        return {"rooms": rooms, "skipped": skipped}
 
     @app.websocket("/ws")
     async def ws(websocket: WebSocket):

@@ -7,6 +7,7 @@ plus the owner's adjustments made in the dashboard ("show this one here too", "h
 
 from __future__ import annotations
 
+import math
 import re
 from pathlib import Path
 from typing import TYPE_CHECKING, Any
@@ -127,8 +128,11 @@ SUGGEST_SCHEMA = {
                     "w": {"type": "number"},
                     "h": {"type": "number"},
                     "outline": {"type": "boolean"},
+                    "points": {"type": "array", "items": {"type": "object", "properties": {
+                        "x": {"type": "number"}, "y": {"type": "number"}},
+                        "required": ["x", "y"], "additionalProperties": False}},
                 },
-                "required": ["label", "area", "x", "y", "w", "h", "outline"],
+                "required": ["label", "area", "x", "y", "w", "h", "outline", "points"],
                 "additionalProperties": False,
             },
         }
@@ -142,9 +146,10 @@ def suggest_prompt(areas: list[str]) -> str:
     names = "\n".join(f"- {a}" for a in areas) or "- (nessuna area)"
     return (
         "Questa è la planimetria di un piano di un'abitazione. Individua ogni stanza e restituisci "
-        "un rettangolo che ne copra l'interno: x e y dell'angolo in alto a sinistra, w e h, tutti in "
-        "percentuale (0-100) della larghezza e dell'altezza dell'IMMAGINE INTERA. Le stanze a L "
-        "approssimale con il rettangolo più grande. Includi corridoi, bagni, ripostigli, lavanderie. "
+        "la sua forma: x e y dell'angolo in alto a sinistra, w e h del rettangolo che la contiene, "
+        "tutti in percentuale (0-100) dell'IMMAGINE INTERA. Per stanze non rettangolari, "
+        "inclusi corridoi a L, indica i vertici ordinati del contorno in points [{x,y}, ...]. "
+        "Per i rettangoli usa points: []. Includi corridoi, bagni, ripostigli, lavanderie. "
         "Balconi, terrazzi, verande e giardini che circondano la casa mettili con outline=true.\n"
         "label: il nome scritto sul disegno (o una descrizione breve se manca). Ignora quote e misure.\n"
         "area: scegli l'area di Home Assistant corrispondente da questo elenco, scritta esattamente "
@@ -152,17 +157,67 @@ def suggest_prompt(areas: list[str]) -> str:
     )
 
 
-def clean_suggestion(raw: dict, areas: list[str]) -> list[dict]:
+def clean_suggestion(raw: dict, areas: list[str]) -> tuple[list[dict], int]:
     """Rooms from the model, kept inside the drawing, with only real area names."""
     known = {a.lower(): a for a in areas}
-    rooms = []
+    rooms, skipped = [], 0
     for r in raw.get("rooms", [])[:60]:
-        x, y = max(0.0, min(float(r["x"]), 99.0)), max(0.0, min(float(r["y"]), 99.0))
-        w, h = max(1.0, min(float(r["w"]), 100 - x)), max(1.0, min(float(r["h"]), 100 - y))
+        try:
+            points = r.get("points") or []
+            if points:
+                points, box = polygon_box(points)
+            else:
+                x, y = max(0.0, min(float(r["x"]), 99.0)), max(0.0, min(float(r["y"]), 99.0))
+                w, h = max(1.0, min(float(r["w"]), 100 - x)), max(1.0, min(float(r["h"]), 100 - y))
+                box = {"x": round(x, 1), "y": round(y, 1), "w": round(w, 1), "h": round(h, 1)}
+        except (LayoutError, KeyError, TypeError, ValueError):
+            skipped += 1
+            continue
         area = known.get(str(r.get("area", "")).strip().lower(), "")
         rooms.append({"area": area or str(r.get("label", "")).strip()[:60] or "Stanza", "linked": bool(area),
-                      "x": round(x, 1), "y": round(y, 1), "w": round(w, 1), "h": round(h, 1), "outline": bool(r.get("outline"))})
-    return rooms
+                      **box, **({"points": points} if points else {}), "outline": bool(r.get("outline"))})
+    return rooms, skipped
+
+
+def polygon_box(raw: list) -> tuple[list[dict], dict]:
+    """Validate a simple polygon and return its points and containing box."""
+    # ponytail: 32 corners cover room outlines; raise this and the API limit for detailed tracing.
+    if not isinstance(raw, list) or not 3 <= len(raw) <= 32:
+        raise LayoutError("Il contorno richiede da 3 a 32 angoli")
+    try:
+        points = [{"x": float(p["x"]), "y": float(p["y"])} for p in raw]
+    except (KeyError, TypeError, ValueError) as exc:
+        raise LayoutError("Angoli non validi") from exc
+    if any(not math.isfinite(v) or not 0 <= v <= 100 for p in points for v in p.values()):
+        raise LayoutError("Angoli fuori dal disegno (0-100)")
+    points = [{k: round(v, 1) for k, v in p.items()} for p in points]
+    vertices = [(p["x"], p["y"]) for p in points]
+    if len(set(vertices)) != len(vertices):
+        raise LayoutError("Angoli ripetuti")
+    def cross(a, b, c):
+        return (b[0] - a[0]) * (c[1] - a[1]) - (b[1] - a[1]) * (c[0] - a[0])
+
+    def intersects(a, b, c, d):
+        ab1, ab2, cd1, cd2 = cross(a, b, c), cross(a, b, d), cross(c, d, a), cross(c, d, b)
+        if ab1 * ab2 < 0 and cd1 * cd2 < 0:
+            return True
+        return any(v == 0 and min(u[0], w[0]) <= q[0] <= max(u[0], w[0])
+                   and min(u[1], w[1]) <= q[1] <= max(u[1], w[1])
+                   for v, u, w, q in ((ab1, a, b, c), (ab2, a, b, d), (cd1, c, d, a), (cd2, c, d, b)))
+
+    n = len(vertices)
+    for i in range(n):
+        for j in range(i + 1, n):
+            if j == i + 1 or (i == 0 and j == n - 1):
+                continue
+            if intersects(vertices[i], vertices[(i + 1) % n], vertices[j], vertices[(j + 1) % n]):
+                raise LayoutError("Il contorno incrocia sé stesso")
+    area = sum(x * vertices[(i + 1) % n][1] - y * vertices[(i + 1) % n][0]
+               for i, (x, y) in enumerate(vertices))
+    if abs(area) < 0.2:
+        raise LayoutError("Contorno senza superficie")
+    xs, ys = [p["x"] for p in points], [p["y"] for p in points]
+    return points, {"x": min(xs), "y": min(ys), "w": round(max(xs) - min(xs), 1), "h": round(max(ys) - min(ys), 1)}
 
 
 # Italian spellings are accepted too.
@@ -214,13 +269,21 @@ def parse_layout(text: str) -> dict:
             r = _keys(r) if isinstance(r, dict) else r
             if not isinstance(r, dict) or not (r.get("area") or r.get("label")):
                 raise LayoutError(f"piano {i}, stanza {j}: serve 'area'")
-            try:
-                box = {k: float(r[k]) for k in ("x", "y", "w", "h")}
-            except (KeyError, TypeError, ValueError) as exc:
-                raise LayoutError(tr("piano {a}, stanza {b}: servono x, y, w, h numerici", a=i, b=r.get('area'))) from exc
-            if box["w"] <= 0 or box["h"] <= 0 or min(box["x"], box["y"]) < 0 or box["x"] + box["w"] > 100.5 or box["y"] + box["h"] > 100.5:
-                raise LayoutError(tr("piano {a}, stanza {b}: fuori dal disegno (0-100)", a=i, b=r.get('area')))
-            rooms.append({"area": str(r.get("area") or r.get("label")), **box, "outline": bool(r.get("outline"))})
+            if r.get("points") is not None:
+                try:
+                    points, box = polygon_box(r["points"])
+                except LayoutError as exc:
+                    raise LayoutError(f"piano {i}, stanza {r.get('area')}: {exc}") from exc
+            else:
+                try:
+                    box = {k: float(r[k]) for k in ("x", "y", "w", "h")}
+                except (KeyError, TypeError, ValueError) as exc:
+                    raise LayoutError(tr("piano {a}, stanza {b}: servono x, y, w, h numerici", a=i, b=r.get('area'))) from exc
+                if (not all(math.isfinite(v) for v in box.values()) or box["w"] <= 0 or box["h"] <= 0
+                        or min(box["x"], box["y"]) < 0 or box["x"] + box["w"] > 100.5 or box["y"] + box["h"] > 100.5):
+                    raise LayoutError(tr("piano {a}, stanza {b}: fuori dal disegno (0-100)", a=i, b=r.get('area')))
+            rooms.append({"area": str(r.get("area") or r.get("label")), **box,
+                          **({"points": points} if r.get("points") is not None else {}), "outline": bool(r.get("outline"))})
         aspect = float(f.get("aspect") or 1.4)
         image = str(f.get("image") or "")
         if image and not PLAN_IMAGE.fullmatch(image):
@@ -292,8 +355,12 @@ class Casa:
             floor = {"name": f.get("name") or "Piano", "aspect": round(float(f.get("aspect") or 1.4), 3)}
             if f.get("image"):
                 floor["image"] = f["image"]
+            if any(r.get("points") is None and any(r.get(k) is None for k in ("x", "y", "w", "h")) for r in f.get("rooms", [])):
+                raise LayoutError("Per una stanza rettangolare servono x, y, w, h")
             floor["rooms"] = [
-                {"area": r["area"], **{k: round(float(r[k]), 1) for k in ("x", "y", "w", "h")}, **({"outline": True} if r.get("outline") else {})}
+                {"area": r["area"], **({"points": r["points"]} if r.get("points") is not None
+                                      else {k: round(float(r[k]), 1) for k in ("x", "y", "w", "h")}),
+                 **({"outline": True} if r.get("outline") else {})}
                 for r in f.get("rooms", [])
             ]
             floors.append(floor)

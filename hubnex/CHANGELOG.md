@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.21.3
+- Draw rooms with multiple corners, including L-shaped and angled walls; edit corners after drawing.
+- Suggested rooms may use the actual room outline. Existing rectangular plans remain compatible.
+
 ## 1.21.2d
 - Claude subscription chats now use safe mode, which keeps the saved sign-in available while disabling CLI customizations.
 

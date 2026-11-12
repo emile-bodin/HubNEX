@@ -4,6 +4,7 @@ import asyncio
 import json
 
 import pytest
+import yaml
 from fastapi.testclient import TestClient
 
 from hubnex.casa import LayoutError, parse_layout
@@ -181,6 +182,19 @@ def test_layout_is_checked_before_saving(tmp_path):
         parse_layout("floors: [")
 
 
+def test_polygon_rooms_validate_and_keep_their_bounds():
+    points = [{"x": 10, "y": 10}, {"x": 70, "y": 10}, {"x": 70, "y": 30},
+              {"x": 40, "y": 30}, {"x": 40, "y": 70}, {"x": 10, "y": 70}]
+    layout = lambda p: yaml.safe_dump({"floors": [{"rooms": [{"area": "Hal", "points": p}]}]})
+    room = parse_layout(layout(points))["floors"][0]["rooms"][0]
+    assert (room["x"], room["y"], room["w"], room["h"]) == (10, 10, 60, 60)
+    assert room["points"] == points
+    with pytest.raises(LayoutError, match="Angoli fuori dal disegno"):
+        parse_layout(layout([{**points[0], "x": 100.04}, *points[1:]]))
+    with pytest.raises(LayoutError, match="incrocia"):
+        parse_layout(layout([{"x": 10, "y": 10}, {"x": 70, "y": 70}, {"x": 70, "y": 10}, {"x": 10, "y": 70}]))
+
+
 def test_dashboard_api(settings, make_hq):
     hq = make_hq([])
     calls = []
@@ -352,6 +366,11 @@ def test_editor_saves_the_plan_and_ai_proposes_rooms(settings, make_hq):
     hq = make_hq([response([text_block(_json.dumps({"rooms": [
         {"label": "Sala", "area": "sala da pranzo", "x": 10, "y": 10, "w": 40, "h": 30, "outline": False},
         {"label": "Ripostiglio", "area": "", "x": 95, "y": 90, "w": 20, "h": 30, "outline": False},
+        {"label": "Hal", "area": "", "x": 10, "y": 10, "w": 60, "h": 60, "outline": False,
+         "points": [{"x": 10, "y": 10}, {"x": 70, "y": 10}, {"x": 70, "y": 30},
+                    {"x": 40, "y": 30}, {"x": 40, "y": 70}, {"x": 10, "y": 70}]},
+        {"label": "Fout", "area": "", "x": 0, "y": 0, "w": 50, "h": 50, "outline": False,
+         "points": [{"x": 10, "y": 10}, {"x": 70, "y": 70}, {"x": 70, "y": 10}, {"x": 10, "y": 70}]},
     ]}))], "end_turn")])
     with TestClient(create_app(settings, hq=hq, start_workers=False)) as client:
         w, ws, task = client.portal.call(connected)
@@ -360,18 +379,22 @@ def test_editor_saves_the_plan_and_ai_proposes_rooms(settings, make_hq):
         assert up["image"] == "pianta-1.jpg" and client.get("/api/casa/plan-image/pianta-1.jpg").content[:2] == b"\xff\xd8"
         assert client.get("/api/casa/plan-image/..%2Fcasa.yaml").status_code == 404
 
-        rooms = client.post("/api/casa/plan-suggest", json={"image": "pianta-1.jpg"}).json()["rooms"]
+        suggestion = client.post("/api/casa/plan-suggest", json={"image": "pianta-1.jpg"}).json()
+        rooms = suggestion["rooms"]
         assert rooms[0] == {"area": "Sala da Pranzo", "linked": True, "x": 10.0, "y": 10.0, "w": 40.0, "h": 30.0, "outline": False}
         assert rooms[1]["area"] == "Ripostiglio" and not rooms[1]["linked"] and rooms[1]["w"] == 5.0  # kept inside
+        assert suggestion["skipped"] == 1 and rooms[2]["points"][3] == {"x": 40.0, "y": 30.0}
         req = hq.client.requests[0]
         assert req["messages"][0]["content"][0]["type"] == "image" and "Sala da Pranzo" in req["messages"][0]["content"][1]["text"]
 
         plan = {"floors": [{"name": "Terra", "aspect": up["aspect"], "image": up["image"],
-                            "rooms": [{"area": r["area"], "x": r["x"], "y": r["y"], "w": r["w"], "h": r["h"]} for r in rooms]}],
+                            "rooms": [{"area": r["area"], **({"points": r["points"]} if r.get("points") else
+                                      {k: r[k] for k in ("x", "y", "w", "h")})} for r in rooms]}],
                 "outside": ["Giardino"]}
         assert client.post("/api/casa/plan", json=plan).json() == {"ok": True}
         view = client.get("/api/casa").json()
         assert view["floors"][0]["image"] == "pianta-1.jpg" and view["floors"][0]["rooms"][0]["area_id"] == "sala"
+        assert view["floors"][0]["rooms"][2]["w"] == 60 and view["floors"][0]["rooms"][2]["points"] == rooms[2]["points"]
         assert "Sala da Pranzo" in client.get("/api/casa/layout").json()["text"]  # still a readable YAML
         client.portal.call(lambda: task.cancel())
 
