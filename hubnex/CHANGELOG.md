@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.24.1.b
+- Floor plan: the floating room labels stay upright in 3D over a plan drawing too (the
+  drawing's blend mode made the browser lay them flat), with the sizes of the approved design.
+
 ## 1.24.1
 - Floor plan: each room's name, icons and temperature float upright above the room on a
   see-through card, on a thin stem from its middle, for more depth. Larger rooms float higher;
