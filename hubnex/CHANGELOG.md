@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.22.0
+- The assistant and every agent can look at the past of the house: Home Assistant history,
+  logbook, long-term statistics and a summary of habits per weekday (read-only, up to 14 days
+  and 25 entities per question).
+
 ## 1.21.3
 - Draw rooms with multiple corners, including L-shaped and angled walls; edit corners after drawing.
 - Suggested rooms may use the actual room outline. Existing rectangular plans remain compatible.

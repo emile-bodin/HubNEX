@@ -46,6 +46,7 @@ class HAWatcher:
         self._connect = connect or (lambda url: websockets.connect(url, max_size=None, ping_interval=30))
         self.areas: dict[str, dict] = {}
         self.language: str | None = None
+        self.time_zone: str | None = None  # Home Assistant's own, e.g. "Europe/Rome"
         self.on_language = None  # called with Home Assistant's language once it is known
         self.floors: dict[str, dict] = {}
         self.devices: dict[str, dict] = {}
@@ -144,7 +145,9 @@ class HAWatcher:
         self.states = {s["entity_id"]: s for s in states}
         await self._load_aliases()
         try:  # Home Assistant's language: the add-on speaks it unless told otherwise
-            self.language = ((await self._command({"type": "get_config"})) or {}).get("language")
+            ha_config = (await self._command({"type": "get_config"})) or {}
+            self.language = ha_config.get("language")
+            self.time_zone = ha_config.get("time_zone") or self.time_zone
         except HAWatcherError:
             self.language = None
         if self.language and self.on_language:
@@ -215,6 +218,16 @@ class HAWatcher:
                 dev = next((d for d in self.devices.values() if (d.get("name_by_user") or d.get("name") or "").lower().replace(" ", "_").replace("-", "_") == name[11:]), None)
                 out.append({"service": name, "name": (dev or {}).get("name_by_user") or (dev or {}).get("name") or name[11:].replace("_", " ")})
         return out
+
+    async def statistics(
+        self, statistic_ids: list[str], start: str, end: str, period: str = "hour",
+        types: tuple[str, ...] = ("mean", "min", "max", "sum", "change"),
+    ) -> dict[str, list[dict]]:
+        """Long-term statistics from the recorder (read-only): {statistic_id: [rows]}."""
+        return await self._command({
+            "type": "recorder/statistics_during_period", "start_time": start, "end_time": end,
+            "statistic_ids": statistic_ids, "period": period, "types": list(types),
+        }) or {}
 
     def area_of(self, entity_id: str) -> str | None:
         """The entity's own area, or else its device's (that is what Home Assistant shows)."""

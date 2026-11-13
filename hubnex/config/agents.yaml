@@ -12,6 +12,8 @@
 #    notify_owner                                         -> message in the Telegram group
 #    deadline_done                                        -> close deadlines
 #  Always included: memory_save, memory_search, deadline_add, deadline_list
+#  With Home Assistant connected, also (read-only, every agent): ha_get_history,
+#    ha_get_logbook, ha_get_statistics, ha_summarize_history  -> the past of the house
 #
 #  Models: everybody uses "model_jarvis" from the configuration; the agent with id "mail" uses
 #  "model_mail". For a single agent: model: claude-...  or with another provider:

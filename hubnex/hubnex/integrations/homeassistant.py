@@ -72,6 +72,22 @@ class HomeAssistant:
             out[eid] = [(p.get("last_changed") or p.get("last_updated") or "", p.get("state")) for p in series]
         return out
 
+    async def history_period(
+        self, entity_ids: list[str], start: str, end: str, attributes: bool = False, timeout: float = 45
+    ) -> list[list[dict]]:
+        """Raw recorder history between two ISO times, one series per entity (read-only)."""
+        params = {"filter_entity_id": ",".join(entity_ids), "end_time": end, "significant_changes_only": ""}
+        if not attributes:
+            params.update(minimal_response="", no_attributes="")
+        return await self._request("GET", f"/history/period/{start}", params=params, timeout=timeout) or []
+
+    async def logbook(self, start: str, end: str, entity_id: str | None = None, timeout: float = 45) -> list[dict]:
+        """Logbook entries between two ISO times, optionally for one entity (read-only)."""
+        params = {"end_time": end}
+        if entity_id:
+            params["entity"] = entity_id
+        return await self._request("GET", f"/logbook/{start}", params=params, timeout=timeout) or []
+
     async def list_entities(self, domain: str | None = None, search: str | None = None) -> list[dict]:
         states = await self._request("GET", "/states")
         out = []

@@ -22,6 +22,9 @@ its own role: mail, administration, technical research, home, security… You ta
 - **Configurable team** in `agents.yaml`: companies, departments, agents, instructions, routines.
 - **MCP connectors**: connect the programs of your work (management software, calendars, CRM…).
   Agents read freely; every change runs only after your ✅.
+- **The past of the house**: every agent can read Home Assistant's history, logbook and
+  statistics (read-only, up to 14 days of detail) to answer "when" and "how long" and spot
+  routines. Needs the recorder integration; any user's token will do, no admin needed.
 - **Mail**: sorting of your emails and reply drafts you approve.
 - **Telegram**: a group with a bot for the assistant and one for the mail, voice notes, photos and documents included.
 - **Voice**: Home Assistant's Assist (also local with Piper), ElevenLabs or Home Assistant's

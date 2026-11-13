@@ -405,6 +405,33 @@ departments and agents, and around them everything the team knows (memories, tas
 drafts), linked to whoever produced it and to the keywords they share. Search for a name to
 highlight everything about it.
 
+## The past of the house: history, logbook and statistics
+
+With Home Assistant connected, the assistant and **every agent** can look back over the past
+days for any entity (people, doors, sensors, lights, climate, locks, alarm, media players…). The
+tools only read, they never change anything in the house:
+
+- `ha_get_history`: the state changes of one or more entities (or a wildcard like
+  `binary_sensor.*`), up to 14 days and 25 entities per question, in local time.
+- `ha_get_logbook`: the readable events of the whole house or of some entities.
+- `ha_summarize_history`: habits in short: time spent in each state, number of changes and the
+  typical first "on" and last "off" time per weekday.
+- `ha_get_statistics`: hourly, daily, weekly or monthly averages and totals of numeric sensors
+  (energy, temperature, power…), also for months.
+
+Ask, for example: "When did the front door open yesterday?", "How long was the heating on this
+week?", "What time do the kitchen lights usually go on?".
+
+What they need:
+
+- The **recorder** integration (on by default with `default_config`). Home Assistant keeps the
+  detailed history for 10 days unless you change `purge_keep_days`; long-term statistics are
+  kept much longer. Entities excluded from the recorder have no history.
+- As an add-on nothing else is needed: the Supervisor's token already allows reading the history.
+  Outside Home Assistant, the long-lived access token in `HA_TOKEN` can belong to any user (no
+  administrator needed): history, logbook and statistics are read-only endpoints. Statistics
+  come through the WebSocket connection HubNEX already keeps open.
+
 ## No initiative without your order
 
 - Routines are off until you write `enabled: true`. Even when on, **they can't change anything

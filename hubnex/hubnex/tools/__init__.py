@@ -66,6 +66,6 @@ def to_text(value: Any) -> str:
 
 
 # Import the modules that register tools.
-from hubnex.tools import boss, common, homeassistant, mail, web  # noqa: E402,F401
+from hubnex.tools import boss, common, ha_history, homeassistant, mail, web  # noqa: E402,F401
 
 __all__ = ["REGISTRY", "SERVER_TOOLS", "Tool", "ToolContext", "server_tool", "to_text"]
