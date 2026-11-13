@@ -1,4 +1,13 @@
 configuration:
+  claude_auth_mode:
+    name: "Claude-aanmelding"
+    description: "api_key = de Anthropic API-sleutel; subscription = je Claude-abonnement via Claude Code; hybrid = het abonnement waar het kan, anders de API-sleutel."
+  claude_subscription_enabled:
+    name: "Claude-abonnement"
+    description: "Sta het gebruik van je Claude-abonnement toe (aanmelden via het dashboard)."
+  claude_api_fallback:
+    name: "Terugvallen op de API-sleutel"
+    description: "Als het abonnement niet kan antwoorden, de API-sleutel gebruiken."
   anthropic_api_key:
     name: Anthropic API-sleutel
     description: De sleutel om Claude te gebruiken (console.anthropic.com). Niet nodig als je alleen andere aanbieders gebruikt.
@@ -100,5 +109,86 @@ configuration:
   non_admin_access:
     name: Gebruikers zonder beheerdersrechten
     description: "casa: Home Assistant-gebruikers die geen beheerder zijn krijgen alleen de huisweergave (geen assistent, mail, agents of wijzigingen aan de plattegrond). completo: ze krijgen alles, net als een beheerder."
+  chat_history_turns:
+    name: "Gespreksgeheugen"
+    description: "Hoeveel eerdere berichten van het gesprek Jarvis bij elk nieuw bericht terugleest."
+  chat_voice_history_turns:
+    name: "Gespreksgeheugen Assist"
+    description: "Hetzelfde voor Assist (spraak): een kort geheugen houdt het snel."
+  chat_new_session_after_hours:
+    name: "Nieuw gesprek na stilte (uren)"
+    description: "Na zoveel uur zonder berichten begint het dashboard of een Telegram-chat vanzelf een nieuw gesprek. 0 = nooit (begin er een via de lijst in de chat of /new in Telegram)."
+  chat_keep_sessions:
+    name: "Bewaarde gesprekken"
+    description: "Hoeveel gesprekken per kanaal bewaard blijven; de oudste worden vergeten."
+  chat_trash_days:
+    name: "Dagen om verwijderen ongedaan te maken"
+    description: "Een verwijderd gesprek kan zoveel dagen worden teruggehaald."
+  chat_live_text:
+    name: "Live antwoorden"
+    description: "Het antwoord verschijnt in de chat terwijl het geschreven wordt."
+  chat_show_tools:
+    name: "Toolstappen tonen"
+    description: "Bewaar en toon wat de assistent onderweg naar een antwoord opzocht of deed."
+  chat_max_parallel:
+    name: "Gelijktijdige modelaanroepen"
+    description: "Hoeveel AI-verzoeken tegelijk mogen lopen. Eén plek blijft altijd vrij voor een persoon, zodat routines je nooit laten wachten."
+  ha_mcp_enabled:
+    name: "Home Assistant-tools (MCP)"
+    description: "De ingebouwde Home Assistant-tools, overgenomen van brAIn: apparaten, ruimtes, automations en hun traces, camerabeelden en meer, voor Jarvis en de agents."
+  ha_mcp_groups:
+    name: "Groepen Home Assistant-tools"
+    description: "read (statussen, ruimtes, apparaten, geschiedenis), control (lampen, klimaat, sloten… via de regels hieronder), automation (configuratie en traces), camera (beelden), dashboards (lezen), exposure (wat assistenten bereiken, hoe entities worden getoond), system (foutlog, herladen, events)."
+  ha_mcp_exclude_tools:
+    name: "Uitgeschakelde tools"
+    description: "Losse tools om weg te laten, gescheiden door komma's (bijv. render_template,fire_event)."
+  ha_mcp_agents:
+    name: "Wie de Home Assistant-tools krijgt"
+    description: "Agent-id's gescheiden door komma's (boss = Jarvis). Leeg = Jarvis en elke agent."
+  ha_mcp_confirm:
+    name: "Bevestiging voor wijzigingen"
+    description: "writes = tools die het huis veranderen wachten op je OK (behalve de vrije hieronder); always = elke tool wacht; never = niets wacht."
+  ha_mcp_free_tools:
+    name: "Wijzigingen zonder bevestiging"
+    description: "Tools die het huis veranderen maar meteen uitgevoerd worden, gescheiden door komma's."
+  ha_protected_entities:
+    name: "Beschermde entities"
+    description: "Entities waar de assistent nooit iets mee doet, via geen enkel kanaal: entity-id's of hele domeinen (lock.voordeur,alarm_control_panel.*). Bekijken kan nog wel."
+  ha_voice_blocked_services:
+    name: "Geblokkeerde services voor spraak"
+    description: "Extra services die Assist (spraak) nooit mag aanroepen, bovenop de geblokkeerde HA-services: domein.service of domein.*."
+  ha_voice_exposed_only:
+    name: "Spraak bereikt alleen blootgestelde entities"
+    description: "Via Assist bereiken de tools alleen wat Home Assistant aan Assist blootstelt."
+  ha_action_log_days:
+    name: "Actielogboek (dagen)"
+    description: "Hoe lang het logboek van alles wat de assistent in Home Assistant deed bewaard blijft."
+  mcp_expose:
+    name: "HubNEX aanbieden als MCP-server"
+    description: "Andere AI-clients (Claude Code, Claude Desktop…) kunnen de tools van HubNEX gebruiken via /mcp op de poort van de add-on, met het token hieronder."
+  mcp_expose_tools:
+    name: "Wat /mcp aanbiedt"
+    description: "ha = de Home Assistant-tools; sessions = de gesprekken van HubNEX (lijst, lezen, Jarvis iets vragen); team = het team (status, een taak geven)."
+  mcp_expose_read_only:
+    name: "/mcp alleen lezen"
+    description: "Externe clients krijgen alleen de tools die lezen. Zet uit om ze ook te laten handelen."
+  mcp_token:
+    name: "/mcp-token"
+    description: "Het token dat externe clients als Bearer meesturen. Leeg = het HQ-token."
+  mcp_connectors:
+    name: "MCP-connectors"
+    description: "De programma's van je werk via MCP (Streamable HTTP), naast die in agents.yaml (dezelfde naam hier wint). agents, free en exclude zijn kommagescheiden."
+  mcp_use_server_instructions:
+    name: "Instructies van de servers gebruiken"
+    description: "Wat elke MCP-server over zijn tools zegt, gaat mee in de instructies van de assistent."
+  mcp_image_results:
+    name: "Afbeeldingen van tools"
+    description: "Afbeeldingen die een tool teruggeeft (camerabeelden…) worden aan de assistent getoond."
+  mcp_tool_search:
+    name: "Tools zoeken"
+    description: "Bij veel connector-tools er maar een paar tegelijk aanbieden en de assistent de rest laten zoeken: minder tokens per bericht."
+  mcp_max_result_kb:
+    name: "Grootte toolresultaat (KB)"
+    description: "Het langste antwoord van een connector-tool dat de assistent leest."
 network:
   8765/tcp: Dashboard en API (optioneel, vereist het HQ-token)

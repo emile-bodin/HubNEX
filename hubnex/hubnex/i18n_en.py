@@ -182,4 +182,8 @@ EN: dict[str, str] = {
     "file vuoto": "empty file",
     "formato non supportato: invia foto, PDF o file di testo": "format not supported: send photos, PDFs or text files",
     "scrivi un messaggio o allega un file": "write a message or attach a file",
+    "Fermato.": "Stopped.",
+    "conversazione non trovata": "conversation not found",
+    "Nuova conversazione: ricomincio da capo.": "New conversation: starting fresh.",
+    "non autorizzato": "not authorized",
 }

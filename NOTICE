@@ -4,3 +4,6 @@ HubNEX includes third-party software:
   See hubnex/web/vendor/three/LICENSE.
 - hls.js 1.5.20 (hubnex/web/vendor/hls) — Apache License 2.0, Copyright (c) 2017 Dailymotion.
   See hubnex/web/vendor/hls/LICENSE.
+- brAIn's Home Assistant MCP server (hubnex/hubnex/mcp_server/brain_server.py, brain_exposed.py),
+  ported from https://github.com/bruhautomation/BRUH-HA-Apps — MIT License,
+  Copyright (c) 2025 BRUH Automation. See hubnex/hubnex/mcp_server/LICENSE-brain.

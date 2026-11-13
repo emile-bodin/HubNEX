@@ -29,7 +29,9 @@ def test_integration_token_works_without_hq_token(settings, make_hq):
         auth = {"Authorization": "Bearer interno"}
         assert client.get("/api/ping", headers=auth).json() == {"name": "Jarvis"}
         r = client.post("/api/chat", headers=auth, json={"text": "ciao", "channel": "assist", "voice": True})
-        assert r.json() == {"reply": "Buonasera, signore.", "by": "jarvis"}
+        out = r.json()
+        assert out.pop("session_id")  # the conversation it went to
+        assert out == {"reply": "Buonasera, signore.", "by": "jarvis"}
 
 
 def test_the_dashboard_chat_answers_through_a_job(settings, make_hq):
@@ -48,6 +50,7 @@ def test_the_dashboard_chat_answers_through_a_job(settings, make_hq):
             if out["done"]:
                 break
             _time.sleep(0.05)
+        assert out.pop("session_id")
         assert out == {"done": True, "reply": "Fatto, Signore.", "by": "jarvis"}
         assert client.get(f"/api/chat/{job}", headers=auth).status_code == 404  # given once
         hq.client.responses = []  # the next call fails: the error comes back on the job

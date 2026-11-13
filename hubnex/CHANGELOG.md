@@ -1,5 +1,18 @@
 # Changelog
 
+## 1.23.0
+- Conversations: several per channel, each with its own memory. The dashboard chat lists them
+  (continue, new, rename, delete with undo), shows tool steps and the answer while it is
+  written, and can stop an answer. Telegram: /new. Old chat history becomes one conversation.
+- Home Assistant tools ported from brAIn (BRUH Automation, MIT): about 40 tools for states,
+  areas, devices, typed controls, automations and traces, camera frames, dashboards, exposure
+  and more, run inside HubNEX as the built-in connector "casa", with protected entities, a voice
+  deny-list, the owner's confirmation for changes and an action log.
+- MCP connectors: the servers' instructions reach the assistant, images come through, tools can
+  be kept or excluded per connector, optional tool search, connectors on the add-on page.
+- HubNEX as an MCP server at /mcp (off by default, read-only by default).
+- Many new options on the add-on page, in English, Dutch and Italian.
+
 ## 1.22.1
 - Dutch translation: the dashboard, the assistant, the agents, Telegram, notifications, the
   Assist integration and the add-on configuration page are available in Dutch.

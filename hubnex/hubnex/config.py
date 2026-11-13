@@ -71,7 +71,44 @@ ADDON_OPTIONS = {
     "non_admin_access": "HUBNEX_NON_ADMIN_ACCESS",
     "anthropic_credit_usd": "ANTHROPIC_CREDIT_USD",
     "monthly_budget_usd": "HUBNEX_MONTHLY_BUDGET_USD",
+    # Conversations (sessions)
+    "chat_history_turns": "HUBNEX_CHAT_HISTORY_TURNS",
+    "chat_voice_history_turns": "HUBNEX_CHAT_VOICE_HISTORY_TURNS",
+    "chat_new_session_after_hours": "HUBNEX_CHAT_NEW_SESSION_AFTER_HOURS",
+    "chat_keep_sessions": "HUBNEX_CHAT_KEEP_SESSIONS",
+    "chat_trash_days": "HUBNEX_CHAT_TRASH_DAYS",
+    "chat_live_text": "HUBNEX_CHAT_LIVE_TEXT",
+    "chat_show_tools": "HUBNEX_CHAT_SHOW_TOOLS",
+    "chat_max_parallel": "HUBNEX_CHAT_MAX_PARALLEL",
+    # Home Assistant through the built-in MCP server (ported from brAIn)
+    "ha_mcp_enabled": "HUBNEX_HA_MCP_ENABLED",
+    "ha_mcp_groups": "HUBNEX_HA_MCP_GROUPS",
+    "ha_mcp_exclude_tools": "HUBNEX_HA_MCP_EXCLUDE_TOOLS",
+    "ha_mcp_agents": "HUBNEX_HA_MCP_AGENTS",
+    "ha_mcp_confirm": "HUBNEX_HA_MCP_CONFIRM",
+    "ha_mcp_free_tools": "HUBNEX_HA_MCP_FREE_TOOLS",
+    "ha_protected_entities": "HUBNEX_HA_PROTECTED_ENTITIES",
+    "ha_voice_blocked_services": "HUBNEX_HA_VOICE_BLOCKED_SERVICES",
+    "ha_voice_exposed_only": "HUBNEX_HA_VOICE_EXPOSED_ONLY",
+    "ha_action_log_days": "HUBNEX_HA_ACTION_LOG_DAYS",
+    # HubNEX as an MCP server (/mcp)
+    "mcp_expose": "HUBNEX_MCP_EXPOSE",
+    "mcp_expose_tools": "HUBNEX_MCP_EXPOSE_TOOLS",
+    "mcp_expose_read_only": "HUBNEX_MCP_EXPOSE_READ_ONLY",
+    "mcp_token": "HUBNEX_MCP_TOKEN",
+    # MCP connectors (client)
+    "mcp_connectors": "HUBNEX_MCP_CONNECTORS",
+    "mcp_use_server_instructions": "HUBNEX_MCP_SERVER_INSTRUCTIONS",
+    "mcp_image_results": "HUBNEX_MCP_IMAGE_RESULTS",
+    "mcp_tool_search": "HUBNEX_MCP_TOOL_SEARCH",
+    "mcp_max_result_kb": "HUBNEX_MCP_MAX_RESULT_KB",
 }
+# Options whose value is a list of objects: passed on as JSON rather than joined with commas.
+JSON_OPTIONS = {"mcp_connectors"}
+HA_MCP_GROUPS = ("read", "control", "automation", "camera", "dashboards", "exposure", "system")
+DEFAULT_HA_MCP_GROUPS = ("read", "control", "automation", "camera")
+DEFAULT_HA_MCP_FREE = "control_light,control_switch,activate_scene,control_media_player"
+DEFAULT_VOICE_BLOCKED = "lock.unlock,lock.open,alarm_control_panel.alarm_disarm,cover.open_cover"
 # The Supervisor's ingress proxy: requests from here were already authenticated by HA.
 INGRESS_PROXY_IP = "172.30.32.2"
 DEFAULT_AGENTS = Path(__file__).resolve().parent.parent / "config" / "agents.yaml"
@@ -96,6 +133,10 @@ def _load_addon_options(options_file: str = "/data/options.json", config_dir: st
     opts = json.loads(opts_path.read_text())
     for key, env in ADDON_OPTIONS.items():
         value = opts.get(key)
+        if key in JSON_OPTIONS:
+            if value:
+                os.environ[env] = json.dumps(value)
+            continue
         if isinstance(value, list):
             value = ",".join(str(v) for v in value)
         if value not in (None, ""):
@@ -122,6 +163,30 @@ def _load_addon_options(options_file: str = "/data/options.json", config_dir: st
 def _language(value: str | None) -> str:
     value = (value or "").strip().lower()
     return value if value in ("en", "nl", "auto") else "en"
+
+
+def _csv(value: str | None, default: str = "") -> list[str]:
+    """A comma (or semicolon) separated option as a list, without blanks."""
+    raw = default if value is None or value == "" else value
+    return [x.strip() for x in raw.replace(";", ",").split(",") if x.strip()]
+
+
+def _int(value: str | None, default: int, lo: int, hi: int) -> int:
+    try:
+        n = int(float(value)) if value not in (None, "") else default
+    except ValueError:
+        n = default
+    return max(lo, min(hi, n))
+
+
+def _json_list(value: str | None) -> list:
+    if not value:
+        return []
+    try:
+        data = json.loads(value)
+    except ValueError:
+        return []
+    return data if isinstance(data, list) else []
 
 
 def _bool(value: str | None, default: bool = False) -> bool:
@@ -199,6 +264,37 @@ class Settings:
     trusted_proxy: str | None = None
     # What HA users who are not administrators get from the sidebar: "casa" or "completo"
     non_admin_access: str = "casa"
+    # Conversations (sessions)
+    chat_history_turns: int = 20  # messages of the conversation Jarvis reads back
+    chat_voice_history_turns: int = 6  # Assist: a short memory is enough ("turn it off") and keeps it quick
+    chat_new_session_after_hours: float = 0  # a channel starts a new conversation after this much silence (0: never)
+    chat_keep_sessions: int = 200  # conversations kept per channel
+    chat_trash_days: int = 7  # a deleted conversation can be brought back for this long
+    chat_live_text: bool = True  # the answer appears while it is written
+    chat_show_tools: bool = True  # tool steps kept in the transcript and shown
+    chat_max_parallel: int = 3  # model calls at once; one seat always kept for a person
+    # Home Assistant through the built-in MCP server (ported from brAIn)
+    ha_mcp_enabled: bool = True
+    ha_mcp_groups: tuple[str, ...] = DEFAULT_HA_MCP_GROUPS
+    ha_mcp_exclude_tools: set[str] = field(default_factory=set)
+    ha_mcp_agents: list[str] | None = None  # None: Jarvis and every agent
+    ha_mcp_confirm: str = "writes"  # writes | always | never
+    ha_mcp_free_tools: set[str] = field(default_factory=lambda: set(_csv(DEFAULT_HA_MCP_FREE)))
+    ha_protected_entities: tuple[str, ...] = ()  # never acted on, from any channel (entity ids or domain.*)
+    ha_voice_blocked_services: set[str] = field(default_factory=lambda: set(_csv(DEFAULT_VOICE_BLOCKED)))
+    ha_voice_exposed_only: bool = True  # Assist reaches only what Home Assistant exposes to Assist
+    ha_action_log_days: int = 30
+    # HubNEX as an MCP server
+    mcp_expose: bool = False
+    mcp_expose_tools: tuple[str, ...] = ("ha",)  # ha | sessions | team
+    mcp_expose_read_only: bool = True
+    mcp_token: str = ""  # empty: hq_token
+    # MCP connectors (client)
+    mcp_connectors: list[dict] = field(default_factory=list)  # from the add-on page, merged with agents.yaml
+    mcp_use_server_instructions: bool = True
+    mcp_image_results: bool = True
+    mcp_tool_search: bool = False
+    mcp_max_result_kb: int = 15
 
     @classmethod
     def from_env(cls) -> "Settings":
@@ -268,6 +364,35 @@ class Settings:
             casa_file=e("HUBNEX_CASA_FILE", ""),
             trusted_proxy=INGRESS_PROXY_IP if addon else None,
             non_admin_access="completo" if (e("HUBNEX_NON_ADMIN_ACCESS") or "").strip().lower() == "completo" else "casa",
+            chat_history_turns=_int(e("HUBNEX_CHAT_HISTORY_TURNS"), 20, 4, 100),
+            chat_voice_history_turns=_int(e("HUBNEX_CHAT_VOICE_HISTORY_TURNS"), 6, 1, 20),
+            chat_new_session_after_hours=_int(e("HUBNEX_CHAT_NEW_SESSION_AFTER_HOURS"), 0, 0, 720),
+            chat_keep_sessions=_int(e("HUBNEX_CHAT_KEEP_SESSIONS"), 200, 10, 1000),
+            chat_trash_days=_int(e("HUBNEX_CHAT_TRASH_DAYS"), 7, 1, 90),
+            chat_live_text=_bool(e("HUBNEX_CHAT_LIVE_TEXT"), True),
+            chat_show_tools=_bool(e("HUBNEX_CHAT_SHOW_TOOLS"), True),
+            chat_max_parallel=_int(e("HUBNEX_CHAT_MAX_PARALLEL"), 3, 1, 8),
+            ha_mcp_enabled=_bool(e("HUBNEX_HA_MCP_ENABLED"), True),
+            ha_mcp_groups=tuple(g for g in _csv(e("HUBNEX_HA_MCP_GROUPS"), ",".join(DEFAULT_HA_MCP_GROUPS))
+                                if g in HA_MCP_GROUPS),
+            ha_mcp_exclude_tools=set(_csv(e("HUBNEX_HA_MCP_EXCLUDE_TOOLS"))),
+            ha_mcp_agents=_csv(e("HUBNEX_HA_MCP_AGENTS")) or None,
+            ha_mcp_confirm=(e("HUBNEX_HA_MCP_CONFIRM") or "writes").strip().lower()
+            if (e("HUBNEX_HA_MCP_CONFIRM") or "writes").strip().lower() in ("writes", "always", "never") else "writes",
+            ha_mcp_free_tools=set(_csv(e("HUBNEX_HA_MCP_FREE_TOOLS"), DEFAULT_HA_MCP_FREE)),
+            ha_protected_entities=tuple(x.lower() for x in _csv(e("HUBNEX_HA_PROTECTED_ENTITIES"))),
+            ha_voice_blocked_services=set(_csv(e("HUBNEX_HA_VOICE_BLOCKED_SERVICES"), DEFAULT_VOICE_BLOCKED)),
+            ha_voice_exposed_only=_bool(e("HUBNEX_HA_VOICE_EXPOSED_ONLY"), True),
+            ha_action_log_days=_int(e("HUBNEX_HA_ACTION_LOG_DAYS"), 30, 1, 365),
+            mcp_expose=_bool(e("HUBNEX_MCP_EXPOSE")),
+            mcp_expose_tools=tuple(t for t in _csv(e("HUBNEX_MCP_EXPOSE_TOOLS"), "ha") if t in ("ha", "sessions", "team")),
+            mcp_expose_read_only=_bool(e("HUBNEX_MCP_EXPOSE_READ_ONLY"), True),
+            mcp_token=e("HUBNEX_MCP_TOKEN", ""),
+            mcp_connectors=[c for c in _json_list(e("HUBNEX_MCP_CONNECTORS")) if isinstance(c, dict)],
+            mcp_use_server_instructions=_bool(e("HUBNEX_MCP_SERVER_INSTRUCTIONS"), True),
+            mcp_image_results=_bool(e("HUBNEX_MCP_IMAGE_RESULTS"), True),
+            mcp_tool_search=_bool(e("HUBNEX_MCP_TOOL_SEARCH")),
+            mcp_max_result_kb=_int(e("HUBNEX_MCP_MAX_RESULT_KB"), 15, 1, 200),
         )
 
 
@@ -326,6 +451,8 @@ class ConnectorSpec:
     confirm: str = "writes"  # writes | always | never
     free: list[str] = field(default_factory=list)  # tools that never need confirmation
     always_confirm: list[str] = field(default_factory=list)  # tools that always do
+    tools: list[str] | None = None  # only these tools of the server (None: all)
+    exclude: list[str] = field(default_factory=list)  # never these
 
     def headers(self) -> dict[str, str]:
         h = dict(self.extra_headers)
@@ -364,6 +491,8 @@ def _connectors(raw) -> list[ConnectorSpec]:
             confirm=confirm,
             free=[str(t) for t in c.get("free") or []],
             always_confirm=[str(t) for t in c.get("always_confirm") or []],
+            tools=[str(t) for t in c["tools"]] if c.get("tools") else None,
+            exclude=[str(t) for t in c.get("exclude") or []],
         ))
     return out
 

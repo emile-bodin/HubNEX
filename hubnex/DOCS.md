@@ -87,6 +87,70 @@ HubNEX reads by itself which tools the program offers and gives them to the agen
   `always_confirm: [name]` (always ask), or `confirm: always` for the whole connector.
 - `/stato` in the Telegram group says whether each connector answers and how many tools it
   offers; errors also appear in the dashboard's activity.
+- Per connector, `tools: [name, …]` keeps only those tools and `exclude: [name, …]` leaves some
+  out: fewer tools means fewer tokens with every message.
+- What a server says about its own tools (its MCP *instructions*) goes into the assistant's
+  instructions, and images a tool returns (a camera frame) are shown to it. Both can be switched
+  off on the add-on page (`mcp_use_server_instructions`, `mcp_image_results`).
+- Connectors can also be added on the add-on page (**MCP connectors**: name, url, token, agents,
+  confirm, free, exclude — lists comma separated). One with the same name as in `agents.yaml`
+  replaces it.
+- With many tools, **Tool search** (`mcp_tool_search`) offers only a few at once plus one tool
+  to find the others when needed.
+
+### Home Assistant tools (built in)
+
+HubNEX carries the Home Assistant tools of **brAIn** (the MCP server of the BRUH Automation
+add-on, MIT licence), ported to run inside HubNEX: no extra process, no other add-on needed, the
+same connection to Home Assistant HubNEX already has. They appear as the connector `casa` for
+Jarvis and the agents: entity states and areas, devices and what belongs together, typed
+controls for lights, climate, covers, locks, media, fans and vacuums, scenes and scripts,
+automations with their configuration and traces (why one ran or not), camera frames, history,
+logbook and statistics, the weather forecast, dashboards, what each assistant can reach, the
+error log.
+
+On the add-on page:
+
+- **Home Assistant tools (MCP)** on/off, and the **groups**: `read`, `control`, `automation`,
+  `camera` (on by default), `dashboards`, `exposure`, `system`. Single tools can be switched off.
+- **Who gets them** (agent ids, `boss` = the assistant; empty = everybody).
+- **Confirmation for changes**: by default tools that change the house wait for your ✅, except
+  the **changes without confirmation** (lights, switches, scenes, media players).
+- **Protected entities**: never acted on from any channel (`lock.front_door`, `alarm_control_panel.*`).
+- **Services blocked for voice** and **voice reaches only exposed entities** for Assist.
+- Routines and events can look but never act; every action is written in the activity feed and
+  kept for **Action log (days)**.
+
+Tools that need brAIn itself (findings, its memory, habits, timed actions, the Minecraft,
+3D-printer and garden add-ons…) are not included. Maintainers update the port with
+`python dev/vendor_brain_mcp.py <ha_mcp_server.py> <brain_exposed.py> <commit>`.
+
+### HubNEX as an MCP server
+
+With **Offer HubNEX as an MCP server** (`mcp_expose`) other AI clients — Claude Code, Claude
+Desktop — can use HubNEX at `http://<home-assistant>:8765/mcp` (enable the add-on's port), with
+the **/mcp token** (or the HQ token) as `Authorization: Bearer …`. **What /mcp offers**: `ha`
+(the Home Assistant tools above, under the same rules), `sessions` (list and read conversations,
+ask Jarvis) and `team` (status, give a task). It is read-only unless you switch that off.
+
+```bash
+claude mcp add --transport http hubnex http://homeassistant.local:8765/mcp --header "Authorization: Bearer <token>"
+```
+
+## Conversations
+
+Every channel keeps its conversations apart: the dashboard, each Telegram chat, Assist. Jarvis
+remembers the conversation you are in (Conversation memory, 20 messages by default), not
+everything ever said.
+
+- In the dashboard chat the **≡** button lists the conversations: continue one, start a new
+  one, rename or delete it (with undo). Tool steps of an answer show as small chips, the answer
+  appears while it is written, and **■** stops it.
+- In Telegram, `/new` starts a new conversation.
+- **New conversation after silence** starts one by itself after some hours without messages.
+- Deleted conversations can be brought back for a week (Days to undo a deletion).
+- **Model calls at once** limits how many AI requests run together; one place always stays free
+  for you, so scheduled routines never make you wait.
 
 ## Voice
 

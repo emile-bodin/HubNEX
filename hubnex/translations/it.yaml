@@ -1,4 +1,13 @@
 configuration:
+  claude_auth_mode:
+    name: "Accesso a Claude"
+    description: "api_key = la chiave API Anthropic; subscription = il tuo abbonamento Claude tramite Claude Code; hybrid = l'abbonamento dove possibile, altrimenti la chiave API."
+  claude_subscription_enabled:
+    name: "Abbonamento Claude"
+    description: "Consenti l'uso del tuo abbonamento Claude (accesso dalla dashboard)."
+  claude_api_fallback:
+    name: "Ripiego sulla chiave API"
+    description: "Quando l'abbonamento non può rispondere, usa la chiave API."
   anthropic_api_key:
     name: Anthropic API key
     description: The key to use Claude (console.anthropic.com). Not needed if you only use other providers.
@@ -100,5 +109,86 @@ configuration:
   non_admin_access:
     name: Non-admin users
     description: "casa: Home Assistant users who are not administrators only get the house view (no assistant, mail, agents or floor plan changes). completo: they get everything, like an administrator."
+  chat_history_turns:
+    name: "Memoria della conversazione"
+    description: "Quanti messaggi precedenti della conversazione Jarvis rilegge a ogni nuovo messaggio."
+  chat_voice_history_turns:
+    name: "Memoria della conversazione Assist"
+    description: "Lo stesso per Assist (voce): una memoria breve lo mantiene veloce."
+  chat_new_session_after_hours:
+    name: "Nuova conversazione dopo silenzio (ore)"
+    description: "Dopo tante ore senza messaggi, la dashboard o una chat Telegram inizia da sola una nuova conversazione. 0 = mai (iniziane una dall'elenco nella chat o con /new su Telegram)."
+  chat_keep_sessions:
+    name: "Conversazioni conservate"
+    description: "Quante conversazioni restano per canale; le più vecchie vengono dimenticate."
+  chat_trash_days:
+    name: "Giorni per annullare un'eliminazione"
+    description: "Una conversazione eliminata si può recuperare per tanti giorni."
+  chat_live_text:
+    name: "Risposte in diretta"
+    description: "La risposta compare nella chat mentre viene scritta."
+  chat_show_tools:
+    name: "Mostra i passaggi degli strumenti"
+    description: "Conserva e mostra cosa l'assistente ha consultato o fatto per arrivare alla risposta."
+  chat_max_parallel:
+    name: "Chiamate al modello contemporanee"
+    description: "Quante richieste all'AI possono girare insieme. Un posto resta sempre libero per una persona, così le routine non ti fanno mai aspettare."
+  ha_mcp_enabled:
+    name: "Strumenti Home Assistant (MCP)"
+    description: "Gli strumenti Home Assistant integrati, portati da brAIn: dispositivi, aree, automazioni e le loro tracce, fotogrammi delle telecamere e altro, per Jarvis e gli agenti."
+  ha_mcp_groups:
+    name: "Gruppi di strumenti Home Assistant"
+    description: "read (stati, aree, dispositivi, storico), control (luci, clima, serrature… con le regole sotto), automation (configurazioni e tracce), camera (fotogrammi), dashboards (lettura), exposure (cosa raggiungono gli assistenti, come si mostrano le entità), system (log errori, ricarica, eventi)."
+  ha_mcp_exclude_tools:
+    name: "Strumenti disattivati"
+    description: "Singoli strumenti da escludere, separati da virgole (es. render_template,fire_event)."
+  ha_mcp_agents:
+    name: "Chi riceve gli strumenti Home Assistant"
+    description: "Id degli agenti separati da virgole (boss = Jarvis). Vuoto = Jarvis e ogni agente."
+  ha_mcp_confirm:
+    name: "Conferma per le modifiche"
+    description: "writes = gli strumenti che cambiano la casa aspettano il tuo OK (tranne quelli liberi sotto); always = ogni strumento aspetta; never = niente aspetta."
+  ha_mcp_free_tools:
+    name: "Modifiche senza conferma"
+    description: "Strumenti che cambiano la casa ma partono subito, separati da virgole."
+  ha_protected_entities:
+    name: "Entità protette"
+    description: "Entità su cui l'assistente non agisce mai, da nessun canale: entity id o interi domini (lock.porta,alarm_control_panel.*). Si possono comunque guardare."
+  ha_voice_blocked_services:
+    name: "Servizi bloccati per la voce"
+    description: "Servizi in più che Assist (voce) non può mai chiamare, oltre ai servizi HA bloccati: dominio.servizio o dominio.*."
+  ha_voice_exposed_only:
+    name: "La voce raggiunge solo le entità esposte"
+    description: "Tramite Assist gli strumenti raggiungono solo ciò che Home Assistant espone ad Assist."
+  ha_action_log_days:
+    name: "Registro azioni (giorni)"
+    description: "Per quanto si conserva il registro di tutto ciò che l'assistente ha fatto in Home Assistant."
+  mcp_expose:
+    name: "Offri HubNEX come server MCP"
+    description: "Altri client AI (Claude Code, Claude Desktop…) possono usare gli strumenti di HubNEX su /mcp alla porta dell'add-on, con il token qui sotto."
+  mcp_expose_tools:
+    name: "Cosa offre /mcp"
+    description: "ha = gli strumenti Home Assistant; sessions = le conversazioni di HubNEX (elenco, lettura, chiedere a Jarvis); team = il team (stato, assegnare un compito)."
+  mcp_expose_read_only:
+    name: "/mcp sola lettura"
+    description: "I client esterni ricevono solo gli strumenti che leggono. Disattiva per farli anche agire."
+  mcp_token:
+    name: "Token /mcp"
+    description: "Il token che i client esterni inviano come Bearer. Vuoto = il token HQ."
+  mcp_connectors:
+    name: "Connettori MCP"
+    description: "I programmi del tuo lavoro via MCP (Streamable HTTP), accanto a quelli di agents.yaml (lo stesso nome qui vince). agents, free ed exclude separati da virgole."
+  mcp_use_server_instructions:
+    name: "Usa le istruzioni dei server"
+    description: "Ciò che ogni server MCP dice dei suoi strumenti entra nelle istruzioni dell'assistente."
+  mcp_image_results:
+    name: "Immagini dagli strumenti"
+    description: "Le immagini restituite da uno strumento (fotogrammi…) vengono mostrate all'assistente."
+  mcp_tool_search:
+    name: "Ricerca strumenti"
+    description: "Con molti strumenti dei connettori, offrirne solo alcuni e far cercare il resto all'assistente: meno token per messaggio."
+  mcp_max_result_kb:
+    name: "Dimensione risultato strumenti (KB)"
+    description: "La risposta più lunga di uno strumento dei connettori che l'assistente legge."
 network:
   8765/tcp: Dashboard and API (optional, requires the HQ token)

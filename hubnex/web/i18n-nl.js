@@ -801,5 +801,14 @@ export const NL = {
   "Stile": "Stijl",
   "Riquadri": "Vakken",
   "Pulito": "Strak",
-  "Lingua dell'interfaccia: vale per questo dispositivo": "Taal van de interface: geldt voor dit apparaat"
+  "Lingua dell'interfaccia: vale per questo dispositivo": "Taal van de interface: geldt voor dit apparaat",
+  "Ancora nessuna conversazione.": "Nog geen gesprekken.",
+  "Conversazione eliminata.": "Gesprek verwijderd.",
+  "Conversazioni": "Gesprekken",
+  "Elimina": "Verwijderen",
+  "Ferma la risposta": "Antwoord stoppen",
+  "Nome della conversazione": "Naam van het gesprek",
+  "Nuova": "Nieuw",
+  "Nuova conversazione": "Nieuw gesprek",
+  "{n} messaggi": "{n} berichten"
 };

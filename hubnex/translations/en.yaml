@@ -1,4 +1,13 @@
 configuration:
+  claude_auth_mode:
+    name: "Claude sign-in"
+    description: "api_key = the Anthropic API key; subscription = your Claude subscription through Claude Code; hybrid = the subscription where possible, the API key otherwise."
+  claude_subscription_enabled:
+    name: "Claude subscription"
+    description: "Allow using your Claude subscription (sign in from the dashboard)."
+  claude_api_fallback:
+    name: "Fall back to the API key"
+    description: "When the subscription cannot answer, use the API key instead."
   anthropic_api_key:
     name: Anthropic API key
     description: The key to use Claude (console.anthropic.com). Not needed if you only use other providers.
@@ -100,5 +109,86 @@ configuration:
   non_admin_access:
     name: Non-admin users
     description: "casa: Home Assistant users who are not administrators only get the house view (no assistant, mail, agents or floor plan changes). completo: they get everything, like an administrator."
+  chat_history_turns:
+    name: "Conversation memory"
+    description: "How many earlier messages of the conversation Jarvis reads back with each new message."
+  chat_voice_history_turns:
+    name: "Assist conversation memory"
+    description: "The same for Assist (voice): a short memory keeps it quick."
+  chat_new_session_after_hours:
+    name: "New conversation after silence (hours)"
+    description: "After this many hours without messages, the dashboard or a Telegram chat starts a new conversation by itself. 0 = never (start one with the list in the chat or /new in Telegram)."
+  chat_keep_sessions:
+    name: "Conversations kept"
+    description: "How many conversations are kept per channel; the oldest are forgotten."
+  chat_trash_days:
+    name: "Days to undo a deletion"
+    description: "A deleted conversation can be brought back for this many days."
+  chat_live_text:
+    name: "Live answers"
+    description: "The answer appears in the chat while it is being written."
+  chat_show_tools:
+    name: "Show tool steps"
+    description: "Keep and show what the assistant looked up or did on the way to an answer."
+  chat_max_parallel:
+    name: "Model calls at once"
+    description: "How many AI requests may run at the same time. One place is always kept free for a person, so routines never make you wait."
+  ha_mcp_enabled:
+    name: "Home Assistant tools (MCP)"
+    description: "The built-in Home Assistant tools ported from brAIn: devices, areas, automations and their traces, camera frames and more, for Jarvis and the agents."
+  ha_mcp_groups:
+    name: "Home Assistant tool groups"
+    description: "read (states, areas, devices, history), control (lights, climate, locks… through the rules below), automation (configs and traces), camera (frames), dashboards (read), exposure (what assistants reach, how entities show), system (error log, reload, events)."
+  ha_mcp_exclude_tools:
+    name: "Tools switched off"
+    description: "Single tools to leave out, separated by commas (e.g. render_template,fire_event)."
+  ha_mcp_agents:
+    name: "Who gets the Home Assistant tools"
+    description: "Agent ids separated by commas (boss = Jarvis). Empty = Jarvis and every agent."
+  ha_mcp_confirm:
+    name: "Confirmation for changes"
+    description: "writes = tools that change the house wait for your OK (except the free ones below); always = every tool waits; never = nothing waits."
+  ha_mcp_free_tools:
+    name: "Changes without confirmation"
+    description: "Tools that change the house but run at once, separated by commas."
+  ha_protected_entities:
+    name: "Protected entities"
+    description: "Entities never acted on by the assistant, from any channel: entity ids or whole domains (lock.front_door,alarm_control_panel.*). They can still be looked at."
+  ha_voice_blocked_services:
+    name: "Services blocked for voice"
+    description: "Extra services Assist (voice) may never call, on top of the blocked HA services: domain.service or domain.*."
+  ha_voice_exposed_only:
+    name: "Voice reaches only exposed entities"
+    description: "Through Assist the tools reach only what Home Assistant exposes to Assist."
+  ha_action_log_days:
+    name: "Action log (days)"
+    description: "How long the log of everything the assistant did in Home Assistant is kept."
+  mcp_expose:
+    name: "Offer HubNEX as an MCP server"
+    description: "Other AI clients (Claude Code, Claude Desktop…) can use HubNEX's tools at /mcp on the add-on's port, with the token below."
+  mcp_expose_tools:
+    name: "What /mcp offers"
+    description: "ha = the Home Assistant tools; sessions = HubNEX's conversations (list, read, ask Jarvis); team = the team (status, give a task)."
+  mcp_expose_read_only:
+    name: "/mcp read-only"
+    description: "Outside clients only get the tools that read. Switch off to let them act too."
+  mcp_token:
+    name: "/mcp token"
+    description: "The token outside clients send as Bearer. Empty = the HQ token."
+  mcp_connectors:
+    name: "MCP connectors"
+    description: "The programs of your work through MCP (Streamable HTTP), next to the ones in agents.yaml (the same name here wins). agents, free and exclude are comma separated."
+  mcp_use_server_instructions:
+    name: "Use the servers' instructions"
+    description: "What each MCP server says about its tools goes into the assistant's instructions."
+  mcp_image_results:
+    name: "Images from tools"
+    description: "Images a tool returns (camera frames…) are shown to the assistant."
+  mcp_tool_search:
+    name: "Tool search"
+    description: "With many connector tools, offer only a few at once and let the assistant search for the rest: fewer tokens per message."
+  mcp_max_result_kb:
+    name: "Tool result size (KB)"
+    description: "The longest answer of a connector tool the assistant reads."
 network:
   8765/tcp: Dashboard and API (optional, requires the HQ token)

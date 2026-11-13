@@ -1,5 +1,5 @@
 name: HubNEX
-version: "1.22.1"
+version: "1.23.0"
 slug: hubnex
 description: AI headquarters for home and work, with Claude agents, a 3D Home Assistant dashboard, Telegram, voice and MCP connectors.
 url: https://github.com/emile-bodin/HubNEX
@@ -77,6 +77,38 @@ options:
   ha_blocked_services: lock.unlock,lock.open,alarm_control_panel.alarm_disarm
   install_assist_integration: true
   non_admin_access: casa
+  chat_history_turns: 20
+  chat_voice_history_turns: 6
+  chat_new_session_after_hours: 0
+  chat_keep_sessions: 200
+  chat_trash_days: 7
+  chat_live_text: true
+  chat_show_tools: true
+  chat_max_parallel: 3
+  ha_mcp_enabled: true
+  ha_mcp_groups:
+    - read
+    - control
+    - automation
+    - camera
+  ha_mcp_exclude_tools: ""
+  ha_mcp_agents: ""
+  ha_mcp_confirm: writes
+  ha_mcp_free_tools: control_light,control_switch,activate_scene,control_media_player
+  ha_protected_entities: ""
+  ha_voice_blocked_services: lock.unlock,lock.open,alarm_control_panel.alarm_disarm,cover.open_cover
+  ha_voice_exposed_only: true
+  ha_action_log_days: 30
+  mcp_expose: false
+  mcp_expose_tools:
+    - ha
+  mcp_expose_read_only: true
+  mcp_token: ""
+  mcp_connectors: []
+  mcp_use_server_instructions: true
+  mcp_image_results: true
+  mcp_tool_search: false
+  mcp_max_result_kb: 15
 schema:
   anthropic_api_key: password?
   claude_auth_mode: list(api_key|subscription|hybrid)
@@ -121,3 +153,39 @@ schema:
   ha_blocked_services: str?
   install_assist_integration: bool
   non_admin_access: list(casa|completo)
+  chat_history_turns: int(4,100)
+  chat_voice_history_turns: int(1,20)
+  chat_new_session_after_hours: int(0,720)
+  chat_keep_sessions: int(10,1000)
+  chat_trash_days: int(1,90)
+  chat_live_text: bool
+  chat_show_tools: bool
+  chat_max_parallel: int(1,8)
+  ha_mcp_enabled: bool
+  ha_mcp_groups:
+    - list(read|control|automation|camera|dashboards|exposure|system)
+  ha_mcp_exclude_tools: str?
+  ha_mcp_agents: str?
+  ha_mcp_confirm: list(writes|always|never)
+  ha_mcp_free_tools: str?
+  ha_protected_entities: str?
+  ha_voice_blocked_services: str?
+  ha_voice_exposed_only: bool
+  ha_action_log_days: int(1,365)
+  mcp_expose: bool
+  mcp_expose_tools:
+    - list(ha|sessions|team)
+  mcp_expose_read_only: bool
+  mcp_token: password?
+  mcp_connectors:
+    - name: str
+      url: url
+      token: password?
+      agents: str?
+      confirm: list(writes|always|never)?
+      free: str?
+      exclude: str?
+  mcp_use_server_instructions: bool
+  mcp_image_results: bool
+  mcp_tool_search: bool
+  mcp_max_result_kb: int(1,200)

@@ -214,14 +214,21 @@
 
   <section id="chat" class="panel">
     <button data-i18n-attr="title,aria-label" type="button" id="chat-close" class="chat-close hidden" title="Chiudi conversazione (Esc)" aria-label="Chiudi conversazione">×</button>
+    <div id="chat-sessions" class="chat-sessions hidden">
+      <div class="cs-head"><span data-i18n>Conversazioni</span><button data-i18n type="button" id="cs-new" class="mini">Nuova</button></div>
+      <div id="cs-list"></div>
+    </div>
+    <div id="cs-undo" class="cs-undo hidden"></div>
     <div id="chat-log"></div>
     <div id="chat-files" class="hidden"></div>
     <form id="chat-form">
+      <button data-i18n-attr="title,aria-label" type="button" id="sessions-btn" class="icon" title="Conversazioni" aria-label="Conversazioni" aria-expanded="false"><svg class="ui-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 6.5h16M4 12h16M4 17.5h10"/></svg></button>
       <button data-i18n-attr="title,aria-label" type="button" id="attach" class="icon" title="Allega foto o file" aria-label="Allega foto o file"><svg class="ui-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="m20.5 11.5-8.1 8.1a5 5 0 0 1-7.1-7.1l8.5-8.5a3.3 3.3 0 0 1 4.7 4.7l-8.5 8.5a1.7 1.7 0 0 1-2.4-2.4l7.8-7.8"/></svg></button>
       <input type="file" id="attach-input" accept="image/*,application/pdf,.pdf,.txt,.csv,.md,.json" multiple hidden>
       <button data-i18n-attr="title,aria-label" type="button" id="mic" class="icon" title="Parla" aria-label="Parla"><svg class="ui-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="9" y="3" width="6" height="11" rx="3"/><path d="M5.5 11a6.5 6.5 0 0 0 13 0M12 17.5V21M8.5 21h7"/></svg></button>
       <textarea data-i18n-attr="placeholder" id="chat-input" placeholder="Scrivi all'assistente…" rows="1" autocomplete="off" enterkeyhint="send"></textarea>
       <button data-i18n-attr="title,aria-label" type="button" id="speaker" class="icon" title="Risposte vocali" aria-label="Risposte vocali" aria-pressed="false"><svg class="ui-ico" viewBox="0 0 24 24" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z"/><path d="m16 9.5 5 5M21 9.5l-5 5"/></svg></button>
+      <button data-i18n-attr="title,aria-label" type="button" id="chat-stop" class="icon hidden" title="Ferma la risposta" aria-label="Ferma la risposta"><svg class="ui-ico" viewBox="0 0 24 24" aria-hidden="true"><rect x="7" y="7" width="10" height="10" rx="1.5"/></svg></button>
       <button data-i18n type="submit">Invia</button>
     </form>
   </section>

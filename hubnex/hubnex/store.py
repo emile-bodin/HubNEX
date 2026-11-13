@@ -4,8 +4,10 @@ from __future__ import annotations
 
 import asyncio
 import json
+import re
 import sqlite3
 import time
+import uuid
 from pathlib import Path
 from typing import Any
 
@@ -90,7 +92,41 @@ CREATE TABLE IF NOT EXISTS chat (
     role TEXT NOT NULL,
     text TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS chat_sessions (
+    id TEXT PRIMARY KEY,
+    channel TEXT NOT NULL,
+    title TEXT NOT NULL DEFAULT '',
+    created REAL NOT NULL,
+    updated REAL NOT NULL,
+    deleted_at REAL
+);
+CREATE INDEX IF NOT EXISTS chat_sessions_channel ON chat_sessions (channel, updated);
+CREATE TABLE IF NOT EXISTS ha_actions (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    ts REAL NOT NULL,
+    agent_id TEXT,
+    channel TEXT,
+    session_id TEXT,
+    service TEXT NOT NULL,
+    entities TEXT NOT NULL DEFAULT '',
+    data TEXT,
+    result TEXT
+);
 """
+
+# The kinds of rows a conversation's transcript holds. Only "text" rows are the conversation
+# the model reads back; the others are how it got there (shown, never sent as context).
+CHAT_KINDS = ("text", "tool", "tool_result", "thinking", "notice")
+TITLE_CHARS = 80
+
+
+def chat_title(text: str) -> str:
+    """A conversation's title: its first line of real words, without the dashboard's
+    "[I'm in the room ...]" note, cut to TITLE_CHARS."""
+    text = re.sub(r"^\s*\[[^\]]*\]\s*", "", text or "").strip()
+    line = next((ln.strip() for ln in text.splitlines() if ln.strip()), "")
+    return line if len(line) <= TITLE_CHARS else line[: TITLE_CHARS - 1].rstrip() + "…"
+
 
 
 class Store:
@@ -110,6 +146,28 @@ class Store:
         cols = {r[1] for r in self._conn.execute("PRAGMA table_info(memory)")}
         if "agent_id" not in cols:
             self._conn.execute("ALTER TABLE memory ADD COLUMN agent_id TEXT")
+        cols = {r[1] for r in self._conn.execute("PRAGMA table_info(chat)")}
+        if "session_id" not in cols:  # 1.23: conversations (sessions) instead of one log per channel
+            self._conn.execute("ALTER TABLE chat ADD COLUMN session_id TEXT")
+            self._conn.execute("ALTER TABLE chat ADD COLUMN kind TEXT NOT NULL DEFAULT 'text'")
+            self._conn.execute("ALTER TABLE chat ADD COLUMN data TEXT")
+        self._conn.execute("CREATE INDEX IF NOT EXISTS chat_session ON chat (session_id, id)")
+        # What was there before sessions becomes one conversation per channel, the active one.
+        for (channel,) in self._conn.execute("SELECT DISTINCT channel FROM chat WHERE session_id IS NULL").fetchall():
+            first, last = self._conn.execute(
+                "SELECT MIN(ts), MAX(ts) FROM chat WHERE channel=? AND session_id IS NULL", (channel,)
+            ).fetchone()
+            row = self._conn.execute(
+                "SELECT text FROM chat WHERE channel=? AND session_id IS NULL AND role='user' ORDER BY id LIMIT 1",
+                (channel,),
+            ).fetchone()
+            sid = uuid.uuid4().hex[:16]
+            self._conn.execute(
+                "INSERT INTO chat_sessions (id, channel, title, created, updated) VALUES (?,?,?,?,?)",
+                (sid, channel, chat_title(row[0]) if row else "", first, last),
+            )
+            self._conn.execute("UPDATE chat SET session_id=? WHERE channel=? AND session_id IS NULL", (sid, channel))
+            self._set_active(self._conn, channel, sid)
 
     async def _run(self, sql: str, params: tuple = (), *, fetch: bool = False) -> Any:
         async with self._lock:
@@ -119,6 +177,20 @@ class Store:
                 if fetch:
                     return [dict(r) for r in cur.fetchall()]
                 return cur.lastrowid
+
+            return await asyncio.to_thread(work)
+
+    async def _tx(self, fn) -> Any:
+        """Several statements as one transaction: fn(conn) runs under the lock, then commits."""
+        async with self._lock:
+            def work():
+                try:
+                    out = fn(self._conn)
+                    self._conn.commit()
+                    return out
+                except Exception:
+                    self._conn.rollback()
+                    raise
 
             return await asyncio.to_thread(work)
 
@@ -238,17 +310,213 @@ class Store:
         rows = await self._run("SELECT COUNT(*) AS n FROM memory", fetch=True)
         return rows[0]["n"]
 
-    # --- chat history ----------------------------------------------------
-    async def chat_add(self, channel: str, role: str, text: str) -> None:
-        await self._run(
-            "INSERT INTO chat (ts, channel, role, text) VALUES (?,?,?,?)", (time.time(), channel, role, text)
+    # --- chat: conversations (sessions) and their transcripts -------------
+    @staticmethod
+    def _new_session(conn, channel: str, title: str = "") -> str:
+        sid = uuid.uuid4().hex[:16]
+        now = time.time()
+        conn.execute(
+            "INSERT INTO chat_sessions (id, channel, title, created, updated) VALUES (?,?,?,?,?)",
+            (sid, channel, title, now, now),
+        )
+        return sid
+
+    @staticmethod
+    def _set_active(conn, channel: str, sid: str) -> None:
+        conn.execute(
+            "INSERT INTO kv (key, value) VALUES (?, ?) ON CONFLICT(key) DO UPDATE SET value=excluded.value",
+            (f"chat_active:{channel}", json.dumps(sid)),
         )
 
+    @staticmethod
+    def _active(conn, channel: str) -> str | None:
+        row = conn.execute("SELECT value FROM kv WHERE key=?", (f"chat_active:{channel}",)).fetchone()
+        if not row:
+            return None
+        sid = json.loads(row[0])
+        ok = conn.execute("SELECT 1 FROM chat_sessions WHERE id=? AND deleted_at IS NULL", (sid,)).fetchone()
+        return sid if ok else None
+
+    async def session_active(self, channel: str) -> str | None:
+        """The channel's current conversation, if it has one that was not deleted."""
+        return await self._tx(lambda c: self._active(c, channel))
+
+    async def session_ensure(self, channel: str) -> str:
+        """The channel's current conversation, started when there is none."""
+        def work(c):
+            sid = self._active(c, channel)
+            if sid is None:
+                sid = self._new_session(c, channel)
+                self._set_active(c, channel, sid)
+            return sid
+
+        return await self._tx(work)
+
+    async def session_new(self, channel: str, title: str = "", activate: bool = True) -> str:
+        def work(c):
+            sid = self._new_session(c, channel, title)
+            if activate:
+                self._set_active(c, channel, sid)
+            return sid
+
+        return await self._tx(work)
+
+    async def session_set_active(self, channel: str, sid: str) -> None:
+        await self._tx(lambda c: self._set_active(c, channel, sid))
+
+    _SESSION_COLS = (
+        "s.id, s.channel, s.title, s.created, s.updated, s.deleted_at, "
+        "(SELECT COUNT(*) FROM chat m WHERE m.session_id=s.id AND m.kind='text') AS messages, "
+        "(SELECT m.text FROM chat m WHERE m.session_id=s.id AND m.kind='text' ORDER BY m.id DESC LIMIT 1) AS last"
+    )
+
+    async def session_get(self, sid: str) -> dict | None:
+        rows = await self._run(f"SELECT {self._SESSION_COLS} FROM chat_sessions s WHERE s.id=?", (sid,), fetch=True)
+        return rows[0] if rows else None
+
+    async def sessions(self, channel: str | None = None, deleted: bool = False, limit: int = 100) -> list[dict]:
+        """Conversations, most recently active first; with `deleted` only the ones in the trash."""
+        where = ["s.deleted_at IS NOT NULL" if deleted else "s.deleted_at IS NULL"]
+        params: list[Any] = []
+        if channel:
+            where.append("s.channel=?")
+            params.append(channel)
+        params.append(limit)
+        return await self._run(
+            f"SELECT {self._SESSION_COLS} FROM chat_sessions s WHERE {' AND '.join(where)} "
+            "ORDER BY s.updated DESC LIMIT ?", tuple(params), fetch=True,
+        )
+
+    async def session_rename(self, sid: str, title: str) -> bool:
+        def work(c):
+            return c.execute("UPDATE chat_sessions SET title=? WHERE id=?", (title.strip()[:120], sid)).rowcount > 0
+
+        return await self._tx(work)
+
+    async def session_delete(self, sid: str) -> bool:
+        """Into the trash (kept chat_trash_days, see session_purge): restore puts it back."""
+        def work(c):
+            return c.execute(
+                "UPDATE chat_sessions SET deleted_at=? WHERE id=? AND deleted_at IS NULL", (time.time(), sid)
+            ).rowcount > 0
+
+        return await self._tx(work)
+
+    async def session_restore(self, sid: str) -> bool:
+        def work(c):
+            return c.execute(
+                "UPDATE chat_sessions SET deleted_at=NULL WHERE id=? AND deleted_at IS NOT NULL", (sid,)
+            ).rowcount > 0
+
+        return await self._tx(work)
+
+    async def session_purge(self, trash_days: float = 7, keep: int = 200) -> int:
+        """Forget for good what has been in the trash longer than `trash_days`, and the oldest
+        conversations of a channel beyond `keep` (never the channel's active one)."""
+        def work(c):
+            gone = [r[0] for r in c.execute(
+                "SELECT id FROM chat_sessions WHERE deleted_at IS NOT NULL AND deleted_at < ?",
+                (time.time() - trash_days * 86400,),
+            )]
+            for (channel,) in c.execute("SELECT DISTINCT channel FROM chat_sessions").fetchall():
+                active = self._active(c, channel)
+                rows = c.execute(
+                    "SELECT id FROM chat_sessions WHERE channel=? AND deleted_at IS NULL ORDER BY updated DESC",
+                    (channel,),
+                ).fetchall()
+                gone += [r[0] for r in rows[keep:] if r[0] != active]
+            for sid in gone:
+                c.execute("DELETE FROM chat WHERE session_id=?", (sid,))
+                c.execute("DELETE FROM chat_sessions WHERE id=?", (sid,))
+            return len(gone)
+
+        return await self._tx(work)
+
+    async def chat_add(
+        self, channel: str, role: str, text: str, session_id: str | None = None,
+        kind: str = "text", data: Any = None,
+    ) -> dict:
+        """A row of a conversation (the channel's current one when `session_id` is None).
+        The first thing the owner says names the conversation. Returns the row as stored."""
+        if kind not in CHAT_KINDS:
+            raise ValueError(kind)
+
+        def work(c):
+            sid = session_id or self._active(c, channel)
+            if sid is None:
+                sid = self._new_session(c, channel)
+                self._set_active(c, channel, sid)
+            now = time.time()
+            payload = json.dumps(data, ensure_ascii=False) if data is not None else None
+            rid = c.execute(
+                "INSERT INTO chat (ts, channel, role, text, session_id, kind, data) VALUES (?,?,?,?,?,?,?)",
+                (now, channel, role, text, sid, kind, payload),
+            ).lastrowid
+            c.execute("UPDATE chat_sessions SET updated=? WHERE id=?", (now, sid))
+            if role == "user" and kind == "text":
+                c.execute("UPDATE chat_sessions SET title=? WHERE id=? AND title=''", (chat_title(text), sid))
+            return {"id": rid, "ts": now, "session_id": sid, "role": role, "kind": kind, "text": text, "data": data}
+
+        return await self._tx(work)
+
     async def chat_history(self, channel: str, limit: int = 20) -> list[dict]:
+        """The last `limit` messages of the channel's current conversation."""
+        sid = await self.session_active(channel)
+        return await self.session_history(sid, limit) if sid else []
+
+    async def session_history(self, sid: str, limit: int = 20) -> list[dict]:
+        """What was said in a conversation (the model's context): the last `limit` messages."""
         rows = await self._run(
-            "SELECT role, text FROM chat WHERE channel=? ORDER BY id DESC LIMIT ?", (channel, limit), fetch=True
+            "SELECT role, text FROM chat WHERE session_id=? AND kind='text' ORDER BY id DESC LIMIT ?",
+            (sid, limit), fetch=True,
         )
         return list(reversed(rows))
+
+    async def session_transcript(self, sid: str, before_id: int | None = None, limit: int = 200) -> list[dict]:
+        """Every row of a conversation, oldest first, for repainting it: the newest `limit`
+        (older than `before_id` when given, for paging back)."""
+        sql = "SELECT id, ts, role, kind, text, data FROM chat WHERE session_id=?"
+        params: list[Any] = [sid]
+        if before_id:
+            sql += " AND id < ?"
+            params.append(before_id)
+        sql += " ORDER BY id DESC LIMIT ?"
+        params.append(limit)
+        rows = await self._run(sql, tuple(params), fetch=True)
+        for r in rows:
+            r["data"] = json.loads(r["data"]) if r["data"] else None
+        return list(reversed(rows))
+
+    # --- what HubNEX did in the house ---------------------------------------
+    async def ha_action_add(
+        self, service: str, entities: list[str], data: Any = None, result: str = "",
+        agent_id: str | None = None, channel: str | None = None, session_id: str | None = None,
+    ) -> dict:
+        now = time.time()
+        rid = await self._run(
+            "INSERT INTO ha_actions (ts, agent_id, channel, session_id, service, entities, data, result) "
+            "VALUES (?,?,?,?,?,?,?,?)",
+            (now, agent_id, channel, session_id, service, ",".join(entities),
+             json.dumps(data, ensure_ascii=False, default=str) if data is not None else None, result[:500]),
+        )
+        return {"id": rid, "ts": now, "agent_id": agent_id, "channel": channel, "session_id": session_id,
+                "service": service, "entities": entities, "result": result[:500]}
+
+    async def ha_actions(self, limit: int = 100, entity: str | None = None) -> list[dict]:
+        sql, params = "SELECT * FROM ha_actions", []
+        if entity:
+            sql += " WHERE ',' || entities || ',' LIKE ?"
+            params.append(f"%,{entity},%")
+        sql += " ORDER BY id DESC LIMIT ?"
+        params.append(limit)
+        rows = await self._run(sql, tuple(params), fetch=True)
+        for r in rows:
+            r["entities"] = [e for e in (r["entities"] or "").split(",") if e]
+            r["data"] = json.loads(r["data"]) if r["data"] else None
+        return rows
+
+    async def ha_actions_purge(self, days: float = 30) -> None:
+        await self._run("DELETE FROM ha_actions WHERE ts < ?", (time.time() - days * 86400,))
 
     # --- key/value state --------------------------------------------------
     async def get(self, key: str, default: Any = None) -> Any:

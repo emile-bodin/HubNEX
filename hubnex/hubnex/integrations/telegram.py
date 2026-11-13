@@ -164,6 +164,8 @@ class TelegramTeam:
             app.add_handler(CommandHandler("stato", self.cmd_stato))
             app.add_handler(CommandHandler("posta", self.cmd_posta))
             app.add_handler(CommandHandler("regole", self.cmd_regole))
+            if key == JARVIS:
+                app.add_handler(CommandHandler(["nuovo", "new", "nieuw"], self.cmd_nuovo))
             app.add_error_handler(self._on_error)
             if key == JARVIS:
                 app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, self.on_text_jarvis))
@@ -195,6 +197,13 @@ class TelegramTeam:
         if self.hq.connectors.enabled:
             lines.extend(await self.hq.connectors.status())
         await update.effective_message.reply_text("\n".join(lines))
+
+    async def cmd_nuovo(self, update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
+        """/new: Jarvis starts a new conversation in this chat (the old one stays on the dashboard)."""
+        if not self.allowed(update):
+            return
+        await self.hq.new_session(f"telegram:{update.effective_chat.id}")
+        await update.effective_message.reply_text(tr_sys("Nuova conversazione: ricomincio da capo."))
 
     async def cmd_regole(self, update: Update, ctx: ContextTypes.DEFAULT_TYPE) -> None:
         if not self.allowed(update):
