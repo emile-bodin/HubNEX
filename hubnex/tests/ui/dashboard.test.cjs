@@ -200,9 +200,9 @@ test("vista Casa: meteo, oggi, icone sulla piantina, elettrodomestici, ultimi ev
   assert.equal(await today.count(), 4, "al massimo quattro, entro sette giorni");
   assert.match(await today.first().textContent(), /overdue/i);
   // what's going on in the rooms
-  assert.equal(await page.locator(".plan-room[data-area='soggiorno'] .plan-icons .pi").count(), 2, "presenza e musica");
-  assert.equal(await page.locator(".plan-room[data-area='lavanderia'] .plan-icons .pi").count(), 1, "la lavatrice in funzione");
-  assert.equal(await page.locator(".plan-room[data-area='cucina'] .plan-icons .pi").count(), 1, "il bollitore non ha icona");
+  assert.equal(await page.locator(".plan-pin[data-area='soggiorno'] .plan-icons .pi").count(), 2, "presenza e musica");
+  assert.equal(await page.locator(".plan-pin[data-area='lavanderia'] .plan-icons .pi").count(), 1, "la lavatrice in funzione");
+  assert.equal(await page.locator(".plan-pin[data-area='cucina'] .plan-icons .pi").count(), 1, "il bollitore non ha icona");
   // appliances and recent events
   const appl = await page.textContent(".casa-right");
   assert.match(appl, /Lavatrice.*running/s);
