@@ -85,7 +85,10 @@ configuration:
     description: Instead of ElevenLabs, one of Home Assistant's TTS engines (e.g. tts.piper, free and local). Takes precedence when set.
   voice_tts_voice:
     name: Home Assistant engine voice
-    description: The name of the voice to use with the engine above (e.g. Rinaldo or Diego for Home Assistant Cloud). Empty = its default voice. The language is Home Assistant's.
+    description: The name of the voice to use with the engine above (e.g. Rinaldo or Diego for Home Assistant Cloud). Empty = its default voice. The language is the add-on's (Language option).
+  language:
+    name: Language
+    description: en = English; nl = Dutch (Nederlands); auto = Home Assistant's language (Dutch if Home Assistant is set to Dutch, otherwise English). Used by the assistant, the agents, Telegram and the add-on's messages; each person can still pick their own language for the dashboard under Preferences.
   voice_answers:
     name: Spoken answers
     description: completa = the voice reads the whole answer; riassunto = for long answers the voice says only the gist in one or two sentences, the written text stays complete.

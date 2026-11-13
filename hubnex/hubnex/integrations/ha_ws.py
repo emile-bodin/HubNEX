@@ -15,7 +15,7 @@ import time
 from typing import Any, Awaitable, Callable
 
 import websockets
-from hubnex.i18n import tr
+from hubnex.i18n import lang, tr
 
 log = logging.getLogger(__name__)
 
@@ -240,16 +240,18 @@ class HAWatcher:
         return dev.get("area_id") if dev else None
 
     async def tts_voice(self, engine: str, wanted: str = "") -> tuple[str | None, str | None]:
-        """The engine's English language and the voice id for
+        """The engine's variant of the add-on's language and the voice id for
         a TTS engine; `wanted` is the voice's name as people see it ("Rinaldo") or its id.
         Unknown voice: an error listing the ones there are."""
         info = await self._command({"type": "tts/engine/get", "engine_id": engine}) or {}
         langs = (info.get("provider") or {}).get("supported_languages") or []
-        language = next((x for x in langs if x.lower().replace("_", "-").split("-")[0] == "en"), None)
+        want = lang()
+        language = next((x for x in langs if x.lower().replace("_", "-").split("-")[0] == want), None)
         if not wanted:
             return language, None
         if not language:
-            raise HAWatcherError(tr("{a} non supporta l'inglese", a=engine))
+            raise HAWatcherError(tr("{a} non supporta l'olandese", a=engine) if want == "nl"
+                                 else tr("{a} non supporta l'inglese", a=engine))
         res = await self._command({"type": "tts/engine/voices", "engine_id": engine, "language": language}) or {}
         voices = res.get("voices") or []
         w = wanted.casefold()

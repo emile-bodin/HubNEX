@@ -1,13 +1,32 @@
-// Legacy Italian keys map to the English text shown throughout the dashboard.
+// Languages of the dashboard: English (default) or Dutch. The Italian text in the code is the
+// key ("gettext style"): t("Salva") is EN["Salva"] in English and NL["Salva"] in Dutch.
+// Variables: t("{n} luci accese", { n }). Tests check every t("…") has both translations.
 import { EN } from "./i18n-en.js";
+import { NL } from "./i18n-nl.js";
 
-export const LANG = "en";
-export const LOCALE = "en-GB";
+export const LANGS = { en: "English", nl: "Nederlands" };
+const TEXTS = { en: EN, nl: NL };
+
+// Chosen once, before anything is drawn: the viewer's preference, else the language of their
+// Home Assistant (the page runs inside it), else the browser's. Not Dutch means English.
+function pick() {
+  let lang = "";
+  try { lang = localStorage.getItem("hq_lang") || ""; } catch {}
+  if (!LANGS[lang]) {
+    try { lang = window.parent.document.querySelector("home-assistant")?.hass?.language || ""; } catch {}
+    lang = lang || navigator.language || "en";
+  }
+  return String(lang).toLowerCase().startsWith("nl") ? "nl" : "en";
+}
+
+export const LANG = pick();
+export const LOCALE = LANG === "nl" ? "nl-NL" : "en-GB";
 document.documentElement.lang = LANG;
 
 export function t(text, vars) {
-  let out = EN[text] ?? text;
-  if (EN[text] === undefined) (window.__i18nMissing ||= new Set()).add(text);
+  const dict = TEXTS[LANG];
+  let out = dict[text] ?? EN[text] ?? text;
+  if (dict[text] === undefined) (window.__i18nMissing ||= new Set()).add(text);
   if (vars) out = out.replace(/\{(\w+)\}/g, (m, k) => (vars[k] ?? m));
   return out;
 }
@@ -22,6 +41,11 @@ export function translatePage(root = document) {
   root.querySelectorAll("[data-i18n-attr]").forEach((el) => {
     for (const a of el.dataset.i18nAttr.split(",")) if (el.getAttribute(a)) el.setAttribute(a, t(el.getAttribute(a)));
   });
+}
+
+// The viewer's choice (Preferences): "" = automatic. Takes effect on reload.
+export function setLang(lang) {
+  try { lang ? localStorage.setItem("hq_lang", lang) : localStorage.removeItem("hq_lang"); } catch {}
 }
 
 export const num = (v, d = 1) => Number(v).toLocaleString(LOCALE, { maximumFractionDigits: d });

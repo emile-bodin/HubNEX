@@ -14,7 +14,7 @@ import json
 import logging
 from typing import TYPE_CHECKING, Awaitable, Callable
 
-from hubnex.i18n import tr, tr_sys
+from hubnex.i18n import system_lang, tr, tr_sys
 from hubnex.context import CURRENT_CHAT
 from hubnex.integrations.mail import MailClient
 from hubnex.llm import complete
@@ -204,7 +204,8 @@ class MailDesk:
         prompt = (
             "Classify these new emails for the owner. Use priority codes: alta = urgent action, "
             "quick reply, or an important customer; media = worth reviewing; bassa = newsletters, "
-            "advertising, automated notices. Summarize in English in at most 15 words.\n\n"
+            "advertising, automated notices. Summarize in "
+            + ("Dutch (Nederlands)" if system_lang() == "nl" else "English") + " in at most 15 words.\n\n"
             f"Context about the owner and important customers:\n{context}\n\n"
             f"Emails:\n{json.dumps(emails, ensure_ascii=False)}"
         )

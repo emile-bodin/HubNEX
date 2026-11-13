@@ -240,6 +240,7 @@ export const EN = {
   "Larga": "Wide",
   "Leggo la posta…": "Reading the mail…",
   "Lingua": "Language",
+  "Lingua dell'interfaccia: vale per questo dispositivo": "Interface language: applies to this device",
   "Luce": "Light",
   "Luce (relè)": "Light (relay)",
   "Luci": "Lights",

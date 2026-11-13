@@ -73,6 +73,7 @@ options:
   voice_tts_entity: ""
   voice_tts_voice: ""
   voice_answers: completa
+  language: en
   ha_blocked_services: lock.unlock,lock.open,alarm_control_panel.alarm_disarm
   install_assist_integration: true
   non_admin_access: casa
@@ -116,6 +117,7 @@ schema:
   voice_tts_entity: str?
   voice_tts_voice: str?
   voice_answers: list(completa|riassunto)
+  language: list(en|nl|auto)
   ha_blocked_services: str?
   install_assist_integration: bool
   non_admin_access: list(casa|completo)

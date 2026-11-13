@@ -1,0 +1,104 @@
+configuration:
+  anthropic_api_key:
+    name: Anthropic API-sleutel
+    description: De sleutel om Claude te gebruiken (console.anthropic.com). Niet nodig als je alleen andere aanbieders gebruikt.
+  model_jarvis:
+    name: Model van Jarvis
+    description: Gebruikt door Jarvis en door agents die in agents.yaml geen eigen model instellen. Claude op naam (claude-sonnet-5-5), andere met het voorvoegsel van de aanbieder - openai:gpt-5-mini, ollama:qwen3:14b, compat:modelnaam.
+  model_mail:
+    name: Model van Jarvis Mail
+  model_voice:
+    name: Model voor snelle opdrachten
+    description: De snelle route voor verzoeken over het huis (dashboard en Assist). Haiku is het snelst; ingewikkelde vragen gaan nog steeds naar het model van Jarvis. Leeg = geen snelle route.
+  anthropic_credit_usd:
+    name: Anthropic-tegoed ($)
+    description: Je saldo op console.anthropic.com. Het dashboard telt de geschatte kosten van elk verzoek af. Vul na het opwaarderen het nieuwe saldo in. 0 = alleen uitgaven tonen.
+  monthly_budget_usd:
+    name: Maandbudget Claude ($)
+    description: Een waarschuwing in de Telegram-groep en in de meldingen als de uitgaven van deze maand 80% en 100% bereiken. Alleen een waarschuwing, HubNEX stopt niet. 0 = geen waarschuwing.
+  openai_api_key:
+    name: OpenAI API-sleutel
+    description: Voor modellen geschreven als openai:naam (platform.openai.com).
+  openai_base_url:
+    name: Adres van de OpenAI API
+    description: Leeg = dat van OpenAI zelf. Wijzig het alleen voor een dienst die OpenAI nabootst met dezelfde sleutel.
+  ollama_url:
+    name: Adres van Ollama
+    description: Voor lokale modellen geschreven als ollama:naam, bijv. http://192.168.1.20:11434. Gratis en zonder cloud; je hebt een model nodig dat tools kan gebruiken (qwen3, llama3.1, mistral-small).
+  compat_base_url:
+    name: Adres van een andere compatibele dienst
+    description: Voor modellen geschreven als compat:naam. Elke OpenAI-compatibele server, tot en met /v1 - LM Studio (http://IP:1234/v1), OpenRouter (https://openrouter.ai/api/v1), Gemini (https://generativelanguage.googleapis.com/v1beta/openai), Mistral, DeepSeek, Groq.
+  compat_api_key:
+    name: Sleutel van de compatibele dienst
+    description: De sleutel van die dienst; leeg als er geen nodig is (LM Studio).
+  other_price_input:
+    name: Invoerprijs van andere modellen ($ per miljoen tokens)
+    description: Om de uitgaven van openai- en compat-modellen te tellen, volgens de prijslijst van de aanbieder. 0 = niet geteld. Ollama-modellen zijn altijd gratis.
+  other_price_output:
+    name: Uitvoerprijs van andere modellen ($ per miljoen tokens)
+    description: Zoals hierboven, voor de antwoordtokens.
+  telegram_token_jarvis:
+    name: Token van de Jarvis-bot
+  telegram_token_mail:
+    name: Token van de Jarvis Mail-bot
+  allowed_chat_id:
+    name: Groeps-ID
+    description: Negatief getal. Stuur /id in de groep om het te zien.
+  allowed_user_id:
+    name: Je Telegram-gebruikers-ID
+  telegram_voice_replies:
+    name: Gesproken antwoorden op Telegram
+  imap_host:
+    name: IMAP-server
+  imap_port:
+    name: IMAP-poort
+  smtp_host:
+    name: SMTP-server
+  smtp_port:
+    name: SMTP-poort
+  mail_user:
+    name: Mailbox
+  mail_password:
+    name: Mailwachtwoord
+  mail_from_name:
+    name: Naam afzender
+  mail_signature:
+    name: Handtekening
+  check_interval_minutes:
+    name: Mailcontrole (minuten)
+  notify_min_priority:
+    name: Melden vanaf prioriteit
+  mail_ignore:
+    name: Afzenders die niet gemeld worden
+    description: Gescheiden door komma's. Een adres (aanbiedingen@winkel.nl), een domein (@nieuwsbrief.nl) of een woord uit het adres (noreply). Hun e-mails blijven in de mailbox, maar er komt geen Telegram-bericht.
+  hq_token:
+    name: HQ-token
+    description: Wachtwoord voor het dashboard buiten HA en voor de API. Niet nodig vanuit de zijbalk.
+  elevenlabs_api_key:
+    name: ElevenLabs API-sleutel
+  elevenlabs_voice_id:
+    name: ElevenLabs stem-ID
+  elevenlabs_model:
+    name: ElevenLabs-model
+  voice_tts_entity:
+    name: Stem van Home Assistant
+    description: In plaats van ElevenLabs, een van de TTS-engines van Home Assistant (bijv. tts.piper, gratis en lokaal). Heeft voorrang als hij is ingesteld.
+  voice_tts_voice:
+    name: Stem van de Home Assistant-engine
+    description: De naam van de stem voor de engine hierboven (bijv. Colette of Maarten voor Home Assistant Cloud). Leeg = de standaardstem. De taal is die van de add-on (optie Taal).
+  language:
+    name: Taal
+    description: en = Engels; nl = Nederlands; auto = de taal van Home Assistant (Nederlands als Home Assistant op Nederlands staat, anders Engels). Gebruikt door de assistent, de agents, Telegram en de berichten van de add-on; iedereen kan voor het dashboard nog een eigen taal kiezen onder Voorkeuren.
+  voice_answers:
+    name: Gesproken antwoorden
+    description: completa = de stem leest het hele antwoord voor; riassunto = bij lange antwoorden zegt de stem alleen de kern in een of twee zinnen, de geschreven tekst blijft volledig.
+  ha_blocked_services:
+    name: Geblokkeerde HA-diensten
+  install_assist_integration:
+    name: Assist-integratie
+    description: Installeer en werk de integratie bij die Jarvis tot gespreksagent voor Assist maakt.
+  non_admin_access:
+    name: Gebruikers zonder beheerdersrechten
+    description: "casa: Home Assistant-gebruikers die geen beheerder zijn krijgen alleen de huisweergave (geen assistent, mail, agents of wijzigingen aan de plattegrond). completo: ze krijgen alles, net als een beheerder."
+network:
+  8765/tcp: Dashboard en API (optioneel, vereist het HQ-token)

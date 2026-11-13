@@ -4,6 +4,7 @@ Kept complete by tests/test_i18n.py; list what is missing with:
 
 EN: dict[str, str] = {
     "{a} non supporta l'inglese": "{a} does not support English",
+    "{a} non supporta l'olandese": "{a} does not support Dutch",
     "+{n} a bassa priorità non mostrate": "+{n} low priority not shown",
     "1 nuova email": "1 new email",
     "A": "To",

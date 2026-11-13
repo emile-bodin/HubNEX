@@ -20,7 +20,7 @@ from hubnex import __version__
 from hubnex.config import AgentSpec, OrgChart, Settings
 from hubnex.integrations.elevenlabs import ElevenLabs
 from hubnex.speech import VOICE_HINT, for_voice, split_voice
-from hubnex.i18n import tr, tr_sys
+from hubnex.i18n import LANGS, lang, set_system_lang, tr, tr_sys
 from hubnex.actions import ActionDesk
 from hubnex.attachments import Attachment, Attachments, join, note, with_blocks
 from hubnex.alerts import Alerts
@@ -134,9 +134,14 @@ class HQ:
         self.tz = ZoneInfo(settings.timezone)
         self.ha = HomeAssistant(settings.ha_url, settings.ha_token, settings.ha_blocked_services)
         self.watcher = HAWatcher(settings.ha_url, settings.ha_token, self._ha_event)
+        # The add-on's language: the option, else (auto) Home Assistant's, known once connected.
+        if settings.language in LANGS:
+            set_system_lang(settings.language)
+        else:
+            self.watcher.on_language = set_system_lang
         casa_file = settings.casa_file or str(Path(settings.agents_file).parent / "casa.yaml")
         self.casa = Casa(self.watcher, casa_file, store)
-        self._tts_cache: dict[tuple[str, str], tuple[str | None, str | None]] = {}
+        self._tts_cache: dict[tuple[str, str, str], tuple[str | None, str | None]] = {}
         self.voice = ElevenLabs(settings.elevenlabs_key, settings.elevenlabs_voice, settings.elevenlabs_model)
         if team is None and settings.telegram_token_jarvis:
             from hubnex.integrations.telegram import TelegramTeam
@@ -197,7 +202,7 @@ class HQ:
     async def _tts_voice(self, engine: str) -> tuple[str | None, str | None]:
         """Language and voice for Home Assistant's TTS engine, looked up once. Without a voice
         chosen a failed lookup is not an error: the engine's own defaults are used."""
-        key = (engine, self.settings.voice_tts_voice)
+        key = (engine, self.settings.voice_tts_voice, lang())
         if key not in self._tts_cache:
             try:
                 self._tts_cache[key] = await self.watcher.tts_voice(engine, self.settings.voice_tts_voice)
@@ -511,6 +516,10 @@ class HQ:
 
     @staticmethod
     def _speak() -> str:
+        """The language Jarvis and the agents answer in (the instructions stay as written)."""
+        if lang() == "nl":
+            return ("Always reply in Dutch (Nederlands), even though these instructions are in English. "
+                    "Keep proper names, entity IDs, and quotations unchanged.")
         return "Always reply in English. Keep proper names, entity IDs, and quotations unchanged."
 
     def _rules_text(self) -> str:

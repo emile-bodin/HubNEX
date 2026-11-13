@@ -1,7 +1,7 @@
-"""The Italian texts that need an English version.
+"""The Italian texts that need an English (and Dutch) version.
 Dashboard: every t("…") in web/*.js and the data-i18n texts and attributes of web/index.html.
 Add-on (--python): every tr("…") / tr_sys("…") in hubnex/**/*.py.
-    python dev/i18n_keys.py [--python] [--missing]"""
+    python dev/i18n_keys.py [--python] [--missing] [--lang en|nl]"""
 
 import json
 import re
@@ -55,16 +55,16 @@ def py_keys() -> set[str]:
     return keys
 
 
-def py_english() -> dict:
+def py_texts(lang: str = "en") -> dict:
     from importlib import util
-    spec = util.spec_from_file_location("i18n_en", ROOT / "hubnex" / "i18n_en.py")
+    spec = util.spec_from_file_location(f"i18n_{lang}", ROOT / "hubnex" / f"i18n_{lang}.py")
     mod = util.module_from_spec(spec)
     spec.loader.exec_module(mod)
-    return mod.EN
+    return getattr(mod, lang.upper())
 
 
-def english() -> dict:
-    src = (WEB / "i18n-en.js").read_text(encoding="utf-8")
+def js_texts(lang: str = "en") -> dict:
+    src = (WEB / f"i18n-{lang}.js").read_text(encoding="utf-8")
     body = src[src.index("{"): src.rindex("}") + 1]
     return json.loads(body)
 
@@ -72,7 +72,8 @@ def english() -> dict:
 if __name__ == "__main__":
     python = "--python" in sys.argv
     keys = py_keys() if python else js_keys() | html_keys()
+    lang = sys.argv[sys.argv.index("--lang") + 1] if "--lang" in sys.argv else "en"
     if "--missing" in sys.argv:
-        have = py_english() if python else english()
+        have = py_texts(lang) if python else js_texts(lang)
         keys = keys - set(have)
     print(json.dumps(sorted(keys), ensure_ascii=False, indent=0))

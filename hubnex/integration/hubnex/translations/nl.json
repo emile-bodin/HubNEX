@@ -1,0 +1,27 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "HubNEX",
+        "description": "Meestal niet nodig: start de HubNEX-add-on opnieuw en bevestig \"HubNEX ontdekt\". Handmatig: http://<hostnaam van de add-on>:8765 (de hostnaam staat op de pagina van de add-on) en het HQ-token uit de configuratie van de add-on.",
+        "data": {
+          "url": "URL",
+          "token": "Token"
+        }
+      },
+      "hassio_confirm": {
+        "title": "HubNEX",
+        "description": "De HubNEX-assistent gebruiken als gespreksagent voor Assist?"
+      }
+    },
+    "error": {
+      "cannot_connect": "Kan HubNEX niet bereiken.",
+      "invalid_auth": "Onjuist token."
+    },
+    "abort": {
+      "already_configured": "HubNEX is al ingesteld.",
+      "cannot_connect": "Kan HubNEX niet bereiken.",
+      "invalid_auth": "Onjuist token."
+    }
+  }
+}

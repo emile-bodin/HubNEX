@@ -34,6 +34,19 @@ _UNITS = {
         ("ms", "milliseconds"), ("min", "minutes"), ("h", "hours"),
         ("%", "percent"),
     ],
+    "nl": [
+        ("kWh", "kilowattuur"), ("MWh", "megawattuur"), ("Wh", "wattuur"),
+        ("MΩ", "megaohm"), ("kΩ", "kiloohm"), ("mΩ", "milliohm"), ("Ω", "ohm"),
+        ("kVA", "kilovoltampère"), ("kVAr", "kilovoltampère reactief"), ("VA", "voltampère"),
+        ("kW", "kilowatt"), ("MW", "megawatt"), ("W", "watt"),
+        ("kV", "kilovolt"), ("mV", "millivolt"), ("V", "volt"),
+        ("kA", "kiloampère"), ("mA", "milliampère"), ("A", "ampère"),
+        ("°C", "graden"), ("°F", "graden Fahrenheit"), ("°", "graden"), ("Hz", "hertz"),
+        ("mm²", "vierkante millimeter"), ("mm2", "vierkante millimeter"), ("m²", "vierkante meter"),
+        ("km", "kilometer"), ("cm", "centimeter"), ("mm", "millimeter"),
+        ("ms", "milliseconden"), ("min", "minuten"), ("h", "uur"),
+        ("%", "procent"),
+    ],
 }
 
 # Abbreviations read as words (whole words only).
@@ -47,6 +60,10 @@ _WORDS = {
     "en": {
         "and/or": "and or", "e.g.": "for example", "i.e.": "that is", "etc.": "etcetera",
         "approx.": "approximately", "no.": "number", "N.B.": "note",
+    },
+    "nl": {
+        "en/of": "en of", "bijv.": "bijvoorbeeld", "bv.": "bijvoorbeeld", "d.w.z.": "dat wil zeggen",
+        "enz.": "enzovoort", "ca.": "circa", "nr.": "nummer", "N.B.": "let op", "tel.": "telefoon",
     },
 }
 
@@ -63,14 +80,22 @@ _SYMBOLS = {
         "±": " plus or minus ", "×": " times ", "€": " euros ", "$": " dollars ", "£": " pounds ",
         "&": " and ", "~": " about ", "§": " section ", "/": " ", "\\": " ", "=": " equals ",
     },
+    "nl": {
+        "→": ", ", "⇒": ", ", "←": ", ", "·": ", ", "•": ", ", "|": ", ", "≈": " ongeveer ",
+        "≥": " minstens ", "≤": " hoogstens ", ">=": " minstens ", "<=": " hoogstens ",
+        "±": " plus of min ", "×": " keer ", "€": " euro ", "$": " dollar ", "£": " pond ",
+        "&": " en ", "~": " ongeveer ", "§": " paragraaf ", "/": " ", "\\": " ", "=": " is ",
+    },
 }
 _MONTHS = {
     "it": ["gennaio", "febbraio", "marzo", "aprile", "maggio", "giugno", "luglio", "agosto",
            "settembre", "ottobre", "novembre", "dicembre"],
     "en": ["January", "February", "March", "April", "May", "June", "July", "August",
            "September", "October", "November", "December"],
+    "nl": ["januari", "februari", "maart", "april", "mei", "juni", "juli", "augustus",
+           "september", "oktober", "november", "december"],
 }
-_OVER = {"it": "su", "en": "out of"}  # 1/300
+_OVER = {"it": "su", "en": "out of", "nl": "op"}  # 1/300
 
 
 def _unit_re(lang: str) -> re.Pattern:
@@ -120,7 +145,7 @@ def split_voice(reply: str) -> tuple[str, str | None]:
 def for_voice(text: str, limit: int = 2500, lang: str | None = None) -> str:
     """The written answer as the voice should read it: no markdown, emoji, links or symbols,
     units and abbreviations as words, list items as sentences (a pause instead of a dash).
-    `lang`: it or en (default: the language of the request, else the add-on's)."""
+    `lang`: it, en or nl (default: the language of the request, else the add-on's)."""
     if not text:
         return ""
     lang = lang if lang in _UNITS else current_lang()

@@ -1,9 +1,10 @@
-"""Every add-on message and reply uses English."""
+"""Add-on messages and replies: English by default, Dutch when chosen."""
 
 import json
 import subprocess
 import sys
 
+import pytest
 from fastapi.testclient import TestClient
 
 from hubnex import i18n
@@ -16,6 +17,61 @@ def test_every_message_has_its_english():
     out = subprocess.run([sys.executable, "dev/i18n_keys.py", "--python", "--missing"], cwd=ROOT,
                          capture_output=True, text=True, check=True).stdout
     assert json.loads(out) == [], "messages without English: add them to hubnex/i18n_en.py"
+
+
+@pytest.fixture
+def dutch():
+    i18n.set_system_lang("nl")
+    yield
+    i18n.set_system_lang("en")
+
+
+def test_every_message_has_its_dutch():
+    out = subprocess.run([sys.executable, "dev/i18n_keys.py", "--python", "--missing", "--lang", "nl"], cwd=ROOT,
+                         capture_output=True, text=True, check=True).stdout
+    assert json.loads(out) == [], "messages without Dutch: add them to hubnex/i18n_nl.py"
+
+
+def test_dutch_follows_the_request_then_the_add_on():
+    token = i18n.REQUEST_LANG.set(i18n.norm("nl-BE"))
+    try:
+        assert i18n.tr("bozza sconosciuta") == "onbekend concept"
+        assert i18n.tr("inviata alle {time}", time="10:00") == "verstuurd om 10:00"
+        assert i18n.tr_sys("bozza sconosciuta") == "unknown draft"  # the add-on itself is in English
+    finally:
+        i18n.REQUEST_LANG.reset(token)
+    assert i18n.norm("nl-NL") == "nl"
+
+
+def test_the_add_on_can_speak_dutch(dutch):
+    assert i18n.tr_sys("bozza sconosciuta") == "onbekend concept"
+    assert i18n.tr("{n} stanze", n=3) == "3 kamers"
+
+
+async def test_jarvis_answers_in_dutch(make_hq, dutch):
+    hq = make_hq([response([text_block("Klaar.")], "end_turn")])
+    i18n.set_system_lang("nl")  # the HQ took the add-on's option (en) when it was made
+    await hq.chat("t", "doe het licht in de keuken aan")
+    system = hq.client.requests[-1]["system"]
+    assert "Always reply in Dutch" in system and "Always reply in English" not in system
+
+
+def test_api_errors_in_the_viewers_language(settings, make_hq):
+    with TestClient(create_app(settings, hq=make_hq([]), start_workers=False)) as client:
+        r = client.get("/api/agents/nobody", headers={"X-HubNEX-Lang": "nl"})
+        assert r.json()["detail"] == "onbekende agent"
+
+
+def test_the_voice_reads_dutch():
+    said = for_voice("Vermogen 1,84 kW, vandaag 9,6 kWh, 21,5°C, bijv. op 1/9/2026 ✅", lang="nl")
+    assert said == "Vermogen 1,84 kilowatt, vandaag 9,6 kilowattuur, 21,5 graden, bijvoorbeeld op 1 september 2026."
+
+
+def test_language_option(monkeypatch):
+    from hubnex.config import Settings
+    for value, expected in (("nl", "nl"), ("auto", "auto"), ("", "en"), ("fr", "en")):
+        monkeypatch.setenv("HUBNEX_LANGUAGE", value)
+        assert Settings.from_env().language == expected
 
 
 def test_messages_are_english_even_for_italian_requests():
