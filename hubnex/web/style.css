@@ -394,44 +394,44 @@ button.plan-room.outline { cursor: pointer; }
 .plan-room.outline .plan-body, .plan-room.ghost .plan-body { justify-content: flex-start; }
 /* Floating room labels: a point on the floor, a thin stem up, and an upright, see-through card on
    top. The card turns back by the plan's own tilt (--plan-tx/--plan-tz), so it faces the viewer. */
-.plan-pin { --lift: 56px; position: absolute; width: 0; height: 0; transform-style: preserve-3d; pointer-events: none; }
-.plan-pin.big { --lift: 72px; }
-.plan-pin.small { --lift: 30px; }
+.plan-pin { --lift: 54px; position: absolute; width: 0; height: 0; transform-style: preserve-3d; pointer-events: none; }
+.plan-pin.big { --lift: 68px; }
+.plan-pin.small { --lift: 27px; }
 .plan-pin i { position: absolute; display: block; pointer-events: none; }
-.pin-shade { left: -40px; top: -40px; width: 80px; height: 80px; border-radius: 50%; background: radial-gradient(circle, rgba(0, 8, 20, 0.55), transparent 68%); }
+.pin-shade { left: -44px; top: -44px; width: 88px; height: 88px; border-radius: 50%; background: radial-gradient(circle, rgba(0, 8, 20, 0.7), rgba(0, 8, 20, 0) 68%); }
+.plan-pin.lit .pin-shade { background: radial-gradient(circle, rgba(60, 30, 0, 0.55), rgba(60, 30, 0, 0) 68%); }
 .plan-pin.small .pin-shade { transform: scale(0.5); }
-.pin-dot { left: -3px; top: -3px; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px 2px rgba(79, 209, 255, 0.6); }
-.pin-stem { left: 0; bottom: 0; width: 1px; height: var(--lift); transform-origin: 50% 100%; transform: rotateX(-90deg); background: linear-gradient(to top, rgba(79, 209, 255, 0.6), transparent); }
-.plan-pin.lit .pin-dot { background: var(--warn); box-shadow: 0 0 10px 3px rgba(255, 181, 71, 0.7); }
-.plan-pin.lit .pin-stem { background: linear-gradient(to top, rgba(255, 181, 71, 0.6), transparent); }
-.plan-pin.alert .pin-dot { background: var(--danger); box-shadow: 0 0 10px 3px rgba(255, 92, 122, 0.7); }
-.plan-pin.alert .pin-stem { background: linear-gradient(to top, rgba(255, 92, 122, 0.6), transparent); }
+.pin-dot { left: -4px; top: -4px; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px 3px rgba(79, 209, 255, 0.7); }
+.pin-stem { left: 0; bottom: 0; width: 1px; height: var(--lift); transform-origin: 50% 100%; transform: rotateX(-90deg); background: linear-gradient(to top, rgba(79, 209, 255, 0.6), rgba(79, 209, 255, 0)); }
+.plan-pin.lit .pin-dot { background: #ffd28a; box-shadow: 0 0 12px 4px rgba(255, 181, 71, 0.8); }
+.plan-pin.lit .pin-stem { background: linear-gradient(to top, rgba(255, 181, 71, 0.6), rgba(255, 181, 71, 0)); }
+.plan-pin.alert .pin-dot { background: #ff9aae; box-shadow: 0 0 12px 4px rgba(255, 92, 122, 0.8); }
+.plan-pin.alert .pin-stem { background: linear-gradient(to top, rgba(255, 92, 122, 0.6), rgba(255, 92, 122, 0)); }
 .pin-bill { position: absolute; left: 0; top: 0; width: 0; height: 0; transform-style: preserve-3d;
   transform: translateZ(var(--lift)) rotateZ(calc(-1 * var(--plan-tz))) rotateX(calc(-1 * var(--plan-tx))); }
-.pin-tag { position: absolute; left: 0; bottom: 5px; transform: translateX(-50%); white-space: nowrap; display: flex; flex-direction: column; gap: 4px;
-  padding: 6px 10px 7px; border-radius: 8px; background: rgba(9, 20, 34, 0.38); border: 1px solid rgba(79, 209, 255, 0.1); backdrop-filter: blur(3px);
-  color: var(--text); text-align: left; pointer-events: auto; cursor: pointer; animation: pin-bob 4.2s ease-in-out infinite; transition: border-color 0.2s; }
-.plan-pin:nth-of-type(2n) .pin-tag { animation-delay: -1.4s; }
-.plan-pin:nth-of-type(3n) .pin-tag { animation-delay: -2.8s; }
-.pin-tag:hover { border-color: rgba(79, 209, 255, 0.4); }
+.pin-tag { position: absolute; left: 0; bottom: 6px; transform: translateX(-50%); white-space: nowrap; display: flex; flex-direction: column; gap: 6px;
+  padding: 7px 11px 8px; border-radius: 8px; background: rgba(9, 20, 34, 0.38); border: 1px solid rgba(79, 209, 255, 0.1); backdrop-filter: blur(3px);
+  color: rgba(216, 236, 255, 0.92); text-align: left; pointer-events: auto; cursor: pointer; animation: pin-bob 4.2s ease-in-out infinite; }
+.plan-pin:nth-of-type(2n) .pin-tag { animation-delay: -1.1s; }
+.plan-pin:nth-of-type(3n) .pin-tag { animation-delay: -2.3s; }
 .plan-pin.lit .pin-tag { border-color: rgba(255, 181, 71, 0.2); background: rgba(34, 22, 8, 0.3); }
-.plan-pin.alert .pin-tag { border-color: rgba(255, 92, 122, 0.3); }
-.plan-pin.sel .pin-tag { border-color: var(--accent); background: rgba(9, 20, 34, 0.6); }
-.plan-pin.lit .pin-tag::before, .plan-pin.alert .pin-tag::before { content: ""; position: absolute; left: 10px; right: 10px; top: -1px; height: 1px; background: rgba(255, 181, 71, 0.7); box-shadow: 0 0 8px rgba(255, 181, 71, 0.5); }
-.plan-pin.alert .pin-tag::before { background: rgba(255, 92, 122, 0.8); box-shadow: 0 0 8px rgba(255, 92, 122, 0.5); }
-.plan-pin.small .pin-tag { padding: 3px 7px; }
-.pin-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
-.pin-tag b { font-size: 14px; font-weight: 400; line-height: 1.15; opacity: 0.92; }
-.plan-pin.small .pin-tag b { font-size: 11px; }
-.pin-kick { font-size: 10px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--warm-text); }
+.plan-pin.alert .pin-tag { border-color: rgba(255, 92, 122, 0.2); background: rgba(34, 8, 14, 0.3); }
+.plan-pin.lit .pin-tag::before, .plan-pin.alert .pin-tag::before { content: ""; position: absolute; left: 12px; right: 12px; top: -1px; height: 1px; background: rgba(255, 181, 71, 0.7); box-shadow: 0 0 8px rgba(255, 181, 71, 0.5); }
+.plan-pin.alert .pin-tag::before { background: rgba(255, 92, 122, 0.7); box-shadow: 0 0 8px rgba(255, 92, 122, 0.5); }
+.plan-pin.small .pin-tag { padding: 5px 10px; gap: 0; }
+.pin-head { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; }
+.pin-tag b { font-size: 15px; font-weight: 400; letter-spacing: 0.01em; line-height: 1.15; }
+.plan-pin.small .pin-tag b { font-size: 13px; }
+.pin-kick { font-size: 10px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
+.plan-pin.lit .pin-kick { color: var(--warm-text); }
 .plan-pin.alert .pin-kick { color: #ff9aae; }
-.pin-row { display: flex; align-items: center; gap: 8px; font-size: 14px; font-weight: 300; font-variant-numeric: tabular-nums; opacity: 0.85; }
-#casa .pin-row .mono { font-size: inherit; }
-.pin-row small { font-size: 0.8em; color: var(--muted); margin-left: 1px; }
-.pin-row .plan-icons { margin: 0; gap: 5px; }
-.pin-row .pi { width: 14px; height: 14px; filter: none; color: var(--muted); }
+.pin-row { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 300; font-variant-numeric: tabular-nums; color: rgba(216, 236, 255, 0.85); }
+#casa .pin-row .mono { font-size: inherit; font-weight: 300; }
+.pin-row small { font-size: 12px; color: var(--muted); margin-left: 1px; }
+.pin-row .plan-icons { margin: 0; gap: 10px; }
+.pin-row .pi { width: 15px; height: 15px; stroke-width: 1.4; filter: none; color: var(--muted); }
 .plan-pin.lit .pin-row .pi { color: var(--warn); }
-@keyframes pin-bob { 0%, 100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, -4px); } }
+@keyframes pin-bob { 0%, 100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, -5px); } }
 @media (prefers-reduced-motion: reduce) { .pin-tag { animation: none; } }
 .casa-group { position: relative; z-index: 1; width: min(760px, 100%); display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; justify-content: center; }
 .casa-tiles { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
@@ -517,12 +517,12 @@ button.plan-room.outline { cursor: pointer; }
   .casa-right { order: 0; }
   .casa-left { order: 1; }
   .plan { --plan-tx: 36deg; --plan-tz: -5deg; transform-origin: 50% 50%; width: 84%; }
-  .plan-pin { --lift: 36px; }
-  .plan-pin.big { --lift: 46px; }
-  .plan-pin.small { --lift: 20px; }
-  .pin-tag { padding: 4px 8px 5px; gap: 2px; }
+  .plan-pin { --lift: 38px; }
+  .plan-pin.big { --lift: 48px; }
+  .plan-pin.small { --lift: 19px; }
+  .pin-tag { padding: 5px 8px 6px; gap: 4px; }
   .pin-tag b { font-size: 12px; }
-  .pin-row { font-size: 12px; gap: 6px; }
+  .pin-row { font-size: 12px; gap: 7px; }
   .pin-row .pi { width: 12px; height: 12px; }
   .plan-wrap { margin-bottom: -40px; }
   .plan-room b { font-size: 11px; }
@@ -574,7 +574,8 @@ button.plan-room.outline { cursor: pointer; }
 .casa-chip-btn.bad { color: #ff9aae !important; border-color: rgba(255, 92, 122, 0.6) !important; }
 
 /* floor plan: the real drawing under the hologram, and the editor */
-.plan.has-image::before { content: ""; position: absolute; inset: 0; background: var(--plan-img) center / 100% 100% no-repeat; filter: invert(1) hue-rotate(180deg) brightness(1.3); opacity: 0.32; pointer-events: none; mix-blend-mode: screen; }
+.plan.has-image::before { content: ""; position: absolute; inset: 0; background: var(--plan-img) center / 100% 100% no-repeat; filter: invert(1) hue-rotate(180deg) brightness(1.3); opacity: 0.32; pointer-events: none; }
+/* No mix-blend-mode on it: blending makes Chrome flatten the plan, and the floating labels with it. */
 .ped .ped-panel { width: min(1400px, 100%) !important; max-height: 94vh; display: flex; flex-direction: column; }
 .ped-bar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .ped-bar button, .ped-btn { min-height: 40px; padding: 0 14px; border-radius: 10px; display: inline-flex; align-items: center; cursor: pointer; border: 1px solid var(--panel-border); background: rgba(79, 209, 255, 0.06); color: var(--text); font: 600 14px var(--font); }
