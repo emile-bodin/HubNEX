@@ -356,7 +356,7 @@ button.casa-row:hover { color: #fff; }
 .casa-floors { display: flex; gap: 6px; }
 .casa-floors button.on { border-color: var(--accent); background: rgba(79, 209, 255, 0.16); }
 /* Only the rooms take taps: the tilted plan's empty box must not cover the tiles below it. */
-.plan-wrap { width: min(680px, 100%); perspective: 1400px; display: flex; justify-content: center; padding: 10px 0 0; margin-bottom: -60px; pointer-events: none; }
+.plan-wrap { width: min(680px, 100%); container-type: inline-size; perspective: 1400px; display: flex; justify-content: center; padding: 10px 0 0; margin-bottom: -60px; pointer-events: none; }
 button.plan-room { pointer-events: auto; }
 .plan { --plan-tx: 48deg; --plan-tz: -8deg; position: relative; width: min(600px, 92%, calc(100vh - 260px)); transform: rotateX(var(--plan-tx)) rotateZ(var(--plan-tz)); transform-style: preserve-3d; transform-origin: 50% 40%; border: 1px solid rgba(79, 209, 255, 0.3); border-radius: 6px;
   box-shadow: 0 0 60px rgba(79, 209, 255, 0.15), inset 0 0 80px rgba(79, 209, 255, 0.06);
@@ -394,42 +394,41 @@ button.plan-room.outline { cursor: pointer; }
 .plan-room.outline .plan-body, .plan-room.ghost .plan-body { justify-content: flex-start; }
 /* Floating room labels: a point on the floor, a thin stem up, and an upright, see-through card on
    top. The card turns back by the plan's own tilt (--plan-tx/--plan-tz), so it faces the viewer. */
-.plan-pin { --lift: 54px; position: absolute; width: 0; height: 0; transform-style: preserve-3d; pointer-events: none; }
-.plan-pin.big { --lift: 68px; }
-.plan-pin.small { --lift: 27px; }
+.plan-pin { --lift: calc(var(--lift-pct, 4.6cqw) * var(--d, 1)); position: absolute; width: 0; height: 0; transform-style: preserve-3d; pointer-events: none; }
+.plan-pin.small { --lift: calc(var(--lift-pct, 4.6cqw) * var(--d, 1) * 0.6); }
 .plan-pin i { position: absolute; display: block; pointer-events: none; }
-.pin-shade { left: -44px; top: -44px; width: 88px; height: 88px; border-radius: 50%; background: radial-gradient(circle, rgba(0, 8, 20, 0.7), rgba(0, 8, 20, 0) 68%); }
+.pin-shade { left: -30px; top: -30px; width: 60px; height: 60px; border-radius: 50%; background: radial-gradient(circle, rgba(0, 8, 20, 0.7), rgba(0, 8, 20, 0) 68%); }
 .plan-pin.lit .pin-shade { background: radial-gradient(circle, rgba(60, 30, 0, 0.55), rgba(60, 30, 0, 0) 68%); }
-.plan-pin.small .pin-shade { transform: scale(0.5); }
-.pin-dot { left: -4px; top: -4px; width: 8px; height: 8px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 10px 3px rgba(79, 209, 255, 0.7); }
-.pin-stem { left: 0; bottom: 0; width: 1px; height: var(--lift); transform-origin: 50% 100%; transform: rotateX(-90deg); background: linear-gradient(to top, rgba(79, 209, 255, 0.6), rgba(79, 209, 255, 0)); }
-.plan-pin.lit .pin-dot { background: #ffd28a; box-shadow: 0 0 12px 4px rgba(255, 181, 71, 0.8); }
-.plan-pin.lit .pin-stem { background: linear-gradient(to top, rgba(255, 181, 71, 0.6), rgba(255, 181, 71, 0)); }
-.plan-pin.alert .pin-dot { background: #ff9aae; box-shadow: 0 0 12px 4px rgba(255, 92, 122, 0.8); }
-.plan-pin.alert .pin-stem { background: linear-gradient(to top, rgba(255, 92, 122, 0.6), rgba(255, 92, 122, 0)); }
+.plan-pin.small .pin-shade { transform: scale(0.6); }
+.pin-dot { left: -3px; top: -3px; width: 6px; height: 6px; border-radius: 50%; background: var(--accent); box-shadow: 0 0 8px 2px rgba(79, 209, 255, 0.7); }
+.pin-stem { left: 0; bottom: 0; width: 1px; height: var(--lift); transform-origin: 50% 100%; transform: rotateX(-90deg); background: linear-gradient(to top, rgba(79, 209, 255, 0.75), rgba(79, 209, 255, 0.1)); }
+.plan-pin.lit .pin-dot { background: #ffd28a; box-shadow: 0 0 10px 3px rgba(255, 181, 71, 0.8); }
+.plan-pin.lit .pin-stem { background: linear-gradient(to top, rgba(255, 181, 71, 0.75), rgba(255, 181, 71, 0.1)); }
+.plan-pin.alert .pin-dot { background: #ff9aae; box-shadow: 0 0 10px 3px rgba(255, 92, 122, 0.8); }
+.plan-pin.alert .pin-stem { background: linear-gradient(to top, rgba(255, 92, 122, 0.75), rgba(255, 92, 122, 0.1)); }
 .pin-bill { position: absolute; left: 0; top: 0; width: 0; height: 0; transform-style: preserve-3d;
   transform: translateZ(var(--lift)) rotateZ(calc(-1 * var(--plan-tz))) rotateX(calc(-1 * var(--plan-tx))); }
-.pin-tag { position: absolute; left: 0; bottom: 6px; transform: translateX(-50%); white-space: nowrap; display: flex; flex-direction: column; gap: 6px;
-  padding: 7px 11px 8px; border-radius: 8px; background: rgba(9, 20, 34, 0.38); border: 1px solid rgba(79, 209, 255, 0.1); backdrop-filter: blur(3px);
+.pin-tag { position: absolute; left: 0; bottom: 4px; transform: translateX(-50%); white-space: nowrap; display: flex; flex-direction: column; gap: 3px;
+  padding: 5px 8px 6px; border-radius: 6px; background: rgba(9, 20, 34, 0.38); border: 1px solid rgba(79, 209, 255, 0.1); backdrop-filter: blur(3px);
   color: rgba(216, 236, 255, 0.92); text-align: left; pointer-events: auto; cursor: pointer; animation: pin-bob 4.2s ease-in-out infinite; }
 .plan-pin:nth-of-type(2n) .pin-tag { animation-delay: -1.1s; }
 .plan-pin:nth-of-type(3n) .pin-tag { animation-delay: -2.3s; }
 .plan-pin.lit .pin-tag { border-color: rgba(255, 181, 71, 0.2); background: rgba(34, 22, 8, 0.3); }
 .plan-pin.alert .pin-tag { border-color: rgba(255, 92, 122, 0.2); background: rgba(34, 8, 14, 0.3); }
-.plan-pin.lit .pin-tag::before, .plan-pin.alert .pin-tag::before { content: ""; position: absolute; left: 12px; right: 12px; top: -1px; height: 1px; background: rgba(255, 181, 71, 0.7); box-shadow: 0 0 8px rgba(255, 181, 71, 0.5); }
+.plan-pin.lit .pin-tag::before, .plan-pin.alert .pin-tag::before { content: ""; position: absolute; left: 8px; right: 8px; top: -1px; height: 1px; background: rgba(255, 181, 71, 0.7); box-shadow: 0 0 8px rgba(255, 181, 71, 0.5); }
 .plan-pin.alert .pin-tag::before { background: rgba(255, 92, 122, 0.7); box-shadow: 0 0 8px rgba(255, 92, 122, 0.5); }
-.plan-pin.small .pin-tag { padding: 5px 10px; gap: 0; }
-.pin-head { display: flex; align-items: baseline; justify-content: space-between; gap: 14px; }
-.pin-tag b { font-size: 15px; font-weight: 400; letter-spacing: 0.01em; line-height: 1.15; }
-.plan-pin.small .pin-tag b { font-size: 13px; }
-.pin-kick { font-size: 10px; font-weight: 500; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
+.plan-pin.small .pin-tag { padding: 4px 7px; gap: 0; }
+.pin-head { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.pin-tag b { font-size: 13px; font-weight: 400; letter-spacing: 0.01em; line-height: 1.15; }
+.plan-pin.small .pin-tag b { font-size: 12px; }
+.pin-kick { font-size: 9px; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); }
 .plan-pin.lit .pin-kick { color: var(--warm-text); }
 .plan-pin.alert .pin-kick { color: #ff9aae; }
-.pin-row { display: flex; align-items: center; gap: 10px; font-size: 14px; font-weight: 300; font-variant-numeric: tabular-nums; color: rgba(216, 236, 255, 0.85); }
+.pin-row { display: flex; align-items: center; gap: 7px; font-size: 12px; font-weight: 300; font-variant-numeric: tabular-nums; color: rgba(216, 236, 255, 0.85); }
 #casa .pin-row .mono { font-size: inherit; font-weight: 300; }
-.pin-row small { font-size: 12px; color: var(--muted); margin-left: 1px; }
-.pin-row .plan-icons { margin: 0; gap: 10px; }
-.pin-row .pi { width: 15px; height: 15px; stroke-width: 1.4; filter: none; color: var(--muted); }
+.pin-row small { font-size: 10px; color: var(--muted); margin-left: 1px; }
+.pin-row .plan-icons { margin: 0; gap: 7px; }
+.pin-row .pi { width: 12px; height: 12px; stroke-width: 1.4; filter: none; color: var(--muted); }
 .plan-pin.lit .pin-row .pi { color: var(--warn); }
 @keyframes pin-bob { 0%, 100% { transform: translate(-50%, 0); } 50% { transform: translate(-50%, -5px); } }
 @media (prefers-reduced-motion: reduce) { .pin-tag { animation: none; } }
@@ -517,13 +516,10 @@ button.plan-room.outline { cursor: pointer; }
   .casa-right { order: 0; }
   .casa-left { order: 1; }
   .plan { --plan-tx: 36deg; --plan-tz: -5deg; transform-origin: 50% 50%; width: 84%; }
-  .plan-pin { --lift: 38px; }
-  .plan-pin.big { --lift: 48px; }
-  .plan-pin.small { --lift: 19px; }
-  .pin-tag { padding: 5px 8px 6px; gap: 4px; }
+  .plan-pin { --lift-pct: 4.2cqw; }
+  .pin-tag { padding: 4px 7px 5px; }
   .pin-tag b { font-size: 12px; }
-  .pin-row { font-size: 12px; gap: 7px; }
-  .pin-row .pi { width: 12px; height: 12px; }
+  .pin-row { font-size: 11px; }
   .plan-wrap { margin-bottom: -40px; }
   .plan-room b { font-size: 11px; }
   .plan-room { padding: 4px 6px; }
