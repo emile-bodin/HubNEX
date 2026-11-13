@@ -52,6 +52,8 @@ add-on**.
 - `boss`: the assistant who coordinates everything: name, character, instructions, tools.
 - `companies`: your "companies" (work, home, a club…), with departments and agents. Every agent
   has a role, instructions and the tools it may use.
+- `ha_mcp`: which groups of the built-in Home Assistant tools an agent (or the boss) gets, see
+  **Home Assistant tools (built in)**.
 - `connectors`: the programs of your work (see **Connectors**).
 - Routines: tasks an agent does by itself at fixed times. They are **off** until you write
   `enabled: true`.
@@ -120,6 +122,22 @@ On the add-on page:
 - **Services blocked for voice** and **voice reaches only exposed entities** for Assist.
 - Routines and events can look but never act; every action is written in the activity feed and
   kept for **Action log (days)**.
+
+Per agent, `ha_mcp:` in `agents.yaml` narrows the groups it gets (it never adds a group the
+add-on page has switched off):
+
+```yaml
+      - id: sentinel
+        ha_mcp: [read, automation, camera]   # watches, has no tool to act
+      - id: mail
+        ha_mcp: none                         # no Home Assistant tools at all
+```
+
+Without `ha_mcp` an agent gets every group switched on on the page. An agent with the `read`
+group no longer gets HubNEX's basic `ha_list_entities`/`ha_get_state`, one with `control` no
+longer gets `ha_call_service`; an agent without `control` therefore has no way to act on the
+house. Leaving the tools out of agents that have nothing to do with the house keeps their
+requests smaller and cheaper.
 
 Tools that need brAIn itself (findings, its memory, habits, timed actions, the Minecraft,
 3D-printer and garden add-ons…) are not included. Maintainers update the port with

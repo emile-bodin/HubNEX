@@ -421,6 +421,9 @@ class AgentSpec:
     max_searches: int = 5  # web searches per request (each one brings pages to read: it costs)
     color: str | None = None
     routines: list[Routine] = field(default_factory=list)
+    # Groups of the built-in Home Assistant tools (casa) this agent gets. None: every group
+    # switched on on the add-on page; []: none. Only narrows: the page decides what is on.
+    ha_mcp: list[str] | None = None
 
 
 @dataclass
@@ -473,6 +476,25 @@ def _searches(raw: dict, who: str) -> int:
     return n
 
 
+def _ha_mcp(raw: dict, who: str) -> list[str] | None:
+    """`ha_mcp:` of an agent: missing or "all" = every group on the page; "none", false or []
+    = none; else a list (or comma text) of groups."""
+    if "ha_mcp" not in raw:
+        return None
+    value = raw["ha_mcp"]
+    if value in (None, "all", ["all"]):
+        return None
+    if value is False or value in ("none", ["none"]):
+        return []
+    items = value if isinstance(value, list) else str(value).split(",")
+    groups = [str(g).strip().lower() for g in items if str(g).strip()]
+    unknown = [g for g in groups if g not in HA_MCP_GROUPS]
+    if unknown:
+        raise ValueError(f"{who}: ha_mcp, gruppo sconosciuto {', '.join(unknown)} "
+                         f"(validi: {', '.join(HA_MCP_GROUPS)}, all, none)")
+    return list(dict.fromkeys(groups))
+
+
 def _connectors(raw) -> list[ConnectorSpec]:
     out = []
     for i, c in enumerate(raw or [], 1):
@@ -507,9 +529,17 @@ class OrgChart:
     agents: list[AgentSpec]
     connectors: list["ConnectorSpec"] = field(default_factory=list)
     boss_max_searches: int = 5
+    boss_ha_mcp: list[str] | None = None
 
     def agent(self, agent_id: str) -> AgentSpec | None:
         return next((a for a in self.agents if a.id == agent_id), None)
+
+    def ha_mcp(self, agent_id: str) -> list[str] | None:
+        """The casa groups of an agent ("jarvis" = the boss); None = all the page's groups."""
+        if agent_id == "jarvis":
+            return self.boss_ha_mcp
+        spec = self.agent(agent_id)
+        return spec.ha_mcp if spec else None
 
 
 def load_org(path: str) -> OrgChart:
@@ -553,6 +583,7 @@ def load_org(path: str) -> OrgChart:
                     max_searches=_searches(a, a["id"]),
                     color=a.get("color"),
                     routines=[Routine(**r) for r in a.get("routines", [])],
+                    ha_mcp=_ha_mcp(a, a["id"]),
                 )
             )
     return OrgChart(
@@ -562,6 +593,7 @@ def load_org(path: str) -> OrgChart:
         boss_tools=list(boss.get("tools", [])),
         boss_effort=boss.get("effort", "medium"),
         boss_max_searches=_searches(boss, "boss"),
+        boss_ha_mcp=_ha_mcp(boss, "boss"),
         companies=companies,
         agents=agents,
     )

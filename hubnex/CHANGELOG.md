@@ -1,5 +1,17 @@
 # Changelog
 
+## 1.24.0
+- Home Assistant tools per agent: `ha_mcp:` in `agents.yaml` picks the groups of the built-in
+  "casa" tools an agent gets (`[read, camera]`, `none`, or every group on the add-on page when
+  left out). It only narrows what the add-on page switches on.
+- An agent without casa's `control` group keeps no way to act on the house: the basic
+  `ha_call_service` steps aside only for an agent that really has casa's `call_service`.
+- Example team: Mail, Accountant, Sales and Technical without Home Assistant tools, Butler with
+  read, control and automation, Sentinel with read, automation and camera (it watches, it
+  cannot act).
+- Floor plan: shaped rooms keep the same edge colors as plain rooms, with their name, icons and
+  temperature in the largest rectangle inside the shape.
+
 ## 1.23.0
 - Conversations: several per channel, each with its own memory. The dashboard chat lists them
   (continue, new, rename, delete with undo), shows tool steps and the answer while it is

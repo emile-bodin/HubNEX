@@ -15,6 +15,16 @@
 #  With Home Assistant connected, also (read-only, every agent): ha_get_history,
 #    ha_get_logbook, ha_get_statistics, ha_summarize_history  -> the past of the house
 #
+#  Home Assistant tools (MCP, the built-in connector "casa"): about 30 richer tools in groups,
+#  switched on on the add-on page (Home Assistant tools). Who gets which groups:
+#    ha_mcp: [read, camera]   only these groups: read, control, automation, camera,
+#                             dashboards, exposure, system (only those on on the page count)
+#    ha_mcp: none             none (an agent with no business in the house: smaller, cheaper)
+#    (missing)                every group switched on on the page
+#  An agent with casa's read group no longer needs ha_list_entities/ha_get_state, one with its
+#  control group no longer needs ha_call_service: they step aside by themselves. Jarvis keeps
+#  them in the list for the quick route (short house commands answered fast).
+#
 #  Models: everybody uses "model_jarvis" from the configuration; the agent with id "mail" uses
 #  "model_mail". For a single agent: model: claude-...  or with another provider:
 #  model: openai:gpt-5-mini | ollama:qwen3:14b | compat:model-name  (see the documentation)
@@ -59,6 +69,7 @@ companies:
         role: Work mailbox
         department: admin
         effort: medium
+        ha_mcp: none
         tools: [mail_list, mail_search, mail_read, mail_propose_draft, notify_owner]
         instructions: |
           You manage the work mailbox. You work as a team with Jarvis.
@@ -79,6 +90,7 @@ companies:
         name: Jarvis Accountant
         role: Invoices, payments, tax deadlines
         department: admin
+        ha_mcp: none
         tools: [web_search, deadline_done, notify_owner]
         instructions: |
           You keep track of tax and administrative deadlines (taxes, VAT, invoices to collect
@@ -89,6 +101,7 @@ companies:
         name: Jarvis Sales
         role: Offers, quotes and customers
         department: sales
+        ha_mcp: none
         tools: [web_search, web_fetch]
         instructions: |
           You prepare drafts of offers and quotes: items, quantities, descriptions, terms. Prices
@@ -100,6 +113,7 @@ companies:
         role: Technical research, standards, documentation
         department: technical
         effort: high
+        ha_mcp: none
         tools: [web_search, web_fetch]
         instructions: |
           You help with technical research, standards and documentation. Always cite the source
@@ -125,10 +139,12 @@ companies:
         role: Energy, climate and home routines
         department: automation
         effort: low
+        ha_mcp: [read, control, automation]
         tools: [ha_list_entities, ha_get_state, ha_call_service, notify_owner]
         instructions: |
           You optimise consumption and comfort. Check lights left on, climate, unusual consumption.
-          Act on devices only when the user asks; otherwise report and suggest.
+          Act on devices only when the user asks; otherwise report and suggest. Prefer scenes and
+          scripts that already exist; look at an automation's trace when one did not do its job.
           Never turn off critical devices (fridge, server, router).
         routines:
           - at: "23:30"
@@ -142,10 +158,12 @@ companies:
         role: Security watch (doors, windows, sensors)
         department: security
         effort: low
+        ha_mcp: [read, automation, camera]
         tools: [ha_list_entities, ha_get_state, notify_owner]
         instructions: |
-          You check doors, windows, motion sensors and the alarm. You change nothing:
-          you watch and tell the owner with notify_owner if something is wrong.
+          You check doors, windows, motion sensors, cameras and the alarm. You change nothing
+          (you have no tools to act): you watch and tell the owner with notify_owner if something
+          is wrong. When a sensor raises a doubt, look at the camera frame of that spot.
 
 # ----------------------------------------------------------------------------
 #  CONNECTORS (optional): the programs of your work, through MCP.

@@ -81,9 +81,15 @@ SILENCE = "[[SILENZIO]]"
 LOW_CREDIT_USD = 1.0  # warn once in the group below this
 ALWAYS_TOOLS = ["memory_save", "memory_search", "deadline_add", "deadline_list", "view_attachment"]
 # Read-only look at the past of the house: every agent and Jarvis get them when HA is configured.
-# HubNEX's own basic Home Assistant tools that the built-in connector's tools replace for an
-# agent that has it (the quick route keeps them: they are small and fast).
-CASA_REPLACES = {"ha_list_entities", "ha_get_state", "ha_call_service"}
+# HubNEX's own basic Home Assistant tools and the built-in connector's tool that replaces each
+# one for an agent that has it (the quick route keeps them: they are small and fast). Only the
+# ones whose replacement the agent really got step aside: Sentinel, with casa's read group and
+# not its control group, keeps no way to act.
+CASA_REPLACES = {
+    "ha_list_entities": "casa__get_all_states",
+    "ha_get_state": "casa__get_entity_state",
+    "ha_call_service": "casa__call_service",
+}
 HISTORY_TOOLS = ["ha_get_history", "ha_get_logbook", "ha_get_statistics", "ha_summarize_history"]
 HISTORY_HINT = (
     "Puoi anche guardare il passato della casa, per qualsiasi entità e fino a 14 giorni: "
@@ -538,7 +544,7 @@ class HQ:
         `connectors=False`: agents.yaml's only (the quick route keeps its prompt small)."""
         extra = await self.connectors.tools_for(agent_id) if connectors and self.connectors.enabled else {}
         if extra and self.connectors.has_casa(agent_id):
-            names = [n for n in names if n not in CASA_REPLACES]
+            names = [n for n in names if CASA_REPLACES.get(n) not in extra]
         spec = self.org.agent(agent_id)
         searches = spec.max_searches if spec else self.org.boss_max_searches
         defs = self._tool_defs(names, model, searches)

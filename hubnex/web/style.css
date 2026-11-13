@@ -380,12 +380,18 @@ button.plan-room.outline { cursor: pointer; }
 .plan-room.alert .plan-tag { color: #ff9aae; }
 .plan-room.polygon { border: 0; }
 .plan-shape { position: absolute; inset: 0; width: 100%; height: 100%; overflow: visible; pointer-events: none; }
+/* A shaped room draws its edge as an SVG line, in exactly the colors of a plain room's border. */
 .plan-shape polygon { fill: none; stroke: var(--accent); stroke-width: 1.5; vector-effect: non-scaling-stroke; }
-.plan-room.polygon.alert .plan-shape polygon { stroke: #ff5c7a; }
-.plan-room.polygon.lit .plan-shape polygon { stroke: #ffb547; }
-.plan-room.polygon.sel .plan-shape polygon { stroke: #fff; stroke-width: 2; }
-.plan-room.polygon.outline .plan-shape polygon, .plan-room.polygon.ghost .plan-shape polygon { stroke-dasharray: 3 3; }
-.plan-room.polygon > :not(.plan-shape) { position: relative; }
+.plan-room.polygon .plan-shape polygon { stroke: rgba(79, 209, 255, 0.4); stroke-width: 2; }
+.plan-room.polygon.outline .plan-shape polygon, .plan-room.polygon.ghost .plan-shape polygon { stroke: rgba(79, 209, 255, 0.28); stroke-dasharray: 3 3; }
+.plan-room.polygon.alert .plan-shape polygon { stroke: rgba(255, 92, 122, 0.8); }
+.plan-room.polygon.lit .plan-shape polygon { stroke: rgba(255, 181, 71, 0.85); }
+.plan-room.polygon.sel .plan-shape polygon { stroke: var(--accent); stroke-width: 3; }
+.plan-room.polygon.sel { outline: 0; }
+/* Its content sits in the largest rectangle inside the shape, laid out like a plain room. */
+.plan-body { position: absolute; box-sizing: border-box; padding: 8px 10px; display: flex; flex-direction: column; justify-content: space-between; align-items: stretch; min-width: 0; }
+.plan-room.small .plan-body { padding: 4px; }
+.plan-room.outline .plan-body, .plan-room.ghost .plan-body { justify-content: flex-start; }
 .casa-group { position: relative; z-index: 1; width: min(760px, 100%); display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; justify-content: center; }
 .casa-tiles { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; }
 .casa-tile { min-height: 52px; min-width: 150px; padding: 6px 14px; border-radius: 10px; text-align: left; display: flex; flex-direction: column; justify-content: center; border: 1px solid rgba(79, 209, 255, 0.3); background: rgba(79, 209, 255, 0.04); color: var(--text); cursor: pointer; }
@@ -545,11 +551,12 @@ button.plan-room.outline { cursor: pointer; }
 .ped-handle { position: absolute; right: -8px; bottom: -8px; width: 22px; height: 22px; border-radius: 50%; background: var(--accent); border: 2px solid #03060d; cursor: nwse-resize; display: none; }
 .ped-room.sel .ped-handle { display: block; }
 .ped-room.polygon { border: 0; }
-.ped-room.polygon .plan-shape polygon { stroke-width: 2; }
-.ped-room.polygon.unlinked .plan-shape polygon { stroke: #ffb547; }
+.ped-room.polygon .plan-shape polygon { stroke: rgba(79, 209, 255, 0.85); stroke-width: 2; }
+.ped-room.polygon.unlinked .plan-shape polygon { stroke: #ffb547; stroke-dasharray: 6 4; }
 .ped-room.polygon.sel .plan-shape polygon { stroke: #fff; }
-.ped-room.polygon.outline .plan-shape polygon { stroke-dasharray: 3 3; }
-.ped-room.polygon span { position: relative; }
+.ped-room.polygon.outline .plan-shape polygon { stroke-dasharray: 2 3; }
+.ped-room .plan-body { padding: 4px 6px; display: flex; align-items: flex-start; pointer-events: none; }
+.ped-room.outline .plan-body span { pointer-events: auto; }
 .ped-draft { position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; }
 .ped-draft polyline { fill: none; stroke: var(--accent); stroke-width: 0.5; }
 .ped-vertex, .ped-edge { position: absolute; transform: translate(-50%, -50%); border-radius: 50%; z-index: 5; padding: 0; cursor: grab; touch-action: none; }

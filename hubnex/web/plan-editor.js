@@ -17,6 +17,54 @@ const localPoints = (r) => r.points.map((p) => ({ x: ((p.x - r.x) / (r.w || 1)) 
 export const shapeStyle = (r) => r.points ? `;clip-path:polygon(${localPoints(r).map((p) => `${p.x}% ${p.y}%`).join(",")})` : "";
 export const shapeSVG = (r) => r.points ? `<svg class="plan-shape" viewBox="0 0 100 100" preserveAspectRatio="none" aria-hidden="true"><polygon points="${localPoints(r).map((p) => `${p.x},${p.y}`).join(" ")}"/></svg>` : "";
 
+// The largest axis-aligned rectangle inside a shaped room (local %), so its name and icons sit
+// inside the drawn boundary instead of in a cut-off corner of the bounding box.
+const insideShape = (pts, x, y) => {
+  let inside = false;
+  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+    const a = pts[i], b = pts[j];
+    if ((a.y > y) !== (b.y > y) && x < ((b.x - a.x) * (y - a.y)) / (b.y - a.y) + a.x) inside = !inside;
+  }
+  return inside;
+};
+const bodyCache = new Map();
+const innerRect = (pts) => {
+  const key = pts.map((p) => `${p.x},${p.y}`).join(" ");
+  if (bodyCache.has(key)) return bodyCache.get(key);
+  // Grid lines on every corner (exact for right-angled rooms) plus a fine raster for slanted walls.
+  const lines = (vals) => [...new Set([...vals, ...Array.from({ length: 21 }, (_, i) => i * 5)].map((v) => Math.round(clamp(v, 0, 100) * 100) / 100))].sort((a, b) => a - b);
+  const xs = lines(pts.map((p) => p.x)), ys = lines(pts.map((p) => p.y));
+  const inCell = ys.slice(1).map((y1, r) => xs.slice(1).map((x1, c) => {
+    const x0 = xs[c], y0 = ys[r], e = 0.01;
+    return [[x0 + e, y0 + e], [x1 - e, y0 + e], [x1 - e, y1 - e], [x0 + e, y1 - e], [(x0 + x1) / 2, (y0 + y1) / 2]].every(([x, y]) => insideShape(pts, x, y));
+  }));
+  let best = { x: 0, y: 0, w: 100, h: 100, area: 0 };
+  for (let top = 0; top < inCell.length; top++) {
+    const ok = inCell[top].map(() => true);
+    for (let bot = top; bot < inCell.length; bot++) {
+      const h = ys[bot + 1] - ys[top];
+      let start = null;
+      for (let c = 0; c <= ok.length; c++) {
+        if (c < ok.length) ok[c] = ok[c] && inCell[bot][c];
+        if (c < ok.length && ok[c]) { if (start == null) start = c; continue; }
+        if (start != null) {
+          const w = xs[c] - xs[start];
+          if (w * h > best.area) best = { x: xs[start], y: ys[top], w, h, area: w * h };
+          start = null;
+        }
+      }
+    }
+  }
+  bodyCache.set(key, best);
+  return best;
+};
+// Wraps a shaped room's content in a box placed inside its boundary; plain rooms are unchanged.
+export const shapeBody = (r, html) => {
+  if (!r.points) return html;
+  const b = innerRect(localPoints(r));
+  return `<span class="plan-body" style="left:${b.x}%;top:${b.y}%;width:${b.w}%;height:${b.h}%">${html}</span>`;
+};
+
 export class PlanEditor {
   constructor({ api, token, onSaved, onText, toast }) {
     Object.assign(this, { api, token, onSaved, onText, toast });
@@ -70,7 +118,7 @@ export class PlanEditor {
     const rooms = f.rooms.map((r, i) => `
       <div class="ped-room ${r.points ? "polygon" : ""} ${i === this.sel ? "sel" : ""} ${this.linked(r) ? "" : "unlinked"} ${r.outline ? "outline" : ""}"
            data-room="${i}" style="left:${r.x}%;top:${r.y}%;width:${r.w}%;height:${r.h}%${shapeStyle(r)}">
-        ${shapeSVG(r)}<span>${esc(r.area)}</span>${r.points ? "" : `<i class="ped-handle" data-handle="${i}" aria-hidden="true"></i>`}
+        ${shapeSVG(r)}${shapeBody(r, `<span>${esc(r.area)}</span>`)}${r.points ? "" : `<i class="ped-handle" data-handle="${i}" aria-hidden="true"></i>`}
       </div>`).join("");
     const r = this.sel != null ? f.rooms[this.sel] : null;
     const vertices = r?.points?.map((p, j) => `<button class="ped-vertex ${j === this.point ? "on" : ""}" data-point="${j}" style="left:${p.x}%;top:${p.y}%" aria-label="${t("Angolo")} ${j + 1}"></button>`).join("") || "";

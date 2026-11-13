@@ -255,3 +255,36 @@ async def test_mcp_endpoint_offers_the_house_tools(casa):
     hq.settings.mcp_expose_read_only = False
     out = await ex.call("control_light", {"entity_id": "light.lampada", "action": "turn_off"})
     assert not out.get("isError") and rest.services() == [("/services/light/turn_off", {"entity_id": "light.lampada"})]
+
+
+async def test_each_agent_gets_only_its_ha_mcp_groups(casa):
+    hq, _ = await casa()
+    sentinel = set(await hq.connectors.tools_for("sentinel"))
+    assert {"casa__get_entity_state", "casa__get_camera_snapshot", "casa__get_automation_trace"} <= sentinel
+    assert not {n for n in sentinel if catalog.GROUP_OF[n.removeprefix("casa__")] == "control"}
+    butler = set(await hq.connectors.tools_for("butler"))
+    assert "casa__control_light" in butler and "casa__get_camera_snapshot" not in butler
+    assert len(await hq.connectors.tools_for("jarvis")) > len(butler)  # no ha_mcp: every group on
+    assert not await hq.connectors.tools_for("mail") and not hq.connectors.has_casa("mail")
+    assert "casa" not in hq.connectors.instructions_for("mail")
+
+    hq.settings.ha_mcp_groups = ("read",)  # the page decides what is on: ha_mcp only narrows
+    hq.connectors.reload()
+    assert "casa__get_camera_snapshot" not in await hq.connectors.tools_for("sentinel")
+
+
+async def test_sentinel_keeps_no_way_to_act(casa):
+    hq, _ = await casa([response([text_block("Tutto chiuso.")], "end_turn")])
+    await hq.run_agent("sentinel", "Com'è la porta?")
+    names = {t["name"] for t in hq.client.requests[0]["tools"]}
+    assert "casa__get_entity_state" in names and "casa__get_camera_snapshot" in names
+    assert not {"ha_call_service", "casa__call_service", "casa__control_lock", "ha_get_state"} & names
+
+
+async def test_an_agent_without_ha_mcp_keeps_its_basic_tools(casa):
+    hq, _ = await casa([response([text_block("Ok.")], "end_turn")])
+    hq.org.agent("butler").ha_mcp = ["automation"]  # no read, no control: the basic tools stay
+    await hq.run_agent("butler", "Le luci?")
+    names = {t["name"] for t in hq.client.requests[0]["tools"]}
+    assert {"ha_list_entities", "ha_get_state", "ha_call_service", "casa__get_automations"} <= names
+    assert "casa__get_entity_state" not in names

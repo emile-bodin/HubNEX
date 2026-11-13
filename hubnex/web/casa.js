@@ -1,4 +1,4 @@
-import { PlanEditor, shapeStyle, shapeSVG } from "./plan-editor.js";
+import { PlanEditor, shapeStyle, shapeSVG, shapeBody } from "./plan-editor.js";
 import { Cards } from "./casa-cards.js";
 import { Energy } from "./casa-energy.js";
 import { t, num } from "./i18n.js";
@@ -1369,12 +1369,12 @@ export class CasaView {
         const geo = `left:${r.x}%;top:${r.y}%;width:${r.w}%;height:${r.h}%${shapeStyle(r)}`;
         const small = r.w < 12 || r.h < 12;
         const tall = r.w < 12 && r.h > 30; // a narrow strip: the name runs along it
-        if (!a) return `<div class="plan-room ${r.points ? "polygon" : ""} ${r.outline ? "outline" : "ghost"}" style="${geo}">${shapeSVG(r)}<b>${esc(r.name)}</b></div>`;
+        if (!a) return `<div class="plan-room ${r.points ? "polygon" : ""} ${r.outline ? "outline" : "ghost"}" style="${geo}">${shapeSVG(r)}${shapeBody(r, `<b>${esc(r.name)}</b>`)}</div>`;
         const cls = [r.points ? "polygon" : "", r.outline ? "outline" : "", this.lit(a) ? "lit" : "", this.alerts(a).length ? "alert" : "", this.selected === a.id ? "sel" : "", small ? "small" : "", tall ? "tall" : ""].join(" ");
         const temp = this.temp(a);
         const tag = this.lit(a) ? t("LUCE") : this.alerts(a).length ? t("APERTA") : "";
         return `<button class="plan-room ${cls}" style="${geo}" data-act="room" data-area="${a.id}" aria-label="${esc(a.name)}">
-          ${shapeSVG(r)}<b>${esc(a.name)}</b>${small ? "" : this.planIcons(a)}<span class="plan-meta"><span class="mono">${temp != null && !small ? num(temp) + "°" : ""}</span><span class="plan-tag">${small ? "" : tag}</span></span></button>`;
+          ${shapeSVG(r)}${shapeBody(r, `<b>${esc(a.name)}</b>${small ? "" : this.planIcons(a)}<span class="plan-meta"><span class="mono">${temp != null && !small ? num(temp) + "°" : ""}</span><span class="plan-tag">${small ? "" : tag}</span></span>`)}</button>`;
       }).join("");
       const tabs = floors.length > 1 ? `<div class="casa-floors">${floors.map((x, i) => `<button class="${i === this.floor ? "on" : ""}" data-act="floor" data-i="${i}">${esc(x.name)}</button>`).join("")}</div>` : `<div class="casa-floor-name">${esc(f.name)} · ${t("tocca una stanza")}</div>`;
       // The real drawing, faint under the hologram (light lines on the dark background).
