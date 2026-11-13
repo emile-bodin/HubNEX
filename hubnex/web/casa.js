@@ -1,4 +1,4 @@
-import { PlanEditor, shapeStyle, shapeSVG, shapeBody } from "./plan-editor.js";
+import { PlanEditor, shapeStyle, shapeSVG, shapeBody, labelPoint } from "./plan-editor.js";
 import { Cards } from "./casa-cards.js";
 import { Energy } from "./casa-energy.js";
 import { t, num } from "./i18n.js";
@@ -1364,18 +1364,26 @@ export class CasaView {
     let plan = "";
     if (floors.length) {
       const f = floors[Math.min(this.floor, floors.length - 1)];
+      let pins = "";
       const rooms = [...f.rooms].sort((a, b) => b.outline - a.outline).map((r) => {
         const a = r.area_id && this.area(r.area_id);
         const geo = `left:${r.x}%;top:${r.y}%;width:${r.w}%;height:${r.h}%${shapeStyle(r)}`;
         const small = r.w < 12 || r.h < 12;
         const tall = r.w < 12 && r.h > 30; // a narrow strip: the name runs along it
         if (!a) return `<div class="plan-room ${r.points ? "polygon" : ""} ${r.outline ? "outline" : "ghost"}" style="${geo}">${shapeSVG(r)}${shapeBody(r, `<b>${esc(r.name)}</b>`)}</div>`;
-        const cls = [r.points ? "polygon" : "", r.outline ? "outline" : "", this.lit(a) ? "lit" : "", this.alerts(a).length ? "alert" : "", this.selected === a.id ? "sel" : "", small ? "small" : "", tall ? "tall" : ""].join(" ");
+        const state = [this.lit(a) ? "lit" : "", this.alerts(a).length ? "alert" : "", this.selected === a.id ? "sel" : ""].join(" ");
+        const cls = [r.points ? "polygon" : "", r.outline ? "outline" : "", state].join(" ");
         const temp = this.temp(a);
         const tag = this.lit(a) ? t("LUCE") : this.alerts(a).length ? t("APERTA") : "";
-        return `<button class="plan-room ${cls}" style="${geo}" data-act="room" data-area="${a.id}" aria-label="${esc(a.name)}">
-          ${shapeSVG(r)}${shapeBody(r, `<b>${esc(a.name)}</b>${small ? "" : this.planIcons(a)}<span class="plan-meta"><span class="mono">${temp != null && !small ? num(temp) + "°" : ""}</span><span class="plan-tag">${small ? "" : tag}</span></span>`)}</button>`;
-      }).join("");
+        // Name, icons and readings float upright over the room, on a thin stem from its middle.
+        const p = labelPoint(r);
+        const size = small ? "small" : r.w * r.h > 1200 ? "big" : "";
+        const row = small ? "" : `${this.planIcons(a)}${temp != null ? `<span class="mono">${num(temp)}<small>°</small></span>` : ""}`;
+        pins += `<div class="plan-pin ${size} ${state}" style="left:${p.x}%;top:${p.y}%" data-act="room" data-area="${a.id}" aria-hidden="true">
+          <i class="pin-shade"></i><i class="pin-stem"></i><i class="pin-dot"></i>
+          <span class="pin-bill"><span class="pin-tag"><span class="pin-head"><b>${esc(a.name)}</b>${tag && !small ? `<span class="pin-kick">${tag}</span>` : ""}</span>${row ? `<span class="pin-row">${row}</span>` : ""}</span></span></div>`;
+        return `<button class="plan-room ${cls} ${tall ? "tall" : ""}" style="${geo}" data-act="room" data-area="${a.id}" aria-label="${esc(a.name)}">${shapeSVG(r)}</button>`;
+      }).join("") + pins;
       const tabs = floors.length > 1 ? `<div class="casa-floors">${floors.map((x, i) => `<button class="${i === this.floor ? "on" : ""}" data-act="floor" data-i="${i}">${esc(x.name)}</button>`).join("")}</div>` : `<div class="casa-floor-name">${esc(f.name)} · ${t("tocca una stanza")}</div>`;
       // The real drawing, faint under the hologram (light lines on the dark background).
       const tok = this.token();
