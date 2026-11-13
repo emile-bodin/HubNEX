@@ -22,8 +22,10 @@ Claude Code reports agent progress, but its CLI output does not expose the same 
 4. Tell it who you are and how you work in `agents.yaml` (below): the more it knows, the more
    useful it is.
 
-HubNEX uses English for the dashboard, assistant, agents, Telegram and add-on messages. New
-installations receive an English example `agents.yaml`; an existing file is kept as written.
+HubNEX speaks English or Dutch. The add-on option **Language** (`en`, `nl` or `auto` for Home
+Assistant's own language) sets the language of the assistant, the agents, Telegram and the
+add-on's messages; English is the default. New installations receive an English example
+`agents.yaml`; an existing file is kept as written.
 
 Everything else is optional and can be added whenever you like, in this suggested order:
 
@@ -55,7 +57,7 @@ add-on**.
   `enabled: true`.
 
 The example file is commented line by line. Custom instructions are kept as written; the
-assistant answers in English.
+assistant answers in the add-on's language (English or Dutch).
 
 ## Connectors: the programs of your work
 
@@ -128,7 +130,7 @@ request, from Assist or the dashboard, takes the fastest possible road:
     `tts.piper` (local, free) or `tts.home_assistant_cloud`. It takes precedence. In **Home
     Assistant engine voice** you can choose the voice by name (e.g. `Ryan` or `Jenny` with Home
     Assistant Cloud): if the name doesn't exist, the error message lists the available ones. The
-    language is Home Assistant's;
+    language is the add-on's (English or Dutch);
   - or **ElevenLabs**: API key (elevenlabs.io → Profile → API Keys), voice ID (Voices → the
     voice → ID) and model (`eleven_flash_v2_5`, the cheapest).
 - If the voice doesn't start, the reason appears under the answer.
@@ -454,7 +456,9 @@ the browser's menu.
 **Open HubNEX when Home Assistant starts**: inside Home Assistant, at the top **⚙** → the
 switch. It applies to your account only; the other users keep their dashboard.
 
-The dashboard and HubNEX messages use English, regardless of Home Assistant's language.
+**Language**: at the top **⚙ → Language**. **Automatic** follows Home Assistant's language (Dutch
+if Home Assistant is set to Dutch, otherwise English); **English** or **Nederlands** fixes it on
+this device. The page reloads in the chosen language.
 
 **Light theme, for reading in sunlight**: at the top **⚙ → Theme**. **Automatic** follows the
 phone (light when the phone is light), **Light** and **Dark** fix it. It applies to the House:

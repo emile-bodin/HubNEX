@@ -1,5 +1,12 @@
 # Changelog
 
+## 1.22.1
+- Dutch translation: the dashboard, the assistant, the agents, Telegram, notifications, the
+  Assist integration and the add-on configuration page are available in Dutch.
+- Choose the dashboard language per device under ⚙ Preferences → Language (Automatic, English,
+  Nederlands). The new add-on option Language (en, nl, auto) sets the language of the assistant,
+  the agents and the add-on's messages. English stays the default.
+
 ## 1.22.0
 - The assistant and every agent can look at the past of the house: Home Assistant history,
   logbook, long-term statistics and a summary of habits per weekday (read-only, up to 14 days

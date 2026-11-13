@@ -38,7 +38,7 @@ its own role: mail, administration, technical research, home, security… You ta
   text-to-speech in the dashboard.
 - **No initiative without your order**: routines off by default, no action in the house without
   your request, permanent rules that apply to the whole team.
-- **English throughout**: the dashboard, assistant, agents and add-on messages use English.
+- **English or Dutch**: the dashboard, assistant, agents and add-on messages in English (default) or Dutch.
 
 ## Installation
 
@@ -90,7 +90,7 @@ All of them need `Authorization: Bearer <HQ_TOKEN>` (or `?token=`).
 | GET | `/api/backup` | Backup of everything HubNEX knows (zip) |
 | WS | `/ws?token=` | Live stream for the dashboard |
 
-Send `X-HubNEX-Lang: en` to get errors in English.
+Send `X-HubNEX-Lang: nl` to get errors in Dutch (default: English).
 
 ## Development
 
