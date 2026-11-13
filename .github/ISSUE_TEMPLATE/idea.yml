@@ -1,20 +1,20 @@
-name: Un'idea
-description: Una funzione nuova o un miglioramento.
+name: An idea
+description: A new feature or an improvement.
 labels: [idea]
 body:
   - type: textarea
     id: need
     attributes:
-      label: Cosa ti serve
-      description: Il problema o il momento della giornata in cui ti manca qualcosa, più che la soluzione.
+      label: What you need
+      description: The problem, or the moment of the day when something is missing, rather than the solution.
     validations:
       required: true
   - type: textarea
     id: how
     attributes:
-      label: Come te lo immagini
+      label: How you picture it
   - type: textarea
     id: else
     attributes:
-      label: Altro
-      description: Esempi, schermate, come lo risolvi oggi.
+      label: Anything else
+      description: Examples, screenshots, how you solve it today.

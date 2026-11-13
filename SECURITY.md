@@ -1,34 +1,34 @@
-# Sicurezza
+# Security
 
-HubNEX custodisce chiavi API, accesso alla posta e il controllo della casa, serrature e
-allarme compresi. Una falla va trattata in privato.
+HubNEX holds API keys, access to your mail and control of the house, including locks and the
+alarm. A vulnerability must be handled privately.
 
-## Come segnalare un problema
+## How to report a problem
 
-**Non aprire una segnalazione pubblica.** Usa la segnalazione privata di GitHub:
+**Do not open a public issue.** Use GitHub's private reporting:
 [Security → Report a vulnerability](https://github.com/P1pp89/HubNEX/security/advisories/new).
 
-Scrivi la versione di HubNEX, cosa si può fare sfruttando il problema e come riprodurlo.
-Riceverai una risposta entro una settimana; la correzione esce in una nuova versione e la
-segnalazione viene resa pubblica solo dopo, con il tuo nome se lo desideri.
+Include the HubNEX version, what can be done by exploiting the problem and how to reproduce it.
+You will get an answer within a week; the fix ships in a new version and the report is made
+public only afterwards, with your name if you wish.
 
-## Versioni supportate
+## Supported versions
 
-Solo l'ultima versione pubblicata riceve correzioni di sicurezza: aggiorna l'add-on.
+Only the latest published version receives security fixes: keep the add-on updated.
 
-## Cosa conta come problema di sicurezza
+## What counts as a security problem
 
-- accesso alla dashboard o all'API senza autorizzazione, o un utente non amministratore che
-  arriva oltre la Casa;
-- un'azione su serrature, allarme, posta o connettori eseguita senza la conferma prevista;
-- chiavi, token o dati personali esposti (log, backup, risposte dell'API);
-- un modo per far eseguire ad agenti o automazioni azioni non richieste dal proprietario.
+- access to the dashboard or the API without authorization, or a non-admin user reaching
+  beyond the Home view;
+- an action on locks, alarm, mail or connectors carried out without the required confirmation;
+- keys, tokens or personal data exposed (logs, backups, API responses);
+- a way to make agents or automations carry out actions the owner did not ask for.
 
-## Cosa fa già HubNEX
+## What HubNEX already does
 
-- Le chiavi stanno solo nelle opzioni dell'add-on e in `agents.yaml`, nel tuo Home Assistant.
-  Il backup di HubNEX non contiene le opzioni dell'add-on; contiene `agents.yaml`, quindi gli
-  eventuali token dei connettori: va custodito come una password.
-- Dalla barra laterale vale l'accesso di Home Assistant; da fuori serve il token HQ.
-- Serrature, allarme e servizi bloccati chiedono sempre conferma; le scritture sui programmi
-  di lavoro (MCP) e le email partono solo dopo il tuo ✅.
+- Keys live only in the add-on options and in `agents.yaml`, inside your Home Assistant.
+  The HubNEX backup does not contain the add-on options; it does contain `agents.yaml`, and so
+  any connector tokens: keep it as safe as a password.
+- From the sidebar, Home Assistant's login applies; from outside, the HQ token is required.
+- Locks, alarm and blocked services always ask for confirmation; writes to work programs (MCP)
+  and emails go out only after your ✅.

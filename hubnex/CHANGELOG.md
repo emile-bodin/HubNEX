@@ -12,424 +12,419 @@
 - Model errors are no longer reported as expired Claude Code sign-ins.
 
 ## 1.21.2b
-- Accesso Claude: link apribile nel browser e campo per il codice visibile sopra l'output.
-- Preferenze scorrevoli sugli schermi piccoli e indicazioni di accesso più chiare.
+- Claude sign-in: a link that opens in the browser, and the code field shown above the output.
+- Preferences scroll on small screens; clearer sign-in instructions.
 
 ## 1.21.1b
-- Beta con accesso a Claude tramite l'abbonamento Claude Code e fallback API facoltativo.
-- Immagini dell'add-on distribuite dal fork emile-bodin.
+- Beta with Claude access through the Claude Code subscription and an optional API fallback.
+- Add-on images distributed from the emile-bodin fork.
 
 ## 1.21.1
-- Tema chiaro: il riquadro in alto della Casa diventa un'unica card bianca, con le voci divise
-  da linee sottili (prima a scacchiera).
-- Con una sola telecamera: «tocca per vederla».
+- Light theme: the top panel of the Home view becomes a single white card, with items divided
+  by thin lines (previously a checkerboard).
+- With only one camera: "tap to view it".
 
 ## 1.21.0
-- **Tema chiaro** per la Casa, ad alto contrasto, da leggere anche al sole: sfondo chiaro, card
-  bianche, testi scuri, ambra e rosso più pieni. In **⚙ → Tema**: Automatico (segue il
-  telefono), Scuro o Chiaro; la scelta resta sul dispositivo. HQ e Mappa restano scuri.
+- **Light theme** for the Home view, high contrast, readable even in sunlight: light background,
+  white cards, dark text, fuller amber and red. In **⚙ → Theme**: Automatic (follows the
+  phone), Dark or Light; the choice is kept on the device. HQ and Map stay dark.
 
 ## 1.20.2
-- Card libera, stile **Pulito** come le card composte: etichette piccole, valori di misura
-  media, una linea sopra ogni blocco che si accende quando l'entità è attiva, orari con −15/+15
-  accanto, interruttori con il nome sulla stessa riga, lo stato della card nell'intestazione
-  (accesa · attiva fino alle…).
-- **La linea in alto** di tutte le card (libere e composte) segue le stesse regole: arancione
-  quando qualcosa è acceso o un sensore rileva, rossa per un allarme (porta o finestra aperta,
-  acqua, fumo, gas); in una card con un interruttore principale, come la stufa, decide lui.
+- Free card, **Clean** style like the composed cards: small labels, medium-sized values, a line
+  above each block that lights up when the entity is active, times with −15/+15 next to them,
+  switches with their name on the same line, the card's state in the header
+  (on · active until…).
+- **The top line** of all cards (free and composed) follows the same rules: orange when
+  something is on or a sensor detects, red for an alarm (door or window open, water, smoke,
+  gas); in a card with a main switch, such as the stove, that switch decides.
 
 ## 1.20.1
-- Card libera: **stile Pulito**, senza riquadri, come le card composte, e di partenza per le
-  card nuove; **Riquadri** resta da scegliere nell'editor. Le card già create restano come
-  sono. Lo stile viaggia anche con Esporta / Importa.
+- Free card: **Clean style**, without boxes, like the composed cards, and the default for new
+  cards; **Boxes** can still be chosen in the editor. Existing cards stay as they are. The style
+  also travels with Export / Import.
 
 ## 1.20.0
-- **Card libera**, terza parte:
-  - **Descrivila a Jarvis**: scrivi la card che vuoi e Jarvis la compone con le entità vere
-    della casa (le entità inventate vengono scartate); si apre nell'editor da controllare;
-  - **Esporta / Importa card**: una card diventa testo da condividere e si incolla in un'altra
-    casa, dove i blocchi con entità mancanti restano da scegliere;
-  - nelle condizioni e nelle regole i valori si scelgono da un **elenco tradotto** (acceso,
-    aperta, in riproduzione…) invece di scrivere `on` o `playing`.
+- **Free card**, part three:
+  - **Describe it to Jarvis**: write the card you want and Jarvis builds it with the house's real
+    entities (made-up entities are discarded); it opens in the editor for you to check;
+  - **Export / Import card**: a card becomes text to share and can be pasted into another
+    house, where blocks with missing entities are left for you to choose;
+  - in conditions and rules, values are picked from a **translated list** (on, open,
+    playing…) instead of typing `on` or `playing`.
 
 ## 1.19.0
-- **Card libera**, seconda parte:
-  - blocchi **media** (copertina, titolo, comandi, volume), **telecamera** (dal vivo) e
-    **Domanda a Jarvis** (una domanda pronta che parte in chat con un tocco);
-  - per ogni blocco: **colore secondo il valore** (fino a 4 regole), **mostra solo se**
-    (un'entità vale qualcosa) e **azione al tocco** (accendi/spegni, scena o script, chiedi a
-    Jarvis, apri una stanza);
-  - **modelli pronti**: Stufa, Ingresso, Lavanderia, Clima stanza, Energia, Musica, riempiti
-    con le entità della stanza;
-  - i blocchi si spostano **trascinandoli**, con il dito o con il mouse.
+- **Free card**, part two:
+  - **media** blocks (cover, title, controls, volume), **camera** (live) and
+    **Ask Jarvis** (a ready-made question sent to the chat with one tap);
+  - for every block: **colour by value** (up to 4 rules), **show only if** (an entity has a
+    certain value) and **tap action** (toggle, scene or script, ask Jarvis, open a room);
+  - **ready-made templates**: Stove, Entrance, Laundry, Room climate, Energy, Music, filled in
+    with the room's entities;
+  - blocks are moved by **dragging** them, with a finger or the mouse.
 
 ## 1.18.0
-- **Card libera** (prima parte): una card a blocchi su una griglia da 4 colonne, 2 sul
-  telefono. Blocchi: valore grande, anello, interruttore, pulsante, cursore, grafico, barra,
-  fascia oraria, selettore, stato e testo; per ognuno entità, etichetta, dimensione (da 1×1 a
-  4×2), minimo e massimo. Nome e colore della card, anteprima dal vivo nell'editor. Si crea da
-  Modifica stanza → + Card libera.
+- **Free card** (part one): a block-based card on a 4-column grid, 2 on the phone. Blocks: big
+  value, ring, switch, button, slider, graph, bar, time slot, selector, state and text; for each
+  one entity, label, size (from 1×1 to 4×2), minimum and maximum. Card name and colour, live
+  preview in the editor. Created from Edit room → + Free card.
 
 ## 1.17.0
-- **Card Scorta** per il pellet e simili: quanti ne restano, consumo al giorno e giorni
-  rimasti (dallo storico di Home Assistant), ultima consegna, "−1 caricato" e "+consegna".
-  La riconosce da sola un aiutante Numero o un Contatore con "pellet", "sacchi" o "scorta"
-  nel nome; per gli altri si sceglie il tipo "Scorta". Sotto la soglia scelta la card diventa
-  rossa e arriva la notifica **Scorte da riordinare**.
-- **Contatori** e **timer** di Home Assistant riconosciuti nelle stanze.
-- **Aggiungi entità**: la ricerca non si ferma più a 60 risultati, ogni entità di Home
-  Assistant si può mettere in una stanza.
+- **Supply card** for pellets and the like: how many are left, daily consumption and days
+  remaining (from Home Assistant history), last delivery, "−1 loaded" and "+delivery". It is
+  recognised automatically for a Number helper or a Counter with "pellet", "bags" or "supply"
+  in its name; for others choose the "Supply" type. Below the chosen threshold the card turns
+  red and the **Supplies to reorder** notification arrives.
+- Home Assistant **counters** and **timers** recognised in rooms.
+- **Add entity**: search no longer stops at 60 results, every Home Assistant entity can be put
+  in a room.
 
 ## 1.16.2
-- HQ: il fascio di luce da Jarvis a un agente resta acceso **per tutto il lavoro**, pulsando,
-  con dei punti luminosi che scorrono verso l'agente; quando l'agente ha finito sfuma. Prima
-  durava un secondo e mezzo all'inizio. Tornando sull'HQ, o cambiando sede, mentre un agente
-  lavora, il suo fascio c'è subito.
+- HQ: the beam of light from Jarvis to an agent stays on **for the whole job**, pulsing, with
+  bright dots flowing towards the agent; it fades when the agent is done. Previously it lasted
+  a second and a half at the start. Returning to HQ, or switching location, while an agent is
+  working shows its beam immediately.
 
 ## 1.16.1
-- Chat: niente più "Failed to fetch" con le richieste lunghe (agenti che cercano e verificano
-  sul web). La dashboard non tiene aperta una sola richiesta per tutta la risposta, che un
-  proxy (Home Assistant, Nabu Casa, l'app) poteva chiudere dopo un minuto o due: riceve
-  subito un numero di lavoro e chiede la risposta con richieste brevi. Se la rete cade un
-  momento, riprova da sola.
+- Chat: no more "Failed to fetch" with long requests (agents searching and verifying on the
+  web). The dashboard no longer keeps one request open for the whole answer, which a proxy
+  (Home Assistant, Nabu Casa, the app) could close after a minute or two: it immediately gets a
+  job number and asks for the answer with short requests. If the network drops for a moment, it
+  retries by itself.
 
 ## 1.16.0
-- Vista Casa più ricca:
-  - **Meteo** nel cruscotto, con le previsioni dei prossimi giorni in un popup (da Home
-    Assistant);
-  - **Oggi e prossimi giorni**: le scadenze dei prossimi 7 giorni, con la spunta per chiuderle.
-    Solo per il proprietario: i familiari con accesso alla sola casa non le vedono;
-  - **icone sulla piantina**: presenza, musica, robot al lavoro, lavatrice in funzione;
-  - **Elettrodomestici**: in funzione con la potenza, e "finito … fa";
-  - **Ultimi eventi**: porte, finestre, serrature, allarme e persone delle ultime 24 ore.
+- Richer Home view:
+  - **Weather** in the dashboard bar, with the forecast for the coming days in a popup (from
+    Home Assistant);
+  - **Today and coming days**: deadlines for the next 7 days, with a checkmark to close them.
+    Owner only: family members with home-only access don't see them;
+  - **icons on the floor plan**: presence, music, robot at work, washing machine running;
+  - **Appliances**: running with their power draw, and "finished … ago";
+  - **Recent events**: doors, windows, locks, alarm and people over the last 24 hours.
 
 ## 1.15.1
-- **Ricerche web regolabili per agente**: in `agents.yaml`, `max_searches: 3` limita le ricerche
-  web di Jarvis o di un agente per ogni richiesta (da 1 a 20; se manca restano 5, come prima).
-  Ogni ricerca porta pagine da leggere: con meno ricerche la spesa scende, soprattutto per gli
-  agenti tecnici. Nella documentazione, i consigli per spendere meno.
+- **Web searches adjustable per agent**: in `agents.yaml`, `max_searches: 3` limits the web
+  searches of Jarvis or an agent per request (from 1 to 20; if missing it stays at 5, as
+  before). Each search brings in pages to read: fewer searches lower the cost, especially for
+  technical agents. The documentation has tips for spending less.
 
 ## 1.15.0
-- **Altri fornitori AI**: Jarvis e ogni agente possono usare anche **OpenAI**, un **modello
-  locale** con Ollama o LM Studio (gratis, senza cloud) o qualsiasi servizio compatibile con
-  OpenAI (OpenRouter, Gemini, Mistral, DeepSeek, Groq). Il modello si scrive con il prefisso:
-  `openai:gpt-5-mini`, `ollama:qwen3:14b`, `compat:nome-modello`; senza prefisso è Claude,
-  come prima. Si possono mescolare, per esempio Jarvis su Claude e la posta su un modello
-  locale. Nuove opzioni per chiavi e indirizzi; la chiave Anthropic diventa facoltativa.
-- Con gli altri modelli la lettura delle pagine web la fa HubNEX (solo indirizzi pubblici), i
-  PDF arrivano come testo; la ricerca web e i pensieri visibili restano solo con Claude.
-- Spesa: i modelli di Ollama costano zero, per OpenAI e gli altri si inserisce il prezzo di
-  listino. Il credito Anthropic scala solo le chiamate a Claude.
+- **Other AI providers**: Jarvis and every agent can also use **OpenAI**, a **local model** with
+  Ollama or LM Studio (free, no cloud) or any OpenAI-compatible service (OpenRouter, Gemini,
+  Mistral, DeepSeek, Groq). The model is written with a prefix: `openai:gpt-5-mini`,
+  `ollama:qwen3:14b`, `compat:model-name`; without a prefix it is Claude, as before. They can be
+  mixed, for example Jarvis on Claude and mail on a local model. New options for keys and
+  addresses; the Anthropic key becomes optional.
+- With the other models, HubNEX reads web pages itself (public addresses only) and PDFs arrive
+  as text; web search and visible thinking remain Claude-only.
+- Spending: Ollama models cost nothing, for OpenAI and the others you enter the list price. The
+  Anthropic credit only counts calls to Claude.
 
 ## 1.14.3
-- Telecamere dentro Home Assistant: le miniature dal vivo usano il video di Home Assistant
-  (lo stesso della vista grande in HD), non più l'MJPEG che con molte telecamere non arriva.
-  Toccando una miniatura la vista grande si apre subito in HD, con lo stesso video. Fuori da
-  Home Assistant resta l'MJPEG; se il video di una telecamera non parte, si torna alle foto.
+- Cameras inside Home Assistant: live thumbnails use Home Assistant's video stream (the same as
+  the large HD view), no longer MJPEG, which doesn't come through with many cameras. Tapping a
+  thumbnail opens the large view in HD immediately, with the same stream. Outside Home Assistant
+  MJPEG remains; if a camera's video doesn't start, it falls back to snapshots.
 
 ## 1.14.2
-- Telecamere: niente più miniature nere. L'ultima foto resta visibile finché il video dal vivo
-  non mostra davvero un'immagine. Se dopo 10 secondi il video non è arrivato, la miniatura resta
-  sulle foto aggiornate ogni 5 secondi.
+- Cameras: no more black thumbnails. The last snapshot stays visible until the live video
+  actually shows an image. If the video hasn't arrived after 10 seconds, the thumbnail stays on
+  snapshots refreshed every 5 seconds.
 
 ## 1.14.1
-- Telecamere: la vista grande si apre subito. Usa il video già in corso nella miniatura invece
-  di aprirne uno nuovo, e dentro Home Assistant il video in alta qualità parte insieme, non più
-  dopo aver aspettato il primo fotogramma (fino a 10 secondi di attesa con alcune telecamere).
+- Cameras: the large view opens immediately. It uses the video already playing in the
+  thumbnail instead of opening a new one, and inside Home Assistant the high-quality video
+  starts at the same time, no longer after waiting for the first frame (up to 10 seconds with
+  some cameras).
 
 ## 1.14.0
-- Card del **robot aspirapolvere**: stato, batteria, la sua **mappa** (dallo stesso dispositivo,
-  si aggiorna ogni 5 secondi e mostra il robot che si muove), Pulisci/Pausa, Base, Trova e
-  potenza di aspirazione. Nelle stanze ha il gruppo "Pulizia".
-- **Telecamere dal vivo**: le miniature sono video (fino a 3 alla volta), toccandole si aprono
-  grandi già dal vivo; dentro Home Assistant si passa al suo video in alta qualità.
-- **Card composta con telecamera**: l'immagine al posto della scritta "idle", i sensori sopra
-  l'immagine (rossi quando scattano, "da quanto" quando sono a riposo), lo stato in chiaro.
-- **Card dei media** più completa: copertina grande con sfondo sfumato, artista e album, app,
-  avanzamento, casuale/ripeti, silenzia, volume e sorgente, secondo quello che il dispositivo
-  supporta.
+- **Robot vacuum** card: state, battery, its **map** (from the same device, refreshed every 5
+  seconds and showing the robot moving), Clean/Pause, Dock, Locate and suction power. In rooms
+  it has the "Cleaning" group.
+- **Live cameras**: thumbnails are video (up to 3 at a time); tapping them opens them large and
+  already live; inside Home Assistant it switches to its high-quality video.
+- **Composed card with camera**: the image instead of the word "idle", sensors over the image
+  (red when triggered, "how long ago" when at rest), the state in plain words.
+- More complete **media card**: large cover with a blurred background, artist and album, app,
+  progress, shuffle/repeat, mute, volume and source, depending on what the device supports.
 
 ## 1.13.2
-- Card delle luci di nuovo minimale: colore e temperatura stanno in un popup, che si apre dal
-  piccolo pallino accanto allo stato (solo sulle lampadine che li hanno). Nel popup:
-  luminosità, temperatura da calda a fredda, colori e selettore.
+- Light card minimal again: colour and temperature are in a popup, opened from the small dot
+  next to the state (only on bulbs that have them). In the popup: brightness, temperature from
+  warm to cool, colours and a picker.
 
 ## 1.13.1
-- Card delle luci: cursore della temperatura colore (da calda a fredda) e colori, con un
-  selettore per qualsiasi altro colore, solo sulle lampadine che li supportano. Un colore scelto
-  su una luce spenta la accende di quel colore.
+- Light card: colour temperature slider (from warm to cool) and colours, with a picker for any
+  other colour, only on bulbs that support them. A colour chosen on a light that is off turns
+  it on in that colour.
 
 ## 1.13.0
-- Allegati: foto, album, PDF e file di testo all'assistente e agli agenti, da Telegram (con la
-  richiesta nella didascalia, o rispondendo alla foto) e dalla dashboard (graffetta, fotocamera
-  del telefono, incolla o trascina). L'assistente li passa all'agente a cui delega il lavoro;
-  la conversazione ne tiene solo il codice, e chiunque del team può riguardarli
-  (`view_attachment`). Restano 30 giorni. API: `POST /api/attachments`.
+- Attachments: photos, albums, PDFs and text files for the assistant and agents, from Telegram
+  (with the request in the caption, or by replying to the photo) and from the dashboard
+  (paperclip, phone camera, paste or drag). The assistant passes them to the agent it delegates
+  the work to; the conversation keeps only their ID, and anyone on the team can look at them
+  again (`view_attachment`). They are kept for 30 days. API: `POST /api/attachments`.
 
 ## 1.12.3
-- Chat della dashboard: la richiesta va a capo e il campo cresce fino a circa 6 righe, poi
-  scorre. Invio invia, Shift+Invio va a capo.
+- Dashboard chat: the request wraps and the field grows to about 6 lines, then scrolls. Enter
+  sends, Shift+Enter adds a new line.
 
 ## 1.12.2
-- Posta: pulsanti Leggi e Rispondi senza emoji (restano i pallini della priorità).
-- Corretto: senza un bot separato per Jarvis Mail, i pulsanti della posta arrivano al bot di
-  Jarvis e ora funzionano (prima venivano ignorati, e dalla 1.12.0 scambiati per pulsanti delle
-  notifiche della casa). I pulsanti delle notifiche della casa hanno un codice tutto loro.
+- Mail: Read and Reply buttons without emoji (the priority dots remain).
+- Fixed: without a separate bot for Jarvis Mail, mail buttons arrive at the Jarvis bot and now
+  work (previously they were ignored, and since 1.12.0 mistaken for house notification
+  buttons). House notification buttons have their own code.
 
 ## 1.12.1
-- Posta: nuova opzione "Mittenti da non segnalare" (indirizzi, @domini o parole come noreply):
-  niente messaggio su Telegram e niente classificazione, quindi niente credito Claude.
-- Notifiche della casa più chiare: batterie scariche, dispositivi non raggiungibili e sensori di
-  sicurezza dicono quale dispositivo e in quale stanza ("Sensore porta (Ingresso) 8%").
-- Niente emoji nelle notifiche della casa e negli avvisi di credito e budget; gli avvisi urgenti
-  su Telegram iniziano con "URGENTE:".
+- Mail: new option "Senders not to report" (addresses, @domains or words like noreply): no
+  Telegram message and no classification, so no Claude credit spent.
+- Clearer house notifications: low batteries, unreachable devices and security sensors say
+  which device and in which room ("Door sensor (Entrance) 8%").
+- No emoji in house notifications or in credit and budget alerts; urgent alerts on Telegram
+  start with "URGENT:".
 
 ## 1.12.0
-- Notifiche della casa, senza Claude: perdite/fumo/gas (subito, anche di notte), finestre aperte
-  con riscaldamento/condizionatore acceso o pioggia, casa vuota con porte/cancello/serrature
-  aperti, consumo alto, luci accese di notte, batterie scariche, dispositivi non raggiungibili.
-- Arrivano sull'app di Home Assistant (push con pulsanti Chiudi/Spegni), su Telegram e nelle
-  notifiche di Home Assistant, a scelta per ogni regola. Un avviso per problema, che sparisce da
-  solo quando il problema è risolto; ore di silenzio; nessuna azione senza il tuo tocco.
-- Si configurano in ⚙ Preferenze → Notifiche della casa, con entità da escludere e notifica di
-  prova.
-- Test: il popup Energia aspetta il grafico del giorno prima di provare lo scorrimento.
+- House notifications, without Claude: leaks/smoke/gas (immediately, even at night), windows
+  open with heating/air conditioning on or rain, empty house with doors/gate/locks open, high
+  consumption, lights on at night, low batteries, unreachable devices.
+- They arrive in the Home Assistant app (push with Dismiss/Turn off buttons), on Telegram and in
+  Home Assistant notifications, chosen per rule. One alert per problem, which disappears by
+  itself when the problem is solved; quiet hours; no action without your tap.
+- Configured in ⚙ Preferences → House notifications, with entities to exclude and a test
+  notification.
+- Tests: the Energy popup waits for the day's graph before testing scrolling.
 
 ## 1.11.0
-- Storico della spesa Claude: clic sul riquadro della spesa in HQ (o ⚙ Preferenze → Spesa
-  Claude). Oggi, mese, stima a fine mese, una barra per giorno (7/30/90 giorni), spesa per
-  agente e per modello con chiamate e token.
-- Nuova opzione `monthly_budget_usd`: avviso all'80% e al 100% del budget del mese, nel gruppo
-  Telegram e nelle notifiche di Home Assistant. Solo un avviso, niente si ferma.
-- La spesa di ogni chiamata a Claude è registrata per giorno, agente e modello (inclusa nel
-  backup).
+- Claude spending history: click the spending panel in HQ (or ⚙ Preferences → Claude
+  spending). Today, month, end-of-month estimate, one bar per day (7/30/90 days), spending per
+  agent and per model with calls and tokens.
+- New option `monthly_budget_usd`: alert at 80% and 100% of the monthly budget, in the Telegram
+  group and in Home Assistant notifications. Only an alert, nothing stops.
+- The cost of every Claude call is recorded per day, agent and model (included in the backup).
 
 ## 1.10.1
-- Guida completa in inglese (DOCS.en.md) e team di esempio in inglese: con la lingua
-  inglese, al primo avvio l'add-on crea agents.yaml già tradotto.
-- README del progetto in inglese (quello italiano resta in README.it.md) e presentazione
-  in inglese con screenshot della dashboard in inglese.
-- Corretto: l'etichetta "Risposta rapida" sotto i messaggi ora segue la lingua della dashboard.
-- Guida italiana: spostato al posto giusto il paragrafo "Se l'integrazione non viene rilevata".
+- Full guide in English (DOCS.en.md) and example team in English: with English as the
+  language, the add-on creates an already translated agents.yaml on first start.
+- Project README in English (the Italian one stayed in README.it.md) and presentation in
+  English with screenshots of the English dashboard.
+- Fixed: the "Quick answer" label under messages now follows the dashboard language.
+- Italian guide: the "If the integration isn't detected" paragraph moved to the right place.
 
 ## 1.10.0
-- L'add-on parla inglese: nuova opzione "Lingua" (auto = quella di Home Assistant, it, en).
-  - Jarvis e gli agenti rispondono in inglese (le istruzioni in agents.yaml possono restare
-    in italiano);
-  - registro attività, Telegram (messaggi, pulsanti, posta), notifiche ed errori in inglese;
-  - la dashboard riceve gli errori nella lingua di chi la usa, Assist risponde nella lingua
-    in cui gli parli;
-  - la voce legge unità, simboli e date in inglese ("kilowatt hours", "1 September").
-- Fuori dall'Italia le fasce energetiche partono da "tariffa unica" invece del calendario ARERA.
-- Un test controlla che ogni messaggio dell'add-on abbia la sua traduzione.
+- The add-on speaks English: new "Language" option (auto = Home Assistant's, it, en).
+  - Jarvis and the agents answer in English (the instructions in agents.yaml can stay in
+    Italian);
+  - activity log, Telegram (messages, buttons, mail), notifications and errors in English;
+  - the dashboard receives errors in its user's language, Assist answers in the language you
+    speak to it;
+  - the voice reads units, symbols and dates in English ("kilowatt hours", "1 September").
+- Outside Italy, energy time bands default to "single rate" instead of the ARERA calendar.
+- A test checks that every add-on message has its translation.
 
 ## 1.9.0
-- La dashboard parla inglese: scelta da sola in base alla lingua di Home Assistant di chi la
-  apre, o a mano in ⚙ Preferenze → Lingua. Tutti i testi (Casa, card, Energia, piantina, HQ,
-  mappa, chat, preferenze) sono tradotti; un test controlla che il dizionario resti completo.
-- Numeri, date e ore nel formato della lingua scelta; il microfono ascolta nella stessa lingua.
-- Corretto: il fumetto "Leggo la posta…" dell'assistente non compariva mai.
+- The dashboard speaks English: chosen automatically from the Home Assistant language of the
+  person opening it, or manually in ⚙ Preferences → Language. All texts (Home, cards, Energy,
+  floor plan, HQ, map, chat, preferences) are translated; a test checks that the dictionary
+  stays complete.
+- Numbers, dates and times in the chosen language's format; the microphone listens in the same
+  language.
+- Fixed: the assistant's "Reading the mail…" bubble never appeared.
 
-- Per chi sviluppa: `dev/demo.py` (HubNEX con una casa e un Claude finti), test della
-  dashboard nel browser a ogni modifica, guida CONTRIBUTING.
+- For developers: `dev/demo.py` (HubNEX with a fake house and a fake Claude), dashboard tests in
+  the browser on every change, CONTRIBUTING guide.
 
 ## 1.8.11
-- L'integrazione Assist ha la sua icona in Dispositivi e servizi (Home Assistant 2026.3 o
-  successivo).
+- The Assist integration has its own icon in Devices & services (Home Assistant 2026.3 or
+  later).
 
 ## 1.8.10
-- Integrazione Assist aggiunta a mano: niente più indirizzo predefinito della copia locale
-  (`local-hubnex`), che con l'add-on del repository è sbagliato; la finestra spiega che di
-  solito basta riavviare l'add-on e confermare "HubNEX rilevato".
+- Assist integration added manually: no more default address of the local copy
+  (`local-hubnex`), which is wrong with the repository add-on; the dialog explains that
+  restarting the add-on and confirming "HubNEX discovered" is usually enough.
 
 ## 1.8.9
-- Backup di HubNEX dalle Preferenze: un file con memoria e mappa neurale, scadenze, chat,
-  impostazioni della Casa, piantina ed energia, `agents.yaml`. Senza le opzioni dell'add-on (chiavi API, Telegram, posta).
-- Ripristino dallo stesso pannello: applicato al riavvio, che parte da solo; i file sostituiti
-  restano come `.prima-del-ripristino`. Serve anche per passare dalla copia locale all'add-on
-  del repository (vedi la documentazione).
-- Installazione e aggiornamenti molto più rapidi: Home Assistant scarica l'immagine già
-  pronta (Raspberry/ARM e PC) invece di costruire HubNEX.
-- Il repository ha i controlli automatici (test, dashboard, manifesto), moduli per le
-  segnalazioni e la pagina sulla sicurezza.
+- HubNEX backup from Preferences: one file with memory and neural map, deadlines, chat, Home
+  settings, floor plan and energy, `agents.yaml`. Without the add-on options (API keys,
+  Telegram, mail).
+- Restore from the same panel: applied on restart, which starts by itself; replaced files are
+  kept as `.prima-del-ripristino`. Also useful for moving from the local copy to the repository
+  add-on (see the documentation).
+- Much faster installation and updates: Home Assistant downloads the prebuilt image
+  (Raspberry/ARM and PC) instead of building HubNEX.
+- The repository has automatic checks (tests, dashboard, manifest), issue forms and the
+  security page.
 
 ## 1.8.8
-- Chi ha risposto nella chat è una piccola scritta nello stile di HubNEX (HOME ASSISTANT,
-  RISPOSTA RAPIDA), senza emoji.
+- Who answered in the chat is shown as a small label in HubNEX style (HOME ASSISTANT, QUICK
+  ANSWER), without emoji.
 
 ## 1.8.7
-- Dashboard e Assist seguono la strada più veloce:
-  1. dashboard: prima le frasi di Home Assistant (istantaneo, senza AI);
-  2. la via rapida per le richieste sulla casa (Haiku con l'elenco delle entità);
-  3. Jarvis con il suo modello per tutto il resto. Le domande complesse fatte ad Assist ora
-     arrivano a Jarvis, non restano su Haiku.
-- Serrature, allarme e porte non passano mai da Home Assistant o dalla via rapida: decide
-  Jarvis, con la conferma.
-- Nella chat della dashboard "⚡ Home Assistant" o "⚡ risposta rapida" dice chi ha risposto.
+- Dashboard and Assist take the fastest route:
+  1. dashboard: Home Assistant's sentences first (instant, no AI);
+  2. the quick route for house requests (Haiku with the list of entities);
+  3. Jarvis with its own model for everything else. Complex questions asked to Assist now reach
+     Jarvis instead of staying on Haiku.
+- Locks, alarm and doors never go through Home Assistant or the quick route: Jarvis decides,
+  with confirmation.
+- In the dashboard chat, "⚡ Home Assistant" or "⚡ quick answer" shows who answered.
 
 ## 1.8.6
-- Comandi vocali (Assist) più veloci:
-  - nuova opzione "Modello per i comandi vocali", di serie Haiku: Telegram e dashboard
-    restano sul modello di Jarvis;
-  - Jarvis riceve l'elenco delle entità della casa con area e stato, quindi comanda subito
-    senza cercarle e risponde alle domande sullo stato senza strumenti;
-  - istruzioni e cronologia più leggere per la voce (può sempre delegare agli agenti).
+- Faster voice commands (Assist):
+  - new option "Model for voice commands", Haiku by default: Telegram and the dashboard stay on
+    Jarvis's model;
+  - Jarvis receives the list of the house's entities with area and state, so it acts
+    immediately without looking them up and answers state questions without tools;
+  - lighter instructions and history for voice (it can still delegate to agents).
 
 ## 1.8.5
-- I popup della Casa (Energia compresa) scorrono senza la barra di scorrimento chiara, come il
-  resto di HubNEX.
+- Home popups (Energy included) scroll without the light scrollbar, like the rest of HubNEX.
 
 ## 1.8.4
-- Energia torna a essere un popup, come gli altri della barra in alto: si chiude con ×, con
-  un clic sullo sfondo o con Esc. Impostazioni invariate.
-- I popup della Casa stanno in un livello a parte: gli aggiornamenti dal vivo della casa non
-  li ridisegnano più, e un popup si aggiorna solo quando cambia ciò che mostra, senza perdere
-  lo scorrimento.
-- Nuovi colori delle fasce, ben distinti: F1 arancione, F2 blu, F3 verde. Anche "fascia
-  adesso" prende il colore della fascia in corso.
+- Energy is a popup again, like the others in the top bar: closed with ×, a click on the
+  background or Esc. Settings unchanged.
+- Home popups live in a separate layer: live house updates no longer redraw them, and a popup
+  only updates when what it shows changes, without losing the scroll position.
+- New, clearly distinct band colours: F1 orange, F2 blue, F3 green. "Current band" also takes
+  the colour of the active band.
 
 ## 1.8.3
-- Nuova opzione "Risposte a voce": completa (come prima) o riassunto. Con riassunto, quando la
-  risposta è lunga Jarvis aggiunge una o due frasi da dire a voce e la voce legge solo quelle;
-  il testo scritto resta completo. Dashboard (altoparlante acceso) e vocali di Telegram.
+- New option "Spoken answers": full (as before) or summary. With summary, when the answer is
+  long Jarvis adds one or two sentences to be spoken and the voice reads only those; the written
+  text stays complete. Dashboard (speaker on) and Telegram voice messages.
 
 ## 1.8.2
-- La voce legge un testo preparato per l'ascolto: niente simboli, emoji e link; unità e sigle
-  in parole (Ω, kW, kWh, °, MT/BT…), date per esteso, pause al posto dei trattini degli
-  elenchi. Vale per la dashboard, i vocali di Telegram e Assist.
-- Nuova opzione "Voce del motore di Home Assistant": la voce per nome (es. Rinaldo con Home
-  Assistant Cloud). La lingua è sempre quella di Home Assistant, anche senza voce scelta.
-- ElevenLabs: crediti esauriti, chiave sbagliata e piano gratuito bloccato hanno ora messaggi
-  distinti (prima tutti "chiave API non valida").
+- The voice reads text prepared for listening: no symbols, emoji or links; units and
+  abbreviations as words (Ω, kW, kWh, °, MV/LV…), dates spelled out, pauses instead of list
+  dashes. Applies to the dashboard, Telegram voice messages and Assist.
+- New option "Home Assistant engine voice": the voice by name (e.g. Rinaldo with Home Assistant
+  Cloud). The language is always Home Assistant's, even with no voice chosen.
+- ElevenLabs: exhausted credits, wrong key and blocked free plan now have distinct messages
+  (previously all "invalid API key").
 
 ## 1.8.1
-- Energia è una pagina come quelle delle stanze (← Casa per tornare), non più un popup: lo
-  scorrimento non torna in alto con gli aggiornamenti dal vivo. Anche gli editor mantengono
-  la posizione.
-- "Fuori casa" e le altre aree non toccano più la piantina.
-- Temperature delle stanze allineate qualunque sia il numero di decimali.
+- Energy is a page like the room pages (← Home to go back), no longer a popup: scrolling no
+  longer jumps to the top with live updates. Editors also keep their position.
+- "Away" and the other areas no longer affect the floor plan.
+- Room temperatures aligned regardless of the number of decimals.
 
 ## 1.8.0
-- Pannello Energia (tocca "Energia" nel cruscotto della Casa) con tre viste a scelta:
-  - il reattore: il periodo diviso per fascia F1/F2/F3 attorno alla potenza adesso;
-  - la giornata: la potenza di oggi sullo sfondo delle fasce, kWh di oggi per fascia;
-  - la bolletta: spesa, stima a fine periodo, fasce col confronto sul periodo precedente e un
-    consiglio quando una fascia cresce.
-- Configurabile da HubNEX: viste, fascia (calendario ARERA con festivi, un proprio sensore,
-  tariffa unica), kWh per fascia, prezzi o spesa, potenza e contatore, altri valori.
-- Le finestre (editor, codice, energia) si aprono sotto la barra in alto e nascondono la chat.
+- Energy panel (tap "Energy" in the Home dashboard bar) with three views to choose from:
+  - the reactor: the period split by band F1/F2/F3 around the current power;
+  - the day: today's power over the bands in the background, today's kWh per band;
+  - the bill: cost, end-of-period estimate, bands compared with the previous period, and a tip
+    when a band grows.
+- Configurable from HubNEX: views, band (ARERA calendar with holidays, your own sensor, single
+  rate), kWh per band, prices or cost, power and meter, other values.
+- Windows (editor, code, energy) open below the top bar and hide the chat.
 
 ## 1.7.5
-- Grafico a scelta: nell'editor della card su misura ogni sensore numerico ha l'interruttore
-  "grafico"; sulle card singole, in "Modifica stanza", "Togli grafico" / "Mostra grafico".
+- Optional graph: in the custom card editor every numeric sensor has a "graph" switch; on single
+  cards, in "Edit room", "Remove graph" / "Show graph".
 
 ## 1.7.4
-- Card su misura: i sensori numerici (luce, temperatura, consumo…) hanno il grafico delle
-  ultime 24 ore, come nelle card singole.
-- La linea sopra ogni entità di una card su misura si accende d'ambra quando quell'entità è
-  attiva (movimento rilevato, interruttore acceso…) e di rosso per un allarme (finestra
-  aperta, acqua, fumo).
+- Custom card: numeric sensors (light, temperature, consumption…) have the graph of the last 24
+  hours, as in single cards.
+- The line above each entity in a custom card lights up amber when that entity is active
+  (motion detected, switch on…) and red for an alarm (window open, water, smoke).
 
 ## 1.7.3
-- Card con orari: l'interruttore che li attiva (es. "automatica") conta. Acceso: "attiva fino
-  alle…" / "si attiva alle…"; spento: "automatica spenta · orari non attivi" e fascia grigia.
-- Nell'editor della card: "Gli orari valgono quando è acceso" (automatico dal nome, un
-  interruttore a scelta, o nessuno).
+- Cards with schedules: the switch that enables them (e.g. "automatic") counts. On: "active
+  until…" / "activates at…"; off: "automatic off · schedule inactive" and a grey band.
+- In the card editor: "Schedules apply when it is on" (automatic from the name, a switch of your
+  choice, or none).
 
 ## 1.7.2
-- Card su misura: gli interruttori stanno in una colonna, uno sotto l'altro con il loro nome,
-  invece di finire in fondo alle altre entità.
-- Un input_boolean (es. "automatica") non conta più come "stufa accesa/spenta": lo stato viene
-  solo da un interruttore, una luce o un termostato vero.
-- Le card della stessa riga hanno la stessa altezza, anche tra gruppi affiancati.
+- Custom card: switches sit in a column, one under the other with their name, instead of ending
+  up below the other entities.
+- An input_boolean (e.g. "automatic") no longer counts as "stove on/off": the state only comes
+  from a real switch, light or thermostat.
+- Cards in the same row have the same height, even across side-by-side groups.
 
 ## 1.7.1
-- I gruppi della stanza (Luci, Clima, Prese…) restano sempre, anche dopo aver creato una card o
-  cambiato l'ordine; non c'è più "Le mie card".
-- Ogni card su misura va in un gruppo: si sceglie nell'editor ("Gruppo"), di base quello della
-  prima entità.
-- Spostare una card (trascinando o con ‹ ›) la muove dentro il suo gruppo.
+- Room groups (Lights, Climate, Outlets…) always stay, even after creating a card or changing
+  the order; "My cards" is gone.
+- Every custom card goes into a group: chosen in the editor ("Group"), by default that of the
+  first entity.
+- Moving a card (dragging or with ‹ ›) moves it within its group.
 
 ## 1.7.0
-- Orari, numeri, liste e testi di Home Assistant (input_datetime, time, date, input_number,
-  number, input_select, select, input_text, text) si comandano dalla Casa: ora grande con
-  −15 / +15, cursore, scelta dell'opzione, campo di testo.
-- Card su misura: in "Modifica stanza" → "+ Nuova card" si compone una card con più entità
-  (es. la stufa con accensione e spegnimento, fascia della giornata e "attiva fino alle…").
-- Disposizione della stanza: card da spostare (trascinando o con ‹ ›), rinominare solo in
-  HubNEX, rendere larghe o piccole, togliere; "Ordine automatico" per tornare ai gruppi.
+- Home Assistant times, numbers, lists and texts (input_datetime, time, date, input_number,
+  number, input_select, select, input_text, text) can be controlled from the Home view: large
+  time with −15 / +15, slider, option choice, text field.
+- Custom card: in "Edit room" → "+ New card" you compose a card with several entities (e.g. the
+  stove with on and off times, the day's time band and "active until…").
+- Room layout: cards can be moved (dragging or with ‹ ›), renamed in HubNEX only, made wide or
+  small, removed; "Automatic order" to go back to groups.
 
 ## 1.6.0
-- Vista Casa più sobria, in stile Jarvis: carattere Saira, numeri sottili, stati in minuscolo,
-  card piatte e più piccole senza etichetta del tipo; una sottile linea ambra in alto quando
-  una cosa è accesa, rossa quando c'è un problema.
-- Cruscotto come una riga sottile; scene, interruttori e cursori più discreti; modalità del
-  clima e dell'allarme come parole sottolineate; "Spegni tutte" e "Sblocca" come link.
+- Plainer Home view, in Jarvis style: Saira font, thin numbers, lowercase states, flat and
+  smaller cards without a type label; a thin amber line on top when something is on, red when
+  there is a problem.
+- Dashboard bar as a thin row; scenes, switches and sliders more discreet; climate and alarm
+  modes as underlined words; "Turn all off" and "Unlock" as links.
 
 ## 1.5.1
-- Le card tornano al carattere di prima (niente testo monospaziato negli stati).
-- "Spegni tutte" non sposta più in basso le card delle luci rispetto alle sezioni accanto.
+- Cards are back to the previous font (no monospaced text in states).
+- "Turn all off" no longer pushes the light cards down relative to the neighbouring sections.
 
 ## 1.5.0
-- Vista Casa ridisegnata in stile HUD: cruscotto in alto (persone, allarme, clima, luci,
-  energia, telecamere) e scene esagonali.
-- Una card per ogni tipo di entità: luci, clima con quadrante, tapparelle, valvole, media con
-  copertina, avanzamento, comandi e volume, prese con il consumo del dispositivo, serrature,
-  allarme, porte/finestre con "da quanto", sensori con il grafico delle ultime 24 ore, persone,
-  sirene, telecamere.
-- Scheda rapida della stanza con anelli di temperatura e umidità, luci come tasti, "da tenere
-  d'occhio" e telecamera; sul telefono sale dal basso (trascina giù per chiudere, su per aprire).
-- Serrature: con codice in Home Assistant il tastierino, altrimenti conferma nella card.
-- Consumo della stanza nella pagina della stanza.
+- Home view redesigned in HUD style: dashboard bar at the top (people, alarm, climate, lights,
+  energy, cameras) and hexagonal scenes.
+- One card per entity type: lights, climate with dial, covers, valves, media with cover,
+  progress, controls and volume, outlets with the device's consumption, locks, alarm,
+  doors/windows with "how long ago", sensors with the graph of the last 24 hours, people,
+  sirens, cameras.
+- Room quick sheet with temperature and humidity rings, lights as buttons, "keep an eye on" and
+  camera; on the phone it slides up from the bottom (drag down to close, up to open).
+- Locks: with a code in Home Assistant, the keypad; otherwise confirmation in the card.
+- Room consumption on the room page.
 
 ## 1.4.2
-- Valvole (irrigazione, acqua): sezione propria con Apri / Chiudi (e Ferma, se la valvola lo
-  permette). Prima erano trattate come tapparelle e i comandi non arrivavano.
+- Valves (irrigation, water): their own section with Open / Close (and Stop, if the valve
+  allows it). Previously they were treated as covers and the commands didn't arrive.
 
 ## 1.4.1
-- Scadenze: la spunta "fatto" è centrata nel suo riquadro e allineata al testo.
+- Deadlines: the "done" checkmark is centred in its box and aligned with the text.
 
 ## 1.4.0
-- Modifica stanza: si può aggiungere qualsiasi entità di Home Assistant, anche quelle nascoste
-  (es. lettori di Music Assistant) o di diagnostica; le solite prima, con l'entity_id accanto.
-- Persone: nella Casa compare chi è a casa, chi è fuori e in quale zona.
-- Media: riproduci/pausa e volume, con titolo e artista.
+- Edit room: any Home Assistant entity can be added, including hidden ones (e.g. Music
+  Assistant players) or diagnostic ones; the usual ones first, with the entity_id next to them.
+- People: the Home view shows who is home, who is away and in which zone.
+- Media: play/pause and volume, with title and artist.
 
 ## 1.3.1
-- Nomi delle entità: se in Home Assistant hai dato degli alias a un'entità, la vista Casa
-  mostra il primo; la ricerca per aggiungere entità trova anche gli alias.
-- Documentazione: percorso consigliato per configurare tutto, nel primo avvio.
+- Entity names: if you gave an entity aliases in Home Assistant, the Home view shows the first
+  one; the search for adding entities also finds aliases.
+- Documentation: recommended path to set everything up, on first start.
 
 ## 1.3.0
-- HubNEX è visibile a tutti gli utenti di Home Assistant, non solo agli amministratori.
-- Chi non è amministratore ha solo la Casa (comandi dei dispositivi, telecamere, allarme):
-  assistente, posta, agenti, attività, costi e modifiche alla piantina restano agli
-  amministratori. Il controllo è fatto dall'add-on su ogni richiesta. Nuova opzione
-  "Utenti non amministratori" (casa / completo).
+- HubNEX is visible to all Home Assistant users, not only administrators.
+- Non-administrators only get the Home view (device controls, cameras, alarm): assistant, mail,
+  agents, activity, costs and floor plan changes remain for administrators. The check is done
+  by the add-on on every request. New option "Non-admin users" (home / full).
 
 ## 1.2.0
-- Preferenze per utente: si possono spegnere le schede HQ e Mappa (HubNEX si apre sulla Casa)
-  e l'assistente AI (niente chat, voce e approvazioni). Dentro Home Assistant valgono per
-  l'account e lo seguono su tutti i dispositivi.
+- Per-user preferences: the HQ and Map tabs can be turned off (HubNEX opens on the Home view),
+  as can the AI assistant (no chat, voice or approvals). Inside Home Assistant they apply to the
+  account and follow it across all devices.
 
 ## 1.1.0
-- Editor della piantina: carica una foto o un PDF della planimetria, sposta, ridimensiona e
-  disegna le stanze con il dito o il mouse, collega ognuna a un'area di Home Assistant.
-- "Proponi le stanze": Claude legge la planimetria e propone la disposizione da rifinire.
-- La planimetria compare in trasparenza sotto la piantina olografica.
-- Il YAML resta disponibile dal pulsante "Testo".
+- Floor plan editor: upload a photo or PDF of the floor plan, move, resize and draw rooms with a
+  finger or the mouse, link each one to a Home Assistant area.
+- "Suggest rooms": Claude reads the floor plan and suggests a layout to refine.
+- The floor plan appears transparently under the holographic map.
+- The YAML remains available from the "Text" button.
 
 ## 1.0.0
-Prima versione pubblica.
-- Assistente con team di agenti Claude configurabile in `agents.yaml` (aziende, reparti,
-  agenti, istruzioni, routine spente di default, regole permanenti).
-- Dashboard 3D: quartier generale, mappa neurale, nucleo animato durante la conversazione.
-- Vista Casa: piantina olografica delle aree di Home Assistant, scheda rapida e pagina stanza,
-  modifica delle entità (anche spostando l'area in Home Assistant), "Mostra come", telecamere
-  dal vivo, allarme con tastierino.
-- Connettori MCP per i programmi del lavoro, con conferma per ogni modifica.
-- Posta IMAP/SMTP con smistamento e bozze da approvare.
-- Gruppo Telegram con un bot per l'assistente e uno per la posta, vocali compresi.
-- Voce: integrazione Assist (agente di conversazione), ElevenLabs o sintesi vocale di Home
-  Assistant nella dashboard.
-- Stima del credito Anthropic, eventi dalle automazioni, apertura all'avvio per singolo utente.
+First public release.
+- Assistant with a team of Claude agents configurable in `agents.yaml` (companies,
+  departments, agents, instructions, routines off by default, permanent rules).
+- 3D dashboard: headquarters, neural map, animated core during the conversation.
+- Home view: holographic floor plan of Home Assistant areas, quick sheet and room page, entity
+  editing (including moving the area in Home Assistant), "Show as", live cameras, alarm with
+  keypad.
+- MCP connectors for work programs, with confirmation for every change.
+- IMAP/SMTP mail with sorting and drafts to approve.
+- Telegram group with one bot for the assistant and one for mail, voice messages included.
+- Voice: Assist integration (conversation agent), ElevenLabs or Home Assistant text-to-speech
+  in the dashboard.
+- Anthropic credit estimate, events from automations, open on startup per user.

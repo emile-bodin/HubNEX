@@ -1,74 +1,74 @@
-name: Qualcosa non funziona
-description: Un errore, un comportamento inatteso, qualcosa che si è rotto con un aggiornamento.
+name: Something doesn't work
+description: An error, unexpected behaviour, something that broke with an update.
 labels: [bug]
 body:
   - type: markdown
     attributes:
       value: |
-        Grazie della segnalazione. Prima di inviarla togli **chiavi API, token, email, indirizzi e
-        nomi** da log e schermate. Per una falla di sicurezza non aprire una segnalazione
-        pubblica: leggi [SECURITY.md](../blob/main/SECURITY.md).
+        Thanks for the report. Before sending it, remove **API keys, tokens, emails, addresses and
+        names** from logs and screenshots. For a security vulnerability do not open a public
+        issue: read [SECURITY.md](../blob/main/SECURITY.md).
   - type: textarea
     id: what
     attributes:
-      label: Cosa succede
-      description: Cosa hai fatto, cosa ti aspettavi, cosa è successo invece.
+      label: What happens
+      description: What you did, what you expected, what happened instead.
     validations:
       required: true
   - type: textarea
     id: steps
     attributes:
-      label: Come riprodurlo
+      label: How to reproduce it
       placeholder: |
-        1. Apri la vista Casa
-        2. Tocca …
+        1. Open the Home view
+        2. Tap …
         3. …
   - type: input
     id: version
     attributes:
-      label: Versione di HubNEX
-      description: In alto a sinistra nella dashboard, o nella pagina dell'add-on.
+      label: HubNEX version
+      description: Top left in the dashboard, or on the add-on page.
       placeholder: "1.9.0"
     validations:
       required: true
   - type: input
     id: ha
     attributes:
-      label: Versione di Home Assistant
+      label: Home Assistant version
       placeholder: "2026.11.0"
   - type: dropdown
     id: hardware
     attributes:
-      label: Dove gira Home Assistant
+      label: Where Home Assistant runs
       options:
         - Raspberry Pi
         - Home Assistant Green / Yellow
-        - Mini PC o PC (x86)
-        - Macchina virtuale
-        - Altro
+        - Mini PC or PC (x86)
+        - Virtual machine
+        - Other
   - type: dropdown
     id: area
     attributes:
-      label: Parte coinvolta
+      label: Part involved
       multiple: true
       options:
-        - Vista Casa / piantina
-        - Energia
-        - Assistente e agenti
-        - Voce / Assist
+        - Home view / floor plan
+        - Energy
+        - Assistant and agents
+        - Voice / Assist
         - Telegram
-        - Posta
-        - Connettori MCP
-        - Installazione / aggiornamento
-        - Altro
+        - Mail
+        - MCP connectors
+        - Installation / update
+        - Other
   - type: textarea
     id: logs
     attributes:
-      label: Log dell'add-on
-      description: Impostazioni → Componenti aggiuntivi → HubNEX → Registro. Solo le righe utili, senza dati personali.
+      label: Add-on log
+      description: Settings → Add-ons → HubNEX → Log. Only the relevant lines, without personal data.
       render: text
   - type: textarea
     id: screens
     attributes:
-      label: Schermate
-      description: Trascina qui le immagini, se aiutano.
+      label: Screenshots
+      description: Drag images here, if they help.

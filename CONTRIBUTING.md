@@ -1,22 +1,22 @@
-# Contribuire a HubNEX
+# Contributing to HubNEX
 
-Grazie dell'interesse! Segnalazioni, idee e correzioni sono benvenute. Per i problemi di
-sicurezza leggi prima [SECURITY.md](SECURITY.md).
+Thanks for your interest! Reports, ideas and fixes are welcome. For security issues, read
+[SECURITY.md](SECURITY.md) first.
 
-## Com'è fatto
+## How it's put together
 
 ```
-hubnex/                 l'add-on
-  hubnex/               il server (Python, FastAPI): assistente, agenti, Casa, energia, voce
-  web/                  la dashboard (JavaScript senza build: moduli ES, three.js)
-  integration/hubnex/   l'integrazione Assist che l'add-on installa in Home Assistant
-  config/agents.yaml    il team d'esempio
-  dev/demo.py           HubNEX con una casa e un Claude finti
-  tests/                test del server (pytest) e della dashboard (tests/ui, nel browser)
-docs/                   la presentazione (GitHub Pages)
+hubnex/                 the add-on
+  hubnex/               the server (Python, FastAPI): assistant, agents, Home, energy, voice
+  web/                  the dashboard (JavaScript without a build step: ES modules, three.js)
+  integration/hubnex/   the Assist integration the add-on installs in Home Assistant
+  config/agents.yaml    the example team
+  dev/demo.py           HubNEX with a fake house and a fake Claude
+  tests/                server tests (pytest) and dashboard tests (tests/ui, in the browser)
+docs/                   the presentation (GitHub Pages)
 ```
 
-## Provare la dashboard senza Home Assistant
+## Trying the dashboard without Home Assistant
 
 ```bash
 cd hubnex
@@ -24,40 +24,40 @@ pip install -r requirements-dev.txt
 python dev/demo.py 8765
 ```
 
-Apri <http://127.0.0.1:8765>: una casa d'esempio con stanze, luci, clima, energia, telecamere e
-un Claude finto che risponde sempre la stessa frase. Nessuna chiave API, nulla esce dal computer.
-I comandi "accendi …" e "spegni …" nella chat li esegue la casa finta.
+Open <http://127.0.0.1:8765>: an example house with rooms, lights, climate, energy, cameras and
+a fake Claude that always answers with the same sentence. No API key, nothing leaves your computer.
+The "turn on …" and "turn off …" commands in the chat are carried out by the fake house.
 
-## I test
+## Tests
 
 ```bash
 cd hubnex
 python -m pytest -q                         # server
-npm install --prefix tests/ui               # una volta: Playwright
+npm install --prefix tests/ui               # once: Playwright
 npx --prefix tests/ui playwright install chromium
-node --test tests/ui/*.test.cjs             # dashboard nel browser, contro dev/demo.py
+node --test tests/ui/*.test.cjs             # dashboard in the browser, against dev/demo.py
 ```
 
-Gli stessi controlli girano su GitHub a ogni modifica (scheda **Actions**): una modifica entra
-solo con tutto verde.
+The same checks run on GitHub for every change (**Actions** tab): a change is merged only when
+everything is green.
 
-## Lo stile
+## Style
 
-- **Python**: semplice e leggibile, funzioni brevi, docstring che spiegano il *perché*. I test
-  accompagnano ogni comportamento nuovo.
-- **Dashboard**: niente framework né build; i testi per l'utente sono in italiano (la versione
-  inglese è in arrivo), sobri, senza emoji nell'interfaccia.
-- **Niente iniziative**: HubNEX non agisce senza un ordine del proprietario. Serrature, allarme,
-  posta e scritture sui programmi di lavoro chiedono sempre conferma. Una modifica che aggira
-  questa regola non viene accettata.
-- **Nessun dato personale** nel repository: esempi, test e schermate usano la casa d'esempio.
+- **Python**: simple and readable, short functions, docstrings that explain the *why*. Tests
+  accompany every new behaviour.
+- **Dashboard**: no framework and no build step; user-facing texts are in English, plain,
+  with no emoji in the interface.
+- **No initiative**: HubNEX never acts without an order from its owner. Locks, alarm, mail and
+  writes to work programs always ask for confirmation. A change that bypasses this rule will
+  not be accepted.
+- **No personal data** in the repository: examples, tests and screenshots use the example house.
 
-## Proporre una modifica
+## Proposing a change
 
-1. Apri prima una segnalazione o un'idea, così ne parliamo.
-2. Fai un fork, un ramo con un nome chiaro, la modifica con i suoi test.
-3. Aggiorna `hubnex/CHANGELOG.md` e, se cambia il comportamento, `hubnex/DOCS.md`.
-4. Apri la pull request: descrivi cosa cambia per chi usa HubNEX.
+1. Open an issue or an idea first, so we can discuss it.
+2. Fork, create a clearly named branch, make the change together with its tests.
+3. Update `hubnex/CHANGELOG.md` and, if the behaviour changes, `hubnex/DOCS.md`.
+4. Open the pull request: describe what changes for people who use HubNEX.
 
-La versione in `hubnex/config.yaml` la aggiorna chi pubblica: ogni nuova versione costruisce le
-immagini dell'add-on.
+The version in `hubnex/config.yaml` is bumped by whoever publishes: every new version builds the
+add-on images.
