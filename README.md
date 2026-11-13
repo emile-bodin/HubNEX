@@ -2,6 +2,13 @@
 
 *English only*
 
+> [!NOTE]
+> **This is a fork.** HubNEX was created by **[P1pp89](https://github.com/P1pp89)**; the original
+> project lives at **[github.com/P1pp89/HubNEX](https://github.com/P1pp89/HubNEX)**. This fork
+> keeps the interface and documentation in English and adds its own changes on top. All credit
+> for the project goes to the original developer. If you want to support HubNEX, see
+> [Support the original developer](#support-the-original-developer) below.
+
 **The AI headquarters for home and work**, as a Home Assistant add-on.
 
 [![Checks](https://github.com/emile-bodin/HubNEX/actions/workflows/ci.yaml/badge.svg)](https://github.com/emile-bodin/HubNEX/actions/workflows/ci.yaml)
@@ -98,13 +105,19 @@ loop), `hubnex/connectors.py` and `hubnex/integrations/mcp.py` (MCP connectors),
 `hubnex/integrations/` (Home Assistant, Telegram, IMAP/SMTP, ElevenLabs), `web/` (dashboard:
 Three.js and hls.js included, it works without internet too).
 
-## Support HubNEX
+## Support the original developer
+
+> [!IMPORTANT]
+> ☕ **The donation link below goes to [P1pp89](https://github.com/P1pp89), the original author
+> of HubNEX — not to the maintainer of this fork.** Buying them a coffee supports the person who
+> built the project.
 
 HubNEX is free and open source, and it will stay that way. If it gives you back a few minutes
-every day, help keep the reactor running: **[support it on PayPal](https://www.paypal.com/donate/?hosted_button_id=HTZJULXKFP8M4)**. Every contribution
-turns into new features, more tests and faster fixes.
+every day, help keep the reactor running: **[buy the original developer a coffee on PayPal](https://www.paypal.com/donate/?hosted_button_id=HTZJULXKFP8M4)**.
+Every contribution turns into new features, more tests and faster fixes.
 
-A star on GitHub helps too: it brings HubNEX to the people who need it.
+A star on the [original repository](https://github.com/P1pp89/HubNEX) helps too: it brings
+HubNEX to the people who need it.
 
 ## Licence
 
