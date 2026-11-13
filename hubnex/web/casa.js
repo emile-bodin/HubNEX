@@ -1376,10 +1376,13 @@ export class CasaView {
         const temp = this.temp(a);
         const tag = this.lit(a) ? t("LUCE") : this.alerts(a).length ? t("APERTA") : "";
         // Name, icons and readings float upright over the room, on a thin stem from its middle.
+        // The float height follows the plan's width; rooms at the back float lower, so their
+        // label stays over their own room instead of rising off the plan.
         const p = labelPoint(r);
-        const size = small ? "small" : r.w * r.h > 1200 ? "big" : "";
+        const depth = (0.55 + 0.45 * Math.max(0, Math.min(100, p.y)) / 100).toFixed(2);
+        const size = small ? "small" : "";
         const row = small ? "" : `${this.planIcons(a)}${temp != null ? `<span class="mono">${num(temp)}<small>°</small></span>` : ""}`;
-        pins += `<div class="plan-pin ${size} ${state}" style="left:${p.x}%;top:${p.y}%" data-act="room" data-area="${a.id}" aria-hidden="true">
+        pins += `<div class="plan-pin ${size} ${state}" style="left:${p.x}%;top:${p.y}%;--d:${depth}" data-act="room" data-area="${a.id}" aria-hidden="true">
           <i class="pin-shade"></i><i class="pin-stem"></i><i class="pin-dot"></i>
           <span class="pin-bill"><span class="pin-tag"><span class="pin-head"><b>${esc(a.name)}</b>${tag && !small ? `<span class="pin-kick">${tag}</span>` : ""}</span>${row ? `<span class="pin-row">${row}</span>` : ""}</span></span></div>`;
         return `<button class="plan-room ${cls} ${tall ? "tall" : ""}" style="${geo}" data-act="room" data-area="${a.id}" aria-label="${esc(a.name)}">${shapeSVG(r)}</button>`;
