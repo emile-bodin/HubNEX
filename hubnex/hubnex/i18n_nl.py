@@ -182,4 +182,8 @@ NL: dict[str, str] = {
     "file vuoto": "leeg bestand",
     "formato non supportato: invia foto, PDF o file di testo": "formaat niet ondersteund: stuur foto's, pdf's of tekstbestanden",
     "scrivi un messaggio o allega un file": "schrijf een bericht of voeg een bestand toe",
+    "Fermato.": "Gestopt.",
+    "conversazione non trovata": "gesprek niet gevonden",
+    "Nuova conversazione: ricomincio da capo.": "Nieuw gesprek: ik begin opnieuw.",
+    "non autorizzato": "niet geautoriseerd",
 }

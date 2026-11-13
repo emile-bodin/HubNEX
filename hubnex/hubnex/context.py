@@ -10,3 +10,7 @@ CURRENT_CHAT: ContextVar[int | None] = ContextVar("current_chat", default=None)
 # (scheduled) or "event" (a Home Assistant automation). Only the owner's requests may change
 # things in the house; routines and events can look and report.
 ORIGIN: ContextVar[str] = ContextVar("origin", default="owner")
+
+# Whether the current conversation turn is spoken by Assist (voice): the built-in Home Assistant
+# tools then reach only what is exposed to Assist and refuse the voice deny-list.
+VOICE: ContextVar[bool] = ContextVar("voice", default=False)

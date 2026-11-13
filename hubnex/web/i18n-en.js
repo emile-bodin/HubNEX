@@ -801,5 +801,14 @@ export const EN = {
   "Un blocco del modello non ha trovato un'entità adatta: aggiungilo a mano.": "One block of the template found no suitable entity: add it by hand.",
   "Stile": "Style",
   "Riquadri": "Boxes",
-  "Pulito": "Clean"
+  "Pulito": "Clean",
+  "Ancora nessuna conversazione.": "No conversations yet.",
+  "Conversazione eliminata.": "Conversation deleted.",
+  "Conversazioni": "Conversations",
+  "Elimina": "Delete",
+  "Ferma la risposta": "Stop the answer",
+  "Nome della conversazione": "Name of the conversation",
+  "Nuova": "New",
+  "Nuova conversazione": "New conversation",
+  "{n} messaggi": "{n} messages"
 };

@@ -58,7 +58,11 @@ class FakeClient:
 
     def _stream(self, **kwargs):
         # Snapshot messages: the loop appends to the same list afterwards.
-        self.requests.append({**kwargs, "messages": list(kwargs["messages"])})
+        # Snapshot tools too: tool search adds to the same list mid-turn.
+        snap = {**kwargs, "messages": list(kwargs["messages"])}
+        if "tools" in kwargs:
+            snap["tools"] = list(kwargs["tools"])
+        self.requests.append(snap)
         return _Stream(self.responses.pop(0))
 
     async def _create(self, **kwargs):

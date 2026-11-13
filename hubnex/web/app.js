@@ -21,6 +21,7 @@ const S = {
   company: safeGet("hq_company"),
   selected: null,          // agent id
   speak: safeGet("hq_speak") === "1",
+  session: safeGet("hq_session") || null, // the dashboard conversation you are in
 };
 const STATUS_IT = { sleeping: t("dorme"), thinking: t("pensa"), writing: t("scrive"), working: t("lavora"), searching: t("cerca"), error: t("errore") };
 const KIND_ICON = { task: "→", result: "✓", chat: "💬", ha: "⌂", memory: "◆", deadline: "⏰", notify: "📣", error: "⚠", system: "●" };
@@ -1016,6 +1017,7 @@ $("chat-close").addEventListener("click", closeChat);
 addEventListener("keydown", (e) => {
   if (e.key !== "Escape") return;
   if (!$("agent-card").classList.contains("hidden")) return $("card-close").click();
+  if (cs.open) return toggleSessions(false);
   closeChat();
 });
 
@@ -1232,16 +1234,30 @@ async function sendChat(text, sent = []) {
   try {
     // In a room of the house view Jarvis knows where you are ("spegni qui").
     const context = S.view === "casa" ? casa.context() : "";
-    const res = await api("/api/chat", { method: "POST", body: JSON.stringify({ text: context + text, speak: !!voice, attachments: sent.map((f) => f.id), background: true }) });
-    const { reply, spoken: said, by } = await chatAnswer((await res.json()).job);
+    const body = { text: context + text, speak: !!voice, attachments: sent.map((f) => f.id), background: true, session_id: S.session || null };
+    let res;
+    try {
+      res = await api("/api/chat", { method: "POST", body: JSON.stringify(body) });
+    } catch (err) { // the conversation was deleted meanwhile: the current one takes the message
+      if (!body.session_id || !/conversa|gesprek/i.test(err.message)) throw err;
+      setSession(null);
+      res = await api("/api/chat", { method: "POST", body: JSON.stringify({ ...body, session_id: null }) });
+    }
+    const started = await res.json();
+    setSession(started.session_id);
+    cs.pending = { sid: started.session_id, wait, live: "" };
+    $("chat-stop").classList.remove("hidden");
+    const { reply, spoken: said, by } = await chatAnswer(started.job);
+    const live = cs.pending?.live;
     wait.classList.remove("pending");
     if (by === "ha" || by === "quick") { // a small note: who answered
       wait.dataset.by = by;
       wait.dataset.byLabel = by === "ha" ? "Home Assistant" : t("Risposta rapida");
     }
-    if (!talk.on) { wait.textContent = reply; return; } // conversation closed meanwhile
-    wait.textContent = "";
+    if (!talk.on || by === "stopped") { wait.textContent = reply; if (by === "stopped") { talk.on = false; orb.done(300); } return; }
     orbThought.textContent = "";
+    if (live && !voice) { wait.textContent = reply; return; } // already written while it came
+    wait.textContent = "";
     // "Risposte a voce: riassunto": the voice says the gist, the text is the whole answer
     const spoken = voice ? await speak(said || reply, wait, reply) : null;
     if (spoken === true) return;
@@ -1252,7 +1268,170 @@ async function sendChat(text, sent = []) {
     wait.textContent = "⚠ " + err.message;
     talk.on = false;
     orb.done(800);
+  } finally {
+    cs.pending = null;
+    $("chat-stop").classList.add("hidden");
+    if (cs.open) loadSessions();
   }
+}
+
+// ===================================================================== conversations (sessions)
+// Several conversations with Jarvis, each with its own memory: pick one to continue it, start a
+// new one, rename or delete it (with undo). Tool steps of a past answer show as small chips.
+const cs = { open: false, pending: null, undoTimer: 0, list: [] };
+
+function setSession(id) {
+  S.session = id || null;
+  safeSet("hq_session", S.session || "");
+}
+
+function ago(ts) {
+  const s = Math.max(0, Date.now() / 1000 - ts);
+  if (s < 60) return t("adesso");
+  if (s < 3600) return t("{n} min fa", { n: Math.round(s / 60) });
+  if (s < 86400) return t("{n} h fa", { n: Math.round(s / 3600) });
+  return new Date(ts * 1000).toLocaleDateString(LOCALE, { day: "numeric", month: "short" });
+}
+
+async function loadSessions() {
+  try {
+    const r = await (await api("/api/chat/sessions?channel=dashboard")).json();
+    cs.list = r.sessions;
+    if (!S.session || !r.sessions.some((x) => x.id === S.session)) setSession(r.active);
+    renderSessions();
+  } catch (err) {
+    $("cs-list").innerHTML = `<div class="cs-empty">⚠ ${esc(err.message)}</div>`;
+  }
+}
+
+function renderSessions() {
+  const list = $("cs-list");
+  if (!cs.list.length) { list.innerHTML = `<div class="cs-empty">${esc(t("Ancora nessuna conversazione."))}</div>`; return; }
+  list.innerHTML = cs.list.map((x) => `
+    <div class="cs-row${x.id === S.session ? " current" : ""}" data-id="${esc(x.id)}">
+      <button type="button" class="cs-open">
+        <span class="cs-title">${x.busy ? '<span class="cs-busy"></span>' : ""}${esc(x.title || t("Nuova conversazione"))}</span>
+        <span class="cs-meta">${esc(ago(x.updated))} · ${esc(t("{n} messaggi", { n: x.messages }))}</span>
+      </button>
+      <button type="button" class="mini cs-rename" title="${esc(t("Rinomina"))}" aria-label="${esc(t("Rinomina"))}">✎</button>
+      <button type="button" class="mini cs-delete" title="${esc(t("Elimina"))}" aria-label="${esc(t("Elimina"))}">🗑</button>
+    </div>`).join("");
+  list.querySelectorAll(".cs-row").forEach((row) => {
+    const id = row.dataset.id;
+    row.querySelector(".cs-open").addEventListener("click", () => openSession(id));
+    row.querySelector(".cs-rename").addEventListener("click", () => renameSession(id));
+    row.querySelector(".cs-delete").addEventListener("click", () => deleteSession(id));
+  });
+}
+
+function toggleSessions(open = !cs.open) {
+  cs.open = open;
+  $("chat-sessions").classList.toggle("hidden", !open);
+  $("sessions-btn").setAttribute("aria-expanded", String(open));
+  if (open) loadSessions();
+}
+
+function addChip(text, cls = "tool") {
+  const div = document.createElement("div");
+  div.className = `msg-chip ${cls}`;
+  div.textContent = text;
+  const log = $("chat-log");
+  const pending = cs.pending?.wait;
+  if (pending && pending.parentNode === log) log.insertBefore(div, pending); else log.appendChild(div);
+  log.scrollTop = log.scrollHeight;
+  $("chat-close").classList.remove("hidden");
+  return div;
+}
+
+function renderTranscript(events) {
+  stopTalk();
+  $("chat-log").innerHTML = "";
+  const boss = S.data?.boss?.name || "";
+  for (const e of events) {
+    if (e.kind === "text") {
+      if (e.role === "assistant" && (!e.text || e.text === "[[SILENZIO]]")) continue;
+      const div = addMsg(e.text, e.role === "user" ? "me" : "jarvis");
+      const by = e.data?.by;
+      if (by === "ha" || by === "quick") { div.dataset.by = by; div.dataset.byLabel = by === "ha" ? "Home Assistant" : t("Risposta rapida"); }
+    } else if (e.kind === "tool") {
+      addChip(describeTool(e.data?.name || e.text, boss));
+    } else if (e.kind === "tool_result" && e.data?.error) {
+      addChip("⚠ " + (e.text || "").slice(0, 140), "tool error");
+    } else if (e.kind === "notice") {
+      addChip(e.text, "notice");
+    }
+  }
+}
+
+async function openSession(id) {
+  try {
+    const r = await (await api(`/api/chat/sessions/${encodeURIComponent(id)}?activate=true&limit=200`)).json();
+    setSession(id);
+    renderTranscript(r.events);
+    toggleSessions(false);
+    $("chat-input").focus();
+  } catch (err) {
+    $("cs-list").insertAdjacentHTML("afterbegin", `<div class="cs-empty">⚠ ${esc(err.message)}</div>`);
+  }
+}
+
+async function newSession() {
+  const r = await (await api("/api/chat/sessions", { method: "POST", body: JSON.stringify({ channel: "dashboard" }) })).json();
+  setSession(r.id);
+  closeChat();
+  toggleSessions(false);
+  $("chat-input").focus();
+}
+
+async function renameSession(id) {
+  const cur = cs.list.find((x) => x.id === id);
+  const title = prompt(t("Nome della conversazione"), cur?.title || "");
+  if (!title || !title.trim()) return;
+  await api(`/api/chat/sessions/${encodeURIComponent(id)}`, { method: "PATCH", body: JSON.stringify({ title: title.trim() }) });
+  loadSessions();
+}
+
+async function deleteSession(id) {
+  await api(`/api/chat/sessions/${encodeURIComponent(id)}`, { method: "DELETE" });
+  if (id === S.session) { setSession(null); closeChat(); }
+  const bar = $("cs-undo");
+  bar.innerHTML = `<span>${esc(t("Conversazione eliminata."))}</span><button type="button" class="mini">${esc(t("Annulla"))}</button>`;
+  bar.classList.remove("hidden");
+  clearTimeout(cs.undoTimer);
+  cs.undoTimer = setTimeout(() => bar.classList.add("hidden"), 8000);
+  bar.querySelector("button").addEventListener("click", async () => {
+    clearTimeout(cs.undoTimer);
+    bar.classList.add("hidden");
+    await api(`/api/chat/sessions/${encodeURIComponent(id)}/restore`, { method: "POST" });
+    loadSessions();
+  });
+  loadSessions();
+}
+
+$("sessions-btn").addEventListener("click", () => toggleSessions());
+$("cs-new").addEventListener("click", () => newSession().catch((err) => alert(err.message)));
+$("chat-stop").addEventListener("click", async () => {
+  const sid = cs.pending?.sid;
+  if (!sid) return;
+  $("chat-stop").classList.add("hidden");
+  try { await api(`/api/chat/sessions/${encodeURIComponent(sid)}/stop`, { method: "POST" }); } catch { /* it finished meanwhile */ }
+});
+
+// Live: tool steps and the answer as it is written, for the conversation you are waiting on.
+function chatLive(ev) {
+  if (ev.type === "chat_delta") {
+    const p = cs.pending;
+    if (!p || p.sid !== ev.session || orb.state === "speaking") return;
+    p.live += ev.text;
+    p.wait.classList.remove("pending");
+    p.wait.textContent = p.live;
+    $("chat-log").scrollTop = $("chat-log").scrollHeight;
+    return;
+  }
+  if (ev.type === "chat" && cs.pending && ev.session === cs.pending.sid && ev.event.kind === "tool") {
+    addChip(describeTool(ev.event.data?.name || ev.event.text, S.data?.boss?.name || ""));
+  }
+  if (cs.open && (ev.type === "chat_sessions" || ev.type === "chat_busy")) loadSessions();
 }
 
 // Live HQ events tell the orb what Jarvis (and whoever he involves) is doing right now.
@@ -1426,6 +1605,7 @@ function handle(ev) {
     case "actions": S.data.actions = ev.actions; renderDrafts(); break;
     case "stats": S.data.stats = ev.stats; renderStats(); break;
     case "ha": case "casa_changed": casa.handle(ev); break;
+    case "chat": case "chat_delta": case "chat_busy": case "chat_sessions": chatLive(ev); break;
   }
 }
 

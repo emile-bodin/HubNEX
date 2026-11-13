@@ -57,6 +57,17 @@ class ChatIn(BaseModel):
     # The dashboard doesn't wait on one long request (a proxy may cut it after a minute or
     # two): it gets a job id at once and asks for the answer with short requests.
     background: bool = False
+    # The conversation (see /api/chat/sessions); empty: the channel's current one.
+    session_id: str | None = Field(default=None, max_length=64)
+
+
+class SessionIn(BaseModel):
+    channel: str = Field(default="dashboard", max_length=120)
+    title: str = Field(default="", max_length=120)
+
+
+class SessionRenameIn(BaseModel):
+    title: str = Field(min_length=1, max_length=120)
 
 
 class TaskIn(BaseModel):
@@ -540,14 +551,22 @@ def create_app(settings: Settings | None = None, hq: HQ | None = None, start_wor
         if not body.text.strip() and not files:
             raise HTTPException(422, tr("scrivi un messaggio o allega un file"))
 
+        try:
+            sid = await hq.session_for(body.channel, body.session_id)
+        except KeyError:
+            raise HTTPException(404, tr("conversazione non trovata"))
+
         async def answer() -> dict:
             reply, spoken, by = await hq.converse(
                 body.channel, body.text, voice=body.voice, spoken=body.speak,
-                quick=body.voice or dashboard, local=dashboard, attachments=files,
+                quick=body.voice or dashboard, local=dashboard, attachments=files, session_id=sid,
             )
             if body.voice and reply:
                 reply = for_voice(reply)  # Assist reads it aloud: units and symbols as words
-            out = {"reply": reply or tr("L'agente ha risposto direttamente nel gruppo Telegram."), "by": by}
+            if by == "stopped":
+                reply = tr("Fermato.")
+            out = {"reply": reply or tr("L'agente ha risposto direttamente nel gruppo Telegram."), "by": by,
+                   "session_id": sid}
             if spoken:
                 out["spoken"] = spoken  # what the voice says of a long answer ("riassunto")
             return out
@@ -569,7 +588,77 @@ def create_app(settings: Settings | None = None, hq: HQ | None = None, start_wor
             job["done"] = True
 
         job["task"] = asyncio.create_task(run())
-        return {"job": job_id}
+        return {"job": job_id, "session_id": sid}
+
+    # ------------------------------------------------------------- conversations (sessions)
+    # Registered before /api/chat/{job_id}, which would otherwise take "sessions" for a job id.
+    async def session_or_404(hq: HQ, sid: str, deleted: bool = False) -> dict:
+        sess = await hq.store.session_get(sid)
+        if not sess or (sess["deleted_at"] is not None) != deleted:
+            raise HTTPException(404, tr("conversazione non trovata"))
+        return sess
+
+    def session_row(hq: HQ, sess: dict, active: str | None = None) -> dict:
+        return {
+            "id": sess["id"], "channel": sess["channel"], "title": sess["title"],
+            "created": sess["created"], "updated": sess["updated"], "messages": sess["messages"],
+            "last": (sess["last"] or "")[:160], "busy": hq.session_busy(sess["id"]),
+            "active": sess["id"] == active, "deleted_at": sess["deleted_at"],
+        }
+
+    @app.get("/api/chat/sessions", dependencies=[Depends(full)])
+    async def chat_sessions(channel: str = "dashboard", trash: bool = False, limit: int = 100,
+                            hq: HQ = Depends(get_hq)):
+        """The conversations of a channel ("" for every channel), most recent first; with
+        `trash` the deleted ones that can still be brought back."""
+        active = await hq.store.session_active(channel) if channel else None
+        rows = await hq.store.sessions(channel or None, deleted=trash, limit=max(1, min(limit, 500)))
+        return {"active": active, "sessions": [session_row(hq, r, active) for r in rows]}
+
+    @app.post("/api/chat/sessions", dependencies=[Depends(full)])
+    async def chat_session_new(body: SessionIn, hq: HQ = Depends(get_hq)):
+        sid = await hq.new_session(body.channel, body.title.strip())
+        return session_row(hq, await hq.store.session_get(sid), sid)
+
+    @app.get("/api/chat/sessions/{sid}", dependencies=[Depends(full)])
+    async def chat_session(sid: str, before: int | None = None, limit: int = 200, activate: bool = False,
+                           hq: HQ = Depends(get_hq)):
+        """A conversation and its transcript (newest `limit` rows, older than `before` for
+        paging back). `activate`: it becomes its channel's current one."""
+        sess = await session_or_404(hq, sid)
+        if activate:
+            await hq.store.session_set_active(sess["channel"], sid)
+        active = await hq.store.session_active(sess["channel"])
+        rows = await hq.store.session_transcript(sid, before, max(1, min(limit, 1000)))
+        return {"session": session_row(hq, sess, active), "events": rows}
+
+    @app.patch("/api/chat/sessions/{sid}", dependencies=[Depends(full)])
+    async def chat_session_rename(sid: str, body: SessionRenameIn, hq: HQ = Depends(get_hq)):
+        sess = await session_or_404(hq, sid)
+        await hq.store.session_rename(sid, body.title)
+        hq.emit({"type": "chat_sessions", "channel": sess["channel"]})
+        return session_row(hq, await hq.store.session_get(sid))
+
+    @app.delete("/api/chat/sessions/{sid}", dependencies=[Depends(full)])
+    async def chat_session_delete(sid: str, hq: HQ = Depends(get_hq)):
+        """Into the trash: POST …/restore brings it back for chat_trash_days."""
+        sess = await session_or_404(hq, sid)
+        await hq.stop_session(sid)
+        await hq.store.session_delete(sid)
+        hq.emit({"type": "chat_sessions", "channel": sess["channel"]})
+        return {"ok": True, "trash_days": hq.settings.chat_trash_days}
+
+    @app.post("/api/chat/sessions/{sid}/restore", dependencies=[Depends(full)])
+    async def chat_session_restore(sid: str, hq: HQ = Depends(get_hq)):
+        sess = await session_or_404(hq, sid, deleted=True)
+        await hq.store.session_restore(sid)
+        hq.emit({"type": "chat_sessions", "channel": sess["channel"]})
+        return session_row(hq, await hq.store.session_get(sid))
+
+    @app.post("/api/chat/sessions/{sid}/stop", dependencies=[Depends(full)])
+    async def chat_session_stop(sid: str, hq: HQ = Depends(get_hq)):
+        await session_or_404(hq, sid)
+        return {"stopped": await hq.stop_session(sid)}
 
     @app.get("/api/chat/{job_id}", dependencies=[Depends(full)])
     async def chat_job(job_id: str):
@@ -1064,6 +1153,31 @@ def create_app(settings: Settings | None = None, hq: HQ | None = None, start_wor
             raise HTTPException(502, f"{tr('proposta non riuscita')}: {exc}")
         await hq.log("system", tr_sys("Proposta della piantina: {n} stanze riconosciute", n=len(rooms)))
         return {"rooms": rooms, "skipped": skipped}
+
+    # ------------------------------------------------------------- HubNEX as an MCP server
+    @app.post("/mcp", include_in_schema=False)
+    async def mcp(request: Request, hq: HQ = Depends(get_hq)):
+        """Streamable HTTP, JSON answers only (see mcp_server/expose.py). Off unless mcp_expose;
+        Bearer mcp_token (or the HQ token)."""
+        from hubnex.mcp_server.expose import Exposed, authorized
+
+        if not hq.settings.mcp_expose:
+            raise HTTPException(404, "Not Found")
+        if not authorized(hq, request.headers.get("authorization")):
+            raise HTTPException(401, tr("non autorizzato"), headers={"WWW-Authenticate": "Bearer"})
+        try:
+            msg = await request.json()
+        except ValueError:
+            return Response(json.dumps({"jsonrpc": "2.0", "id": None, "error": {"code": -32700, "message": "parse error"}}),
+                            status_code=400, media_type="application/json")
+        answer = await Exposed(hq).handle(msg)
+        if answer is None:
+            return Response(status_code=202)
+        return Response(json.dumps(answer, ensure_ascii=False), media_type="application/json")
+
+    @app.get("/mcp", include_in_schema=False)
+    async def mcp_stream():
+        raise HTTPException(405, "no server-sent stream: POST JSON-RPC to /mcp")
 
     @app.websocket("/ws")
     async def ws(websocket: WebSocket):
