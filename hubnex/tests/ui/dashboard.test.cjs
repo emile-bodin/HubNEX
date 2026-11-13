@@ -192,22 +192,22 @@ test("vista Casa: meteo, oggi, icone sulla piantina, elettrodomestici, ultimi ev
   await page.click("[data-act='weather']");
   await page.waitForSelector(".casa-wx-modal");
   assert.equal(await page.locator(".wx-day").count(), 6, "sei giorni di previsioni");
-  assert.match(await page.textContent(".wx-day >> nth=1"), /Domani.*Pioggia · 80%/s, "niente «pioggia» ripetuto");
+  assert.match(await page.textContent(".wx-day >> nth=1"), /Tomorrow.*Rain · 80%/s, "niente «pioggia» ripetuto");
   await page.keyboard.press("Escape");
   await page.waitForSelector(".casa-wx-modal", { state: "detached" });
   // today: the owner's deadlines, the late one first
   const today = page.locator(".hc-today");
   assert.equal(await today.count(), 4, "al massimo quattro, entro sette giorni");
-  assert.match(await today.first().textContent(), /scaduta/i);
+  assert.match(await today.first().textContent(), /overdue/i);
   // what's going on in the rooms
   assert.equal(await page.locator(".plan-room[data-area='soggiorno'] .plan-icons .pi").count(), 2, "presenza e musica");
   assert.equal(await page.locator(".plan-room[data-area='lavanderia'] .plan-icons .pi").count(), 1, "la lavatrice in funzione");
   assert.equal(await page.locator(".plan-room[data-area='cucina'] .plan-icons .pi").count(), 1, "il bollitore non ha icona");
   // appliances and recent events
   const appl = await page.textContent(".casa-right");
-  assert.match(appl, /Lavatrice.*in funzione/s);
-  assert.match(appl, /Lavastoviglie.*finito \d+ min fa/s);
-  assert.match(await page.textContent(".casa-left"), /Ultimi eventi.*Porta ingresso.*bloccata.*min fa/s);
+  assert.match(appl, /Lavatrice.*running/s);
+  assert.match(appl, /Lavastoviglie.*finished \d+ min ago/s);
+  assert.match(await page.textContent(".casa-left"), /Recent events.*Porta ingresso.*locked.*min ago/s);
   // ticking a deadline off
   await today.first().locator("[data-act='ddone']").click();
   await page.waitForFunction(() => document.querySelectorAll(".hc-today").length === 3 && !/Invio verbale/.test(document.querySelector(".casa-right").textContent));
@@ -250,7 +250,7 @@ test("card libera: si costruisce a blocchi e funziona", { timeout: 40000 }, asyn
   assert.equal(await card.locator(".fb[data-w='2'][data-h='2']").count(), 1, "il valore grande 2×2");
   // its switch works from the card
   await card.locator(".casa-switch").click();
-  await page.waitForFunction(() => /spento/.test(document.querySelector(".hc-free .k-toggle")?.textContent || ""));
+  await page.waitForFunction(() => /off/.test(document.querySelector(".hc-free .k-toggle")?.textContent || ""));
   // and it opens again in the editor
   await card.locator("[data-act='card-edit']").click();
   await page.waitForSelector(".fe-panel");
@@ -268,7 +268,7 @@ test("card libera: modello, colore secondo il valore, mostra solo se, domanda a 
   await page.click("[data-act='card-free']");
   await page.click("[data-act='fb-tpl'][data-t='stufa']");
   assert.ok(await page.locator(".fe-prev .fb").count() >= 3, "il modello ha messo i blocchi della stanza");
-  assert.equal(await page.inputValue("#fb-name"), "Stufa");
+  assert.equal(await page.inputValue("#fb-name"), "Stove");
   // above 21 the temperature turns red
   await page.click(".fe-prev .k-value");
   await page.click("[data-act='fb-rule-add']");
@@ -288,7 +288,7 @@ test("card libera: modello, colore secondo il valore, mostra solo se, domanda a 
   await page.fill("#fb-label", "Quanto pellet mi resta?");
   await page.click("[data-act='fb-save']");
   await page.waitForSelector(".fe-panel", { state: "detached" });
-  const card = page.locator(".hc-free:has-text('Stufa')");
+  const card = page.locator(".hc-free:has-text('Stove')");
   await card.waitFor();
   assert.equal(await card.locator(".k-media").count(), 0, "nascosto: l'altoparlante sta suonando");
   assert.equal(await card.locator(".k-value.tone-red").count(), 1);
@@ -315,14 +315,14 @@ test("card libera: Jarvis la compone, si esporta e si importa, valori da un elen
   await page.click("[data-act='fb-draft']");
   await page.waitForFunction(() => document.querySelectorAll(".fe-prev .fb").length >= 6, null, { timeout: 15000 });
   assert.equal(await page.inputValue("#fb-name"), "Stufa");
-  assert.match(await page.textContent(".casa-toast"), /scartato/, "l'entità inventata è stata tolta");
+  assert.match(await page.textContent(".casa-toast"), /left out/, "l'entità inventata è stata tolta");
   // a condition chosen from a translated list
   await page.click(".fe-prev .k-select");
   await page.click("[data-act='fb-show-add']");
   await page.fill("#fb-find", "automatica");
   await page.click("[data-act='fb-pick'][data-e='input_boolean.stufa_automatica']");
   const opts = await page.locator("select[data-fb='show.v'] option").allTextContents();
-  assert.ok(opts.includes("acceso") && opts.includes("spento"), opts.join(","));
+  assert.ok(opts.includes("on") && opts.includes("off"), opts.join(","));
   // export, then import it with an entity this house doesn't have
   await page.click("[data-act='fb-export']");
   const text = await page.inputValue(".fe-export");
@@ -331,7 +331,7 @@ test("card libera: Jarvis la compone, si esporta e si importa, valori da un elen
   await page.click("[data-act='card-import']");
   await page.fill("#fb-paste", text.replace("input_select.stufa_modo", "input_select.altra_casa"));
   await page.click("[data-act='fb-import']");
-  await page.waitForFunction(() => /sceglila tu/.test(document.querySelector(".casa-toast")?.textContent || ""));
+  await page.waitForFunction(() => /choose it yourself/.test(document.querySelector(".casa-toast")?.textContent || ""));
   assert.equal(await page.locator(".fe-prev .fb.sel").count(), 1, "il blocco senza entità è già selezionato");
   await page.click("[data-act='fb-close']");
   await done(page);
@@ -364,11 +364,11 @@ test("card scorta: pellet con giorni rimasti, −1 caricato, consegna e soglia",
   await page.click(".casa-quick [data-act='open']");
   const card = page.locator(".hc-stock");
   await card.waitFor();
-  await page.waitForFunction(() => /circa \d+ giorni/.test(document.querySelector(".hc-stock")?.textContent || ""));
-  assert.match(await card.textContent(), /7\s*sacchi.*al giorno.*ultima consegna/s);
+  await page.waitForFunction(() => /about \d+ days/.test(document.querySelector(".hc-stock")?.textContent || ""));
+  assert.match(await card.textContent(), /7\s*sacchi.*a day.*last delivery/s);
   for (let i = 0; i < 2; i++) { await card.locator("[data-act='stock-use']").click(); await page.waitForTimeout(250); }
   await page.waitForFunction(() => document.querySelector(".hc-stock.low") && /5\s*sacchi/.test(document.querySelector(".hc-stock").textContent));
-  assert.match(await page.textContent(".hc-stock"), /Da ordinare/i);
+  assert.match(await page.textContent(".hc-stock"), /To order/i);
   await page.locator(".hc-stock [data-act='stock-add']").click();
   await page.waitForFunction(() => /20\s*sacchi/.test(document.querySelector(".hc-stock")?.textContent || "") && !document.querySelector(".hc-stock.low"));
   // the owner's numbers: a delivery of 10, warn below 25
@@ -387,7 +387,7 @@ test("card: robot con mappa, telecamera composta live con i sensori, media compl
   await page.locator("[data-area='corridoio']").first().click();
   await page.click(".casa-quick [data-act='open']");
   await page.waitForSelector(".hc-vacuum");
-  assert.match(await page.textContent(".hc-vacuum"), /pulisce/);
+  assert.match(await page.textContent(".hc-vacuum"), /cleaning/);
   assert.equal(await page.locator(".hc-vacuum .hc-vmap img[data-cam='image.robot_mappa']").count(), 1, "la mappa");
   assert.equal(await page.locator(".hc-vacuum [data-act='vac'][data-s='pause']").count(), 1, "pausa mentre pulisce");
   await page.click("[data-act='home']");
@@ -527,7 +527,7 @@ test("spesa Claude: dalla scheda in HQ, per giorno, agente e modello", { timeout
   assert.equal(await page.locator(".costs-bar").count(), 30, "una barra per giorno");
   assert.match(await page.textContent(".costs"), /Jarvis Mail/);
   assert.match(await page.textContent(".costs"), /claude-haiku-5-5/);
-  assert.match(await page.textContent(".costs-budget"), /\$15,00/, "il budget della demo");
+  assert.match(await page.textContent(".costs-budget"), /\$15\.00/, "il budget della demo");
   await page.click("[data-span='7']");
   await page.waitForFunction(() => document.querySelectorAll(".costs-bar").length === 7);
   await page.keyboard.press("Escape");
@@ -555,10 +555,10 @@ test("notifiche della casa: regole, canali, prova", { timeout: 30000 }, async ()
   assert.match(await page.textContent(".al-active"), /Finestra camera/, "la finestra aperta col riscaldamento");
   assert.match(await page.textContent(".al-phones"), /Pixel 9/);
   await page.click("[data-al-on='night']");
-  await page.waitForSelector(".al-note:has-text('Salvato')");
+  await page.waitForSelector(".al-note:has-text('Saved')");
   assert.ok(await page.locator("[data-al-on='night']").evaluate((b) => !b.classList.contains("on")), "regola spenta e salvata");
   await page.click("[data-al-test]");
-  await page.waitForFunction(() => /Prova inviata/.test(document.querySelector(".al-note").textContent));
+  await page.waitForFunction(() => /Test sent/.test(document.querySelector(".al-note").textContent));
   await page.keyboard.press("Escape");
   assert.equal(await page.locator(".alerts-modal").count(), 0);
   await done(page);
