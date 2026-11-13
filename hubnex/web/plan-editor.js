@@ -64,6 +64,13 @@ export const shapeBody = (r, html) => {
   const b = innerRect(localPoints(r));
   return `<span class="plan-body" style="left:${b.x}%;top:${b.y}%;width:${b.w}%;height:${b.h}%">${html}</span>`;
 };
+// Where a room's floating label stands (plan %): its middle, or for a shaped room the middle of
+// the largest rectangle inside it, so an L-shaped hall never gets a label over the wall.
+export const labelPoint = (r) => {
+  if (!r.points) return { x: r.x + r.w / 2, y: r.y + r.h / 2 };
+  const b = innerRect(localPoints(r));
+  return { x: r.x + ((b.x + b.w / 2) / 100) * r.w, y: r.y + ((b.y + b.h / 2) / 100) * r.h };
+};
 
 export class PlanEditor {
   constructor({ api, token, onSaved, onText, toast }) {
