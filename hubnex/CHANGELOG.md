@@ -1,5 +1,9 @@
 # Changelog
 
+## 1.24.1.c
+- Floor plan: smaller floating room labels, and their float height follows the plan's size.
+  Rooms at the back float lower, so a label stays over its own room and off the floor tabs.
+
 ## 1.24.1.b
 - Floor plan: the floating room labels stay upright in 3D over a plan drawing too (the
   drawing's blend mode made the browser lay them flat), with the sizes of the approved design.

@@ -1,4 +1,4 @@
 """HubNEX."""
 
 # Keep in sync with config.yaml (a test checks it).
-__version__ = "1.24.1.b"
+__version__ = "1.24.1.c"
