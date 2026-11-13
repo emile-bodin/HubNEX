@@ -392,3 +392,19 @@ def test_mail_ignore_list(settings):
     assert desk.ignored("Banca <NoReply@banca.it>")
     assert not desk.ignored("Mario Rossi <mario@negozio.it>")
     assert not desk.ignored("cliente@newsletter.it.example.com")
+
+
+def test_ha_mcp_in_agents_yaml(tmp_path):
+    from hubnex.config import load_org
+
+    base = "companies:\n  - id: c\n    departments: [{id: d}]\n    agents:\n      - {id: a, department: d, ha_mcp: %s}\n"
+    for raw, want in (("none", []), ("false", []), ("all", None), ("[read, camera]", ["read", "camera"]),
+                      ("'control, read'", ["control", "read"])):
+        f = tmp_path / "a.yaml"
+        f.write_text(base % raw, encoding="utf-8")
+        assert load_org(str(f)).ha_mcp("a") == want, raw
+    f.write_text("boss: {ha_mcp: [read]}\n" + base % "[read]", encoding="utf-8")
+    assert load_org(str(f)).ha_mcp("jarvis") == ["read"]
+    f.write_text(base % "[lights]", encoding="utf-8")
+    with pytest.raises(ValueError, match="lights"):
+        load_org(str(f))

@@ -7,7 +7,8 @@ actions.py).
 
 One connector is built in: "casa", Home Assistant through the tools ported from brAIn's MCP
 server (mcp_server/), answered inside HubNEX. It is on when Home Assistant is configured and
-ha_mcp_enabled is, with the groups, agents and confirmations of the add-on page.
+ha_mcp_enabled is, with the groups, agents and confirmations of the add-on page. An agent's
+`ha_mcp:` in agents.yaml narrows the groups it gets (Sentinel: read and camera, no control).
 """
 
 from __future__ import annotations
@@ -161,7 +162,25 @@ class Connectors:
 
     def has_casa(self, agent_id: str) -> bool:
         c = self.items.get(CASA)
-        return bool(c and c.spec.allows(agent_id))
+        return bool(c and self._allows(c, agent_id))
+
+    def _casa_groups(self, agent_id: str) -> set[str] | None:
+        """The casa groups this agent's `ha_mcp:` keeps; None = all the page switched on."""
+        groups = self.hq.org.ha_mcp(agent_id)
+        return None if groups is None else set(groups) & set(self.hq.settings.ha_mcp_groups)
+
+    def _allows(self, c: Connector, agent_id: str) -> bool:
+        if not c.spec.allows(agent_id):
+            return False
+        return not c.builtin or self._casa_groups(agent_id) != set()
+
+    def _agent_tools(self, c: Connector, agent_id: str) -> dict[str, ConnectorTool]:
+        groups = self._casa_groups(agent_id) if c.builtin else None
+        if groups is None:
+            return c.tools
+        from hubnex.mcp_server.catalog import GROUP_OF
+
+        return {k: t for k, t in c.tools.items() if GROUP_OF.get(t.name) in groups}
 
     async def close(self) -> None:
         for c in self.items.values():
@@ -208,10 +227,10 @@ class Connectors:
     async def tools_for(self, agent_id: str) -> dict[str, ConnectorTool]:
         out: dict[str, ConnectorTool] = {}
         for c in self.items.values():
-            if not c.spec.allows(agent_id):
+            if not self._allows(c, agent_id):
                 continue
             await self._load(c)
-            out.update(c.tools)
+            out.update(self._agent_tools(c, agent_id))
         return out
 
     def instructions_for(self, agent_id: str) -> str:
@@ -221,7 +240,7 @@ class Connectors:
         parts = []
         for c in self.items.values():
             text = (getattr(c.client, "instructions", "") or "").strip()
-            if text and c.spec.allows(agent_id) and c.tools:
+            if text and self._allows(c, agent_id) and self._agent_tools(c, agent_id):
                 parts.append(f"[{c.spec.name}] {text}")
         return "\n\nStrumenti dei connettori (MCP):\n" + "\n".join(parts) if parts else ""
 
