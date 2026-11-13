@@ -1,5 +1,10 @@
 # Changelog
 
+## 1.24.1
+- Floor plan: each room's name, icons and temperature float upright above the room on a
+  see-through card, on a thin stem from its middle, for more depth. Larger rooms float higher;
+  a lit room turns amber, an open one red.
+
 ## 1.24.0
 - Home Assistant tools per agent: `ha_mcp:` in `agents.yaml` picks the groups of the built-in
   "casa" tools an agent gets (`[read, camera]`, `none`, or every group on the add-on page when
