@@ -174,7 +174,7 @@ async def test_rooms_follow_areas_with_the_owners_adjustments(make_hq):
 
 def test_layout_is_checked_before_saving(tmp_path):
     assert parse_layout(LAYOUT)["floors"][0]["rooms"][0]["outline"] is True
-    with pytest.raises(LayoutError, match="fuori dal disegno"):
+    with pytest.raises(LayoutError, match="outside the drawing"):
         parse_layout("floors: [{rooms: [{area: X, x: 90, y: 0, w: 20, h: 10}]}]")
     with pytest.raises(LayoutError, match="serve 'area'"):
         parse_layout("floors: [{rooms: [{x: 0, y: 0, w: 20, h: 10}]}]")
@@ -258,9 +258,9 @@ async def test_live_changes_reach_the_dashboard(make_hq):
 
 
 def test_layout_mistakes_are_explained_and_hand_edits_picked_up(make_hq, tmp_path):
-    with pytest.raises(LayoutError, match="chiave sconosciuta: plan"):
+    with pytest.raises(LayoutError, match="unknown key: plan"):
         parse_layout("plan:\n  - {area: X, x: 0, y: 0, w: 10, h: 10}")
-    with pytest.raises(LayoutError, match="nessun piano"):
+    with pytest.raises(LayoutError, match="no floor"):
         parse_layout("outside: [Giardino]")
     # Italian keys and a single floor without "floors:" are fine.
     assert parse_layout("piani:\n  - nome: Terra\n    stanze:\n      - {area: X, x: 0, y: 0, w: 10, h: 10}")["floors"][0]["name"] == "Terra"
@@ -356,7 +356,7 @@ def test_plan_images_are_trimmed_and_pdfs_rendered():
     assert jpg[:2] == b"\xff\xd8" and 0.9 < aspect < 1.1  # only the square drawing is left
     jpg, aspect = plan_image(_plan_png("PDF"))
     assert jpg[:2] == b"\xff\xd8" and 0.9 < aspect < 1.1
-    with pytest.raises(LayoutError, match="formato"):
+    with pytest.raises(LayoutError, match="format not recognised"):
         plan_image(b"not an image")
 
 
@@ -642,7 +642,7 @@ def test_energy_panel_config_and_live_data(settings, make_hq):
         hq.casa.ha = hq.watcher = w
         w.states["sensor.f1"] = st("sensor.f1", "52.6", unit_of_measurement="kWh", last_period="70", last_reset="2026-09-01T00:00:00+02:00", meter_period="bimonthly")
         w.states["sensor.w"] = st("sensor.w", "560", unit_of_measurement="W")
-        cfg = client.post("/api/casa/energy/config", json={"views": ["bill", "reactor"], "bands": {"F1": "sensor.f1", "F2": "sensor.nessuno"}, "power": "sensor.w", "readouts": ["sensor.nessuno"]}).json()
+        cfg = client.post("/api/casa/energy/config", json={"views": ["bill", "reactor"], "band_mode": "arera", "bands": {"F1": "sensor.f1", "F2": "sensor.nessuno"}, "power": "sensor.w", "readouts": ["sensor.nessuno"]}).json()
         assert cfg["bands"] == {"F1": "sensor.f1"} and cfg["readouts"] == [] and cfg["views"] == ["bill", "reactor"]  # unknown entities dropped
         view = client.get("/api/casa").json()
         assert view["energy_panel"]["power"] == "sensor.w" and view["states"]["sensor.f1"]["a"]["last_period"] == "70"

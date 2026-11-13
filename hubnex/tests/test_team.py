@@ -57,7 +57,7 @@ def test_mail_agent_uses_mail_model_and_haiku_rules(make_hq):
     hq = make_hq([response([text_block("Nessuna email nuova.")], "end_turn")])
     hq.settings.model_mail = "claude-haiku-5-5"
     assert hq.model_for(hq.org.agent("mail")) == "claude-haiku-5-5"
-    assert hq.model_for(hq.org.agent("tecnico")) == hq.settings.model == "claude-sonnet-5-5"
+    assert hq.model_for(hq.org.agent("technical")) == hq.settings.model == "claude-sonnet-5-5"
     assert hq._tool_defs(["web_search"], "claude-haiku-5-5")[0]["type"] == "web_search_20250305"
     assert hq._tool_defs(["web_search"], "claude-sonnet-5-5")[0]["type"] == "web_search_20260209"
 
@@ -68,22 +68,22 @@ async def test_web_searches_per_request_are_set_per_agent(make_hq, tmp_path):
 
     from hubnex.config import load_org
 
-    data = yaml.safe_load(open("config/agents.yaml"))
+    data = yaml.safe_load(open("config/agents.yaml", encoding="utf-8"))
     data["boss"]["max_searches"] = 2
-    tecnico = next(a for c in data["companies"] for a in c["agents"] if a["id"] == "tecnico")
+    tecnico = next(a for c in data["companies"] for a in c["agents"] if a["id"] == "technical")
     tecnico["max_searches"] = 3
     path = tmp_path / "agents.yaml"
-    path.write_text(yaml.safe_dump(data, allow_unicode=True))
+    path.write_text(yaml.safe_dump(data, allow_unicode=True), encoding="utf-8")
     hq = make_hq([response([text_block("ok")], "end_turn")] * 2)
     hq.org = load_org(str(path))
-    assert await hq.run_agent("tecnico", "cerca") == "ok"
+    assert await hq.run_agent("technical", "cerca") == "ok"
     tools = {t["name"]: t for t in hq.client.requests[0]["tools"]}
     assert tools["web_search"]["max_uses"] == 3 and tools["web_fetch"]["max_uses"] == 5
     await hq.chat("dashboard", "cerca")
     assert next(t for t in hq.client.requests[1]["tools"] if t["name"] == "web_search")["max_uses"] == 2
     assert hq.org.agent("mail").max_searches == 5  # not set: as before
     tecnico["max_searches"] = 0
-    path.write_text(yaml.safe_dump(data, allow_unicode=True))
+    path.write_text(yaml.safe_dump(data, allow_unicode=True), encoding="utf-8")
     with pytest.raises(ValueError, match="max_searches"):
         load_org(str(path))
 
@@ -91,7 +91,7 @@ async def test_web_searches_per_request_are_set_per_agent(make_hq, tmp_path):
 async def test_haiku_requests_have_no_server_fallback(make_hq):
     hq = make_hq([response([text_block("ok")], "end_turn"), response([text_block("ok")], "end_turn")])
     await hq.run_agent("mail", "Ci sono email?")
-    await hq.run_agent("tecnico", "Che norma vale per gli idranti?")
+    await hq.run_agent("technical", "Che norma vale per gli idranti?")
     haiku, sonnet = hq.client.requests
     assert haiku["model"] == "claude-haiku-5-5" and "fallbacks" not in haiku
     assert sonnet["model"] == "claude-sonnet-5-5" and sonnet["fallbacks"] == "default"
@@ -124,7 +124,7 @@ async def test_draft_needs_two_clicks_to_send(make_hq):
     msg = await desk.propose_draft(42, "Veniamo giovedì.", False)
     assert "NON è stata inviata" in msg
     post = team.posts[-1]
-    assert post["agent"] == "mail" and "BOZZA #1" in post["text"]
+    assert post["agent"] == "mail" and "DRAFT #1" in post["text"]
     assert [b[1] for b in post["buttons"][0]] == ["d:1:ask", "d:1:save"]
 
     toasts, edits = [], []
@@ -144,7 +144,7 @@ async def test_draft_needs_two_clicks_to_send(make_hq):
     assert (await hq.store.draft(1))["status"] == "sent"
     assert team.buttons[-1][1] is None  # buttons removed
     await desk.draft_action(1, "send", answer, edit)
-    assert len(desk.client.sent) == 1 and toasts[-1] == "Bozza non più attiva"
+    assert len(desk.client.sent) == 1 and toasts[-1] == "Draft no longer active"
 
 
 async def test_mail_check_baseline_then_announces_new_mail(make_hq):
@@ -187,10 +187,10 @@ async def test_agents_without_a_bot_speak_through_jarvis(make_hq, settings):
     team.apps = {"jarvis": NS(bot=Bot()), "mail": NS(bot=Bot())}
 
     await team.post("mail", "Nuova email")
-    await team.post("tecnico", "Piano del giorno")
+    await team.post("technical", "Piano del giorno")
     await team.post(None, "Buongiorno")
     assert team.apps["mail"].bot.sent == ["Nuova email"]
-    assert team.apps["jarvis"].bot.sent == ["Jarvis Tecnico:\nPiano del giorno", "Buongiorno"]
+    assert team.apps["jarvis"].bot.sent == ["Jarvis Technical:\nPiano del giorno", "Buongiorno"]
 
 
 async def test_two_simultaneous_clicks_send_only_once(make_hq):
@@ -231,7 +231,7 @@ def test_dashboard_drafts_api(settings, make_hq):
         assert client.post("/api/drafts/1/send").status_code == 409  # replaced, not sendable
         assert client.post("/api/drafts/2/bogus").status_code == 422
         r = client.post("/api/drafts/2/send")
-        assert r.status_code == 200 and "inviata" in r.json()["note"]
+        assert r.status_code == 200 and "sent at" in r.json()["note"]
         assert len(desk.client.sent) == 1
         assert client.post("/api/drafts/2/send").status_code == 409
         assert client.get("/api/state").json()["drafts"] == []

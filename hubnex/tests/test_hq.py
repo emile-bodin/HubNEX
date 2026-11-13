@@ -15,8 +15,8 @@ def test_org_chart_loads():
     from hubnex.config import load_org
 
     org = load_org("config/agents.yaml")
-    assert {c.id for c in org.companies} == {"casa", "lavoro"}
-    assert org.agent("contabile").department == "amministrazione"
+    assert {c.id for c in org.companies} == {"home", "work"}
+    assert org.agent("accountant").department == "admin"
 
 
 def test_intervals_and_daily_routines():
@@ -45,12 +45,12 @@ async def test_agent_runs_tools_and_reports(make_hq):
         ]
     )
     events = hq.subscribe()
-    result = await hq.run_agent("contabile", "Ricorda che l'IVA è trimestrale")
+    result = await hq.run_agent("accountant", "Ricorda che l'IVA è trimestrale")
 
     assert result == "Fatto: ho salvato la periodicità IVA."
-    assert hq.agents["contabile"].status == "sleeping"
-    assert hq.agents["contabile"].done == 1
-    assert (await hq.store.recall("IVA", "lavoro"))[0]["content"] == "trimestrale"
+    assert hq.agents["accountant"].status == "sleeping"
+    assert hq.agents["accountant"].done == 1
+    assert (await hq.store.recall("IVA", "work"))[0]["content"] == "trimestrale"
 
     # The tool result went back to Claude in a single user message after the assistant turn.
     second = hq.client.requests[1]["messages"]
@@ -73,7 +73,7 @@ async def test_tools_outside_agent_allowlist_are_refused(make_hq):
             response([text_block("Non posso.")], "end_turn"),
         ]
     )
-    await hq.run_agent("sentinella", "Apri la porta")
+    await hq.run_agent("sentinel", "Apri la porta")
     result = hq.client.requests[1]["messages"][-1]["content"][0]
     assert result["is_error"] is True
     assert "non disponibile" in result["content"]
@@ -91,7 +91,7 @@ async def test_blocked_ha_services_never_reach_home_assistant():
 async def test_jarvis_delegates_and_keeps_chat_history(make_hq):
     hq = make_hq(
         [
-            response([tool_block("delegate", {"agent_id": "commerciale", "task": "Prepara un preventivo", "wait": True})], "tool_use"),
+            response([tool_block("delegate", {"agent_id": "sales", "task": "Prepara un preventivo", "wait": True})], "tool_use"),
             response([text_block("Ecco il preventivo!")], "end_turn"),  # commerciale
             response([text_block("Il preventivo è pronto, signore.")], "end_turn"),  # jarvis
             response([text_block("Prego.")], "end_turn"),
@@ -99,7 +99,7 @@ async def test_jarvis_delegates_and_keeps_chat_history(make_hq):
     )
     reply = await hq.chat("test", "Fammi un preventivo")
     assert reply == "Il preventivo è pronto, signore."
-    assert hq.agents["commerciale"].last_result == "Ecco il preventivo!"
+    assert hq.agents["sales"].last_result == "Ecco il preventivo!"
 
     await hq.chat("test", "Grazie")
     msgs = hq.client.requests[-1]["messages"]
@@ -143,7 +143,7 @@ def test_api_post_endpoints_read_json_bodies(settings, make_hq):
         r = client.post("/api/deadlines", json={"title": "F24", "due": "2026-11-16"})
         assert r.status_code == 200
         assert client.post("/api/deadlines", json={"title": "x", "due": "domani"}).status_code == 422
-        r = client.post("/api/agents/contabile/task", json={"task": "Controlla le scadenze", "wait": True})
+        r = client.post("/api/agents/accountant/task", json={"task": "Controlla le scadenze", "wait": True})
         assert r.json() == {"result": "Scadenza registrata."}
         assert client.post("/api/agents/nessuno/task", json={"task": "x"}).status_code == 404
         assert client.get("/api/state").json()["deadlines"][0]["title"] == "F24"
@@ -210,7 +210,7 @@ async def test_routines_are_off_unless_switched_on(make_hq):
     org = load_org("config/agents.yaml")
     assert all(not r.enabled for a in org.agents for r in a.routines)  # shipped switched off
     hq = make_hq([])
-    hq.org.agent("maggiordomo").routines = [Routine(task="spento", at="00:00"), Routine(task="acceso", at="00:00", enabled=True)]
+    hq.org.agent("butler").routines = [Routine(task="spento", at="00:00"), Routine(task="acceso", at="00:00", enabled=True)]
     fired = []
     sched = Scheduler(hq)
     sched._last_at.clear()  # pretend the slot hasn't passed yet today
@@ -238,13 +238,13 @@ async def test_routines_and_events_cannot_act_on_the_house(make_hq, settings):
         ]
     )
     hq.ha = FakeHA()
-    hq.run_agent_background("maggiordomo", "Controllo serale", source="routine", report=False)
+    hq.run_agent_background("butler", "Controllo serale", source="routine", report=False)
     await asyncio.gather(*hq._background)
     result = hq.client.requests[1]["messages"][-1]["content"][0]
     assert result["is_error"] and "non l'ha chiesto" in result["content"]
     assert calls == []
     # The same agent, asked by the owner, can do it.
-    await hq.run_agent("maggiordomo", "Spegni la luce del salotto")
+    await hq.run_agent("butler", "Spegni la luce del salotto")
     assert calls == [("light", "turn_off")]
 
 
@@ -258,7 +258,7 @@ async def test_owner_rules_bind_the_whole_team(make_hq):
     )
     await hq.chat("dashboard", "D'ora in poi niente iniziative senza un mio ordine")
     assert hq.rules == ["Nessuna iniziativa senza un mio ordine esplicito."]
-    await hq.run_agent("maggiordomo", "Che luci sono accese?")
+    await hq.run_agent("butler", "Che luci sono accese?")
     assert "1. Nessuna iniziativa senza un mio ordine esplicito." in hq.client.requests[2]["system"]
     await hq.load()  # survives a restart
     assert hq.rules == ["Nessuna iniziativa senza un mio ordine esplicito."]

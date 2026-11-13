@@ -30,7 +30,7 @@ async def test_spend_is_booked_per_day_agent_and_model(make_hq):
     assert c["today"] == round(2 * sonnet + haiku, 4)
     agents = {a["id"]: a for a in c["by_agent"]}
     assert agents["jarvis"]["calls"] == 2 and agents["jarvis"]["tokens_in"] == 2000
-    assert agents["plan"]["name"] == "Proposta della piantina"
+    assert agents["plan"]["name"] == "Floor plan proposal"
     assert c["by_agent"][0]["id"] == "jarvis"  # most expensive first
     assert {m["id"] for m in c["by_model"]} == {"claude-sonnet-5-5", "claude-haiku-5-5"}
     assert abs(c["month"]["spent"] - (2 * sonnet + 2 * haiku)) < 1e-6
@@ -67,7 +67,7 @@ async def test_budget_warns_once_at_80_and_once_at_100(make_hq, settings):
     assert len(team.posts) == 1 and "80%" in team.posts[0]["text"]
     await hq.on_usage(usage(100_000, 0), "claude-sonnet-5-5", "jarvis")  # 1.00 $
     await hq.on_usage(usage(100_000, 0), "claude-sonnet-5-5", "jarvis")
-    assert len(team.posts) == 2 and "superato" in team.posts[1]["text"]
+    assert len(team.posts) == 2 and "exceeded" in team.posts[1]["text"]
     assert calls == ["hubnex_budget", "hubnex_budget"]
     at(hq, datetime(2026, 12, 1, 9, 0))  # a new month starts from zero
     await hq.on_usage(usage(10, 0), "claude-sonnet-5-5", "jarvis")
@@ -76,6 +76,6 @@ async def test_budget_warns_once_at_80_and_once_at_100(make_hq, settings):
 
 async def test_agent_calls_are_booked_to_that_agent(make_hq):
     hq = make_hq([response([text_block("Fatto.")], "end_turn")])
-    await hq.run_agent("contabile", "controlla le scadenze", source="user")
+    await hq.run_agent("accountant", "controlla le scadenze", source="user")
     c = await hq.costs(1)
-    assert [a["id"] for a in c["by_agent"]] == ["contabile"]
+    assert [a["id"] for a in c["by_agent"]] == ["accountant"]

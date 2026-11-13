@@ -6,21 +6,21 @@ from hubnex.main import create_app
 
 async def test_graph_links_knowledge_to_agents_and_shared_keywords(make_hq):
     hq = make_hq([])
-    await hq.store.remember("lavoro", "Listino caldaie", "Prezzi caldaie a condensazione fornitore Bianchi", "commerciale")
-    await hq.store.remember("lavoro", "Manutenzione caldaie", "Controllo annuale caldaie cliente condominio", "tecnico")
+    await hq.store.remember("work", "Listino caldaie", "Prezzi caldaie a condensazione fornitore Bianchi", "sales")
+    await hq.store.remember("work", "Manutenzione caldaie", "Controllo annuale caldaie cliente condominio", "technical")
     await hq.store.remember("global", "Preferenza", "Il signore preferisce risposte brevi")  # no author
-    did = await hq.store.deadline_add("Revisione caldaie condominio", "2026-11-20", "lavoro", "tecnico")
-    tid = await hq.store.task_start("tecnico", "Verifica norma caldaie", "user")
+    did = await hq.store.deadline_add("Revisione caldaie condominio", "2026-11-20", "work", "technical")
+    tid = await hq.store.task_start("technical", "Verifica norma caldaie", "user")
     await hq.store.task_finish(tid, "done", "Controllo semestrale obbligatorio")
 
     g = await build_graph(hq)
     ids = {n["id"] for n in g["nodes"]}
     edges = {(l["source"], l["target"]) for l in g["links"]}
 
-    assert {"jarvis", "c:lavoro", "d:lavoro/commerciale", "a:mail"} <= ids
-    assert ("a:commerciale", "m:1") in edges and ("a:tecnico", "m:2") in edges
+    assert {"jarvis", "c:work", "d:work/sales", "a:mail"} <= ids
+    assert ("a:sales", "m:1") in edges and ("a:technical", "m:2") in edges
     assert ("jarvis", "m:3") in edges  # global memory without author hangs off Jarvis
-    assert ("a:tecnico", f"s:{did}") in edges and ("a:tecnico", f"t:{tid}") in edges
+    assert ("a:technical", f"s:{did}") in edges and ("a:technical", f"t:{tid}") in edges
     # "caldaie" appears everywhere -> a keyword that ties the knowledge together
     assert "k:caldaie" in ids
     assert {("m:1", "k:caldaie"), ("m:2", "k:caldaie"), (f"s:{did}", "k:caldaie")} <= edges

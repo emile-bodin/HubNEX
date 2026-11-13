@@ -54,17 +54,17 @@ def test_pdfs_text_and_unsupported_files(tmp_path):
     doc = files.save(pdf(3), "computo.pdf", "application/pdf")
     assert (doc.kind, doc.pages) == ("pdf", 3)
     txt = files.save("Voce;Quantità\nCalcestruzzo;12".encode("cp1252"), "misure.csv", "text/csv")
-    assert txt.kind == "text" and "Quantità" in files.path(txt).read_text()
-    with pytest.raises(AttachmentError, match="formato non supportato"):
+    assert txt.kind == "text" and "Quantità" in files.path(txt).read_text(encoding="utf-8")
+    with pytest.raises(AttachmentError, match="format not supported"):
         files.save(b"PK\x03\x04 a zip", "progetto.dwg", "application/octet-stream")
-    with pytest.raises(AttachmentError, match="danneggiato"):
+    with pytest.raises(AttachmentError, match="damaged"):
         files.save(b"%PDF-1.7 broken", "rotto.pdf")
-    with pytest.raises(AttachmentError, match="vuoto"):
+    with pytest.raises(AttachmentError, match="empty file"):
         files.save(b"", "x.jpg")
     blocks = files.blocks([doc, txt])
     assert [b["type"] for b in blocks] == ["text", "document", "text", "document"]
     assert blocks[1]["source"]["media_type"] == "application/pdf"
-    assert blocks[3]["source"] == {"type": "text", "media_type": "text/plain", "data": files.path(txt).read_text()}
+    assert blocks[3]["source"] == {"type": "text", "media_type": "text/plain", "data": files.path(txt).read_text(encoding="utf-8")}
     assert note([doc]) == f"[Allegati: #{doc.id} «computo.pdf» (PDF, 3 pag.)]"
 
 
@@ -79,7 +79,7 @@ async def test_jarvis_sees_the_photo_once_and_hands_it_to_the_agent(make_hq):
     hq = make_hq([])
     att = hq.attachments.save(photo(), "crepa.jpg", "image/jpeg")
     hq.client.responses = [
-        response([tool_block("delegate", {"agent_id": "tecnico", "task": "Valuta la crepa", "allegati": [att.id]})], "tool_use"),
+        response([tool_block("delegate", {"agent_id": "technical", "task": "Valuta la crepa", "allegati": [att.id]})], "tool_use"),
         response([text_block("Crepa superficiale.")], "end_turn"),  # tecnico
         response([text_block("Nulla di grave, signore.")], "end_turn"),  # jarvis
         response([text_block("Prego.")], "end_turn"),
@@ -103,7 +103,7 @@ async def test_jarvis_sees_the_photo_once_and_hands_it_to_the_agent(make_hq):
 
 async def test_only_files_and_unknown_ids(make_hq):
     hq = make_hq([
-        response([tool_block("delegate", {"agent_id": "tecnico", "task": "x", "allegati": ["deadbeef"]})], "tool_use"),
+        response([tool_block("delegate", {"agent_id": "technical", "task": "x", "allegati": ["deadbeef"]})], "tool_use"),
         response([text_block("Cosa devo guardare?")], "end_turn"),
     ])
     att = hq.attachments.save(pdf(1), "verbale.pdf")
@@ -121,7 +121,7 @@ async def test_an_agent_can_look_at_an_attachment_again(make_hq):
         response([tool_block("view_attachment", {"id": att.id})], "tool_use"),
         response([text_block("Il quadro è in ordine.")], "end_turn"),
     ]
-    assert await hq.run_agent("tecnico", "Com'era il quadro elettrico?") == "Il quadro è in ordine."
+    assert await hq.run_agent("technical", "Com'era il quadro elettrico?") == "Il quadro è in ordine."
     result = hq.client.requests[1]["messages"][-1]["content"][0]
     assert result["type"] == "tool_result" and kinds(result["content"]) == ["text", "image"]
 
@@ -153,7 +153,7 @@ async def test_telegram_album_goes_to_whoever_it_is_for(make_hq, settings, monke
     settings.telegram_chat_id = "-100"
     team = tg.TelegramTeam.__new__(tg.TelegramTeam)
     team.settings, team.hq, team._albums = settings, make_hq([]), {}
-    team.apps = {"jarvis": NS(bot=NS(id=1, username="jarvis_bot")), "tecnico": NS(bot=NS(id=2, username="tecnico_bot"))}
+    team.apps = {"jarvis": NS(bot=NS(id=1, username="jarvis_bot")), "technical": NS(bot=NS(id=2, username="tecnico_bot"))}
     team.allowed = lambda update: True
     delivered = []
 
@@ -171,8 +171,8 @@ async def test_telegram_album_goes_to_whoever_it_is_for(make_hq, settings, monke
         return NS(effective_message=msg, effective_chat=chat)
 
     album = [update("@tecnico_bot guarda le fondazioni"), update(), update()]
-    for key in ("jarvis", "tecnico"):
+    for key in ("jarvis", "technical"):
         for u in album:
             await team._file_handler(key)(u, NS(bot=team.apps[key].bot))
     await asyncio.sleep(0.2)
-    assert delivered == [("tecnico", "guarda le fondazioni", 3)]
+    assert delivered == [("technical", "guarda le fondazioni", 3)]

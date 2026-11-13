@@ -62,9 +62,9 @@ def setup(make_hq, agents=None, token="segreto"):
 
 
 def test_config_and_rules():
-    specs = _connectors([{"name": "Gestionale", "url": "https://x/mcp", "token": "t", "agents": ["boss", "tecnico"], "free": ["crea_bozza"]}])
+    specs = _connectors([{"name": "Gestionale", "url": "https://x/mcp", "token": "t", "agents": ["boss", "technical"], "free": ["crea_bozza"]}])
     s = specs[0]
-    assert s.headers() == {"Authorization": "Bearer t"} and s.allows("jarvis") and s.allows("tecnico") and not s.allows("mail")
+    assert s.headers() == {"Authorization": "Bearer t"} and s.allows("jarvis") and s.allows("technical") and not s.allows("mail")
     assert _connectors([{"name": "X", "url": "https://x"}])[0].allows("mail")  # no list: everybody
     with pytest.raises(ValueError, match="confirm"):
         _connectors([{"name": "X", "url": "https://x", "confirm": "forse"}])
@@ -98,10 +98,10 @@ async def test_agents_read_freely_and_changes_wait_for_confirmation(make_hq):
 
 
 async def test_connectors_only_for_the_listed_agents_and_errors_are_shown(make_hq):
-    hq, fake, _ = setup(make_hq, agents=["tecnico"])
+    hq, fake, _ = setup(make_hq, agents=["technical"])
     assert await hq.connectors.tools_for("jarvis") == {}
-    assert "gestionale__crea_memo" in await hq.connectors.tools_for("tecnico")
+    assert "gestionale__crea_memo" in await hq.connectors.tools_for("technical")
 
     hq, fake, _ = setup(make_hq, token="sbagliato")
     assert await hq.connectors.tools_for("jarvis") == {}
-    assert "accesso negato" in (await hq.connectors.status())[0]
+    assert "access denied" in (await hq.connectors.status())[0]

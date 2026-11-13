@@ -16,7 +16,7 @@ async def test_backup_moves_everything_to_another_installation(tmp_path):
     old_db, old_cfg = tmp_path / "old" / "hubnex.db", tmp_path / "old" / "config"
     old_cfg.mkdir(parents=True)
     store = Store(str(old_db))
-    await store.remember("lavoro", "Cliente", "Il cliente chiede il preventivo a marzo", "tecnico")
+    await store.remember("work", "Cliente", "Il cliente chiede il preventivo a marzo", "technical")
     await store.put("casa_adjust", {"names": {"light.x": "Faretti"}})
     (old_cfg / "agents.yaml").write_text("boss: {name: Jarvis}\n")
     (old_cfg / "casa.yaml").write_text("floors: []\n")
@@ -60,13 +60,13 @@ def test_bad_backups_are_refused(tmp_path):
     manifest = json.dumps({"app": "hubnex"})
     with pytest.raises(BackupError, match="zip"):
         stage_restore(b"not a zip", db)
-    with pytest.raises(BackupError, match="manifesto"):
+    with pytest.raises(BackupError, match="manifest missing"):
         stage_restore(_zip({"config/agents.yaml": "x"}), db)
-    with pytest.raises(BackupError, match="inatteso"):
+    with pytest.raises(BackupError, match="unexpected file"):
         stage_restore(_zip({"manifest.json": manifest, "config/../../etc/passwd": "x"}), db)
-    with pytest.raises(BackupError, match="inatteso"):
+    with pytest.raises(BackupError, match="unexpected file"):
         stage_restore(_zip({"manifest.json": manifest, "altro/file": "x"}), db)
-    with pytest.raises(BackupError, match="danneggiato"):
+    with pytest.raises(BackupError, match="damaged"):
         stage_restore(_zip({"manifest.json": manifest, "db/hubnex.db": "non è sqlite"}), db)
     assert not (tmp_path / "restore-pending").exists()
 

@@ -66,8 +66,8 @@ async def test_window_open_with_heating_waits_then_warns_then_clears(house):
     at(6)
     await hq.alerts.tick()
     [push] = pushes(calls)
-    assert push[2]["title"] == "Finestre aperte"
-    assert "Finestra cucina" in push[2]["message"] and "riscaldamento" in push[2]["message"]
+    assert push[2]["title"] == "Windows open"
+    assert "Finestra cucina" in push[2]["message"] and "heating" in push[2]["message"]
     assert push[2]["data"]["tag"] == "hubnex_windows"
     assert len(team.posts) == 1
     at(7)
@@ -92,7 +92,7 @@ async def test_leak_warns_at_once_even_in_quiet_hours(house):
     hq.watcher.states["binary_sensor.perdita_lavatrice"]["state"] = "on"
     await hq.alerts.tick()
     [push] = pushes(calls)
-    assert "Perdita d'acqua" in push[2]["title"] and "Lavatrice" in push[2]["message"]
+    assert "Water leak" in push[2]["title"] and "Lavatrice" in push[2]["message"]
     assert push[2]["data"]["priority"] == "high"
     assert any(c[:2] == ("persistent_notification", "create") for c in calls)
 
@@ -120,7 +120,7 @@ async def test_nobody_home_lock_open_and_the_close_button(house):
     await hq.alerts.tick()
     [push] = pushes(calls)
     [button] = push[2]["data"]["actions"]
-    assert button["title"] == "Chiudi" and button["action"].startswith("HUBNEX_")
+    assert button["title"] == "Close" and button["action"].startswith("HUBNEX_")
     assert team.posts[-1]["buttons"][0][0][1].startswith("h:")
     # pressed on the phone: Home Assistant sends the event, HubNEX locks
     await hq._ha_event("app_action", button["action"], {"action": button["action"]})
@@ -163,7 +163,7 @@ async def test_power_above_the_threshold(house):
     at(11)
     await hq.alerts.tick()
     [push] = pushes(calls)
-    assert "3,4 kW" in push[2]["message"]
+    assert "3.4 kW" in push[2]["message"]
 
 
 async def test_excluded_entities_and_switched_off_rules(house):
@@ -221,7 +221,7 @@ async def test_no_emoji_in_the_messages(house):
     hq.watcher.states["binary_sensor.perdita_lavatrice"]["state"] = "on"
     await hq.alerts.tick()
     texts = [team.posts[-1]["text"]] + [c[2]["title"] + c[2]["message"] for c in pushes(calls)]
-    assert team.posts[-1]["text"].startswith("URGENTE: Perdita d'acqua")
+    assert team.posts[-1]["text"].startswith("URGENT: Water leak")
     assert all(ch.isascii() or ch.isalpha() or ch in "àèéìòù'’ " for t in texts for ch in t)
 
 
@@ -234,7 +234,7 @@ async def test_pellet_below_the_threshold_asks_to_reorder_once(house):
     hq.watcher.states["counter.carico_pellet"] = st("5", name="Carico pellet")
     await hq.alerts.tick()
     [push] = pushes(calls)
-    assert "Carico pellet: ne restano 5, sotto la soglia di 5" in push[2]["message"]
+    assert "Carico pellet: 5 left, below the threshold of 5" in push[2]["message"]
     hq.watcher.states["counter.carico_pellet"] = st("4", name="Carico pellet")
     at(30)
     await hq.alerts.tick()
